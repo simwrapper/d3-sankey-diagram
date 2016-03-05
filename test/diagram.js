@@ -17,12 +17,22 @@ test('diagram', t => {
   el
     .datum({nodes: nodes, edges: edges})
     .call(diagram);
+  flushAnimationFrames();
 
   t.equal(el.selectAll('.node')[0].length, 21,
           'right number of nodes');
 
   t.equal(el.selectAll('.link')[0].length, 26,
           'right number of links');
+
+  // update
+  const h0 = +el.select('.node').select('rect').attr('height');
+
+  edges.forEach(e => { e.value *= 1.1; });
+  el.call(diagram);
+  flushAnimationFrames();
+  const h1 = +el.select('.node rect').attr('height');
+  t.ok(h1 > h0, 'height updates');
 
   t.end();
 });
@@ -55,3 +65,12 @@ function exampleBlastFurnace() {
 
   return {nodes, edges};
 }
+
+
+/* Make animations synchronous for testing */
+var flushAnimationFrames = function() {
+  var now = Date.now;
+  Date.now = function() { return Infinity; };
+  d3.timer.flush();
+  Date.now = now;
+};
