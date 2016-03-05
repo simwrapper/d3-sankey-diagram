@@ -1,4 +1,4 @@
-import sankeyLink from 'lib/link';
+import sankeyLink from '../src/link';
 
 import { Graph } from 'graphlib';
 import test from 'prova';

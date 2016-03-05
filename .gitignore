@@ -1,3 +1,7 @@
+/lib
+
+.tern-port
+/docs
 
 # Created by https://www.gitignore.io/api/node,linux
 
@@ -50,5 +54,3 @@ jspm_packages
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
 
-.tern-port
-/docs

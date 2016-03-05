@@ -42,7 +42,7 @@ export default function sankeyDiagram() {
 
   var node = sankeyNode()
         .visibility(pprop('nodeStyle', 'visibility'))
-        .nodeTitle(d => { console.log('nodeTitle', d); return d.id });
+        .nodeTitle(d => d.id);
         // .nodeTitle(pprop('nodeMetadata', 'title'));
 
   /* Layout helper functions */
