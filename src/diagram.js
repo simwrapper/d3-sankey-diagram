@@ -103,7 +103,7 @@ export default function sankeyDiagram() {
         G = datum.graph;
       } else {
         G = createGraph(datum.nodes || [], datum.edges || []);
-        assignRanks(G, []);
+        assignRanks(G, datum.rankSets || []);
         addDummyNodes(G);
       }
 
