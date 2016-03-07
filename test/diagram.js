@@ -6,7 +6,7 @@ import test from 'prova';
 
 test('diagram', t => {
   // prepare data
-  const {nodes, edges} = exampleBlastFurnace();
+  const {processes, flows} = exampleBlastFurnace();
 
   // diagram
 
@@ -15,7 +15,7 @@ test('diagram', t => {
   const el = d3.select('body').append('div');
 
   el
-    .datum({nodes: nodes, edges: edges})
+    .datum({processes, flows})
     .call(diagram);
   flushAnimationFrames();
 
@@ -28,7 +28,7 @@ test('diagram', t => {
   // update
   const h0 = +el.select('.node').select('rect').attr('height');
 
-  edges.forEach(e => { e.value *= 1.1; });
+  flows.forEach(e => { e.value *= 1.1; });
   el.call(diagram);
   flushAnimationFrames();
   const h1 = +el.select('.node rect').attr('height');
@@ -40,10 +40,10 @@ test('diagram', t => {
 
 function exampleBlastFurnace() {
   // Simplified example of flows through coke oven and blast furnace
-  const nodes = [
+  const processes = [
   ];
 
-  const edges = [
+  const flows = [
     // main flow
     {source: 'input', target: 'oven', value: 2.5},
     {source: 'oven', target: 'coke', value: 2.5},
@@ -63,7 +63,7 @@ function exampleBlastFurnace() {
     {source: 'bf', target: 'input', value: 0.5},
   ];
 
-  return {nodes, edges};
+  return {processes, flows};
 }
 
 

@@ -1,12 +1,6 @@
 // The reusable SVG component for the sliced Sankey diagram
-import ordering from 'sankey-layout/lib/node-ordering';
-import justified from 'sankey-layout/lib/node-positioning/justified';
-import orderEdges from 'sankey-layout/lib/edge-ordering';
-import flowLayout from 'sankey-layout/lib/edge-positioning';
 
-import addDummyNodes from 'sankey-layout/lib/add-dummy-nodes';
-import assignRanks from 'sankey-layout/lib/rank-assignment';
-import { createGraph } from 'sankey-layout/lib/utils';
+import { sankeyLayout } from 'sankey-layout';
 
 import sankeyLink from './link';
 import sankeyNode from './node';
@@ -32,11 +26,11 @@ export default function sankeyDiagram() {
 
   var svg;
 
-  var nodeLayout = justified()
-        .whitespace(0.5)
-        .separation(nodeSeparation),
-      edgeLayout = flowLayout(),
-      path = sankeyLink();
+  const layout = sankeyLayout()
+          .whitespace(0.5)
+          .separation(nodeSeparation);
+
+  const path = sankeyLink();
 
   const format = d3.format('.3s');
 
@@ -88,71 +82,40 @@ export default function sankeyDiagram() {
 
       // Update dimensions
       svg.attr({width: width, height: height});
-
       svg.select('.sankey')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
       svg.select('.slice-titles')
         .attr('transform', 'translate(' + margin.left + ',0)');
 
       /* Do Sankey layout */
       if (!datum) return;
+      layout.size([chartW, chartH]);
+      layout(datum.flows || [], datum.processes || [], datum.rankSets || []);
 
-      let G;
-      if (datum.graph) {
-        G = datum.graph;
-      } else {
-        G = createGraph(datum.nodes || [], datum.edges || []);
-        assignRanks(G, datum.rankSets || []);
-        addDummyNodes(G);
-      }
-
-      // var getNodeOrder = pprop('nodeLayoutHints', 'order'),
-      //     getBandOrder = pprop('bandLayoutHints', 'order'),
-      //     getNodeOffstage = pprop('nodeLayoutHints', 'offstage'),
-      //     getNodeReversed = pprop('nodeLayoutHints', 'reversed');
-
-      // Calculate ranks (for now, from node attributes) and ordering within
-      // ranks, if not supplied.
-      let order = datum.order;
-      if (!order) {
-        order = ordering(G);
-      }
-
-      // Don't worry about scale: either caller of diagram has calculated in
-      // advance and already set it, or else nodeLayout will calculate it for
-      // current data now.
-
-      // Position nodes
-      nodeLayout
-        .size([chartW, chartH]);
-      let nodes = nodeLayout(G, order);
-
-      // Order and position edges
-      orderEdges(G);
-      let edges = edgeLayout(G);
-
-      /* Render links */
-      updateLinks(edges);
+      /* Render */
+      updateNodes(layout.nodes());
+      updateLinks(layout.links());
       // updateSlices(layout.slices(nodes));
 
-      /* Update nodes */
-      var nodeSel = svg.select('.nodes').selectAll('.node')
-            .data(nodes, function(d) { return d.id; });
+      ////////////// Update function //////////////////
 
-      var nodeEnter = nodeSel.enter()
-            .append('g')
-            .classed('node', true)
-            // .classed('offstage', getNodeOffstage)
-            .on('click', selectNode);
+      function updateNodes(nodes) {
+        var nodeSel = svg.select('.nodes').selectAll('.node')
+              .data(nodes, function(d) { return d.id; });
 
-      nodeSel
-        .call(node)
-        .attr('class', d => `node node-type-${(d.data || {}).style || 'default'}`
-              + (d.id === selectedNode ? ' selected' : ''));
+        var nodeEnter = nodeSel.enter()
+              .append('g')
+              .classed('node', true)
+        // .classed('offstage', getNodeOffstage)
+              .on('click', selectNode);
 
-      nodeSel.exit().remove();
+        nodeSel
+          .call(node)
+          .attr('class', d => `node node-type-${(d.data || {}).style || 'default'}`
+                + (d.id === selectedNode ? ' selected' : ''));
 
+        nodeSel.exit().remove();
+      }
 
       function updateLinks(edges) {
         var link = svg.select('.links').selectAll('.link')
@@ -318,8 +281,8 @@ export default function sankeyDiagram() {
   };
 
   exports.edgeValue = function(_x) {
-    if (!arguments.length) return nodeLayout.edgeValue();
-    nodeLayout.edgeValue(_x);
+    if (!arguments.length) return layout.edgeValue();
+    layout.edgeValue(_x);
     return this;
   };
 
