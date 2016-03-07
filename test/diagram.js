@@ -4,7 +4,7 @@ import d3 from 'd3';
 import test from 'prova';
 
 
-test('diagram', t => {
+test('diagram: renders something and updates', t => {
   // prepare data
   const {processes, flows} = exampleBlastFurnace();
 
@@ -38,6 +38,26 @@ test('diagram', t => {
 });
 
 
+test('diagram: materials', t => {
+  const {processes, flows} = exampleMaterials();
+  const diagram = sankeyDiagram();
+  const el = d3.select('body').append('div');
+
+  el
+    .datum({processes, flows})
+    .call(diagram);
+  flushAnimationFrames();
+
+  t.equal(el.selectAll('.node')[0].length, 4,
+          'right number of nodes');
+
+  t.equal(el.selectAll('.link')[0].length, 5,
+          'right number of links');
+
+  t.end();
+});
+
+
 function exampleBlastFurnace() {
   // Simplified example of flows through coke oven and blast furnace
   const processes = [
@@ -61,6 +81,22 @@ function exampleBlastFurnace() {
     // return loops
     {source: 'oven', target: 'input', value: 0.5},
     {source: 'bf', target: 'input', value: 0.5},
+  ];
+
+  return {processes, flows};
+}
+
+
+function exampleMaterials() {
+  const processes = [
+  ];
+
+  const flows = [
+    {source: 'a', target: 'b', value: 2, material: 'x'},
+    {source: 'a', target: 'b', value: 2, material: 'y'},
+    {source: 'b', target: 'c', value: 1, material: 'x'},
+    {source: 'b', target: 'c', value: 2, material: 'y'},
+    {source: 'b', target: 'd', value: 1, material: 'x'},
   ];
 
   return {processes, flows};
