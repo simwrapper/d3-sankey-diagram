@@ -1,6 +1,5 @@
-import sankeyLink from '../src/link';
+import sankeyLink from '../src/linkPath';
 
-import { Graph } from 'graphlib';
 import test from 'prova';
 
 import { assertAlmostEqual } from './assert-almost-equal';

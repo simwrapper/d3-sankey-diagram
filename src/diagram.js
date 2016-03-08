@@ -11,74 +11,36 @@ import {Graph} from 'graphlib';
 
 export default function sankeyDiagram() {
 
-  var margin = {top: 100, right: 100, bottom: 100, left: 100},
+  let margin = {top: 100, right: 100, bottom: 100, left: 100},
       width = 500,
-      height = 500,
-      showIds = false,
-      ease = 'cubic-in-out';
+      height = 500;
 
-  var presentation = {},
-      index = 0,
-      scale = null;
+  let linkColor = (d => null),
+      linkOpacity = (d => null),
+      materialTitle = (d => d.data.material);
 
-  var selectedNode = null,
+  let selectedNode = null,
       selectedEdge = null;
-
-  var svg;
 
   const layout = sankeyLayout()
           .whitespace(0.5)
           .separation(nodeSeparation);
 
-  const path = sankeyLink();
-
   const format = d3.format('.3s');
 
-  var node = sankeyNode()
-        .visibility(pprop('nodeStyle', 'visibility'))
-        .nodeTitle(d => d.id);
-        // .nodeTitle(pprop('nodeMetadata', 'title'));
-
-  /* Layout helper functions */
-
-  // Helper function to access presentation
-  function pprop(func, k) {
-    if (typeof presentation[func] === 'function') {
-      if (k === undefined) {
-        return function(d) {
-          return presentation[func](d.data);
-        };
-      } else {
-        return function(d) {
-          return presentation[func](d.data)[k];
-        };
-      }
-    } else {
-      return function() {
-        return null;
-      };
-    }
-  }
+  const node = sankeyNode(),
+        link = sankeyLink()
+          .linkTitle(linkTitle);
 
   /* Main chart */
 
   var dispatch = d3.dispatch('selectNode', 'selectEdge');
-  function exports(_selection, relayout=true) {
+  function exports(_selection) {
     _selection.each(function(datum) {
 
-      /* Setup SVG */
-      var chartW = width - margin.left - margin.right,
-          chartH = height - margin.top - margin.bottom;
-
-      const svg = d3.select(this).selectAll('svg').data([datum]);
-
       // Create the skeleton, if it doesn't already exist
-      const gEnter = svg.enter().append('svg')
-              .append('g')
-              .classed('sankey', true);
-      gEnter.append('g').classed('links', true);  // Links below nodes
-      gEnter.append('g').classed('nodes', true);
-      gEnter.append('g').classed('slice-titles', true);  // Slice titles
+      const svg = d3.select(this).selectAll('svg').data([datum]);
+      createGroups(svg);
 
       // Update dimensions
       svg.attr({width: width, height: height});
@@ -87,166 +49,131 @@ export default function sankeyDiagram() {
       svg.select('.slice-titles')
         .attr('transform', 'translate(' + margin.left + ',0)');
 
-      /* Do Sankey layout */
+      // Do Sankey layout
       if (!datum) return;
-      layout.size([chartW, chartH]);
+      layout.size([width - margin.left - margin.right,
+                   height - margin.top - margin.bottom]);
       layout(datum.flows || [], datum.processes || [], datum.rankSets || []);
 
-      /* Render */
-      updateNodes(layout.nodes());
-      updateLinks(layout.links());
-      // updateSlices(layout.slices(nodes));
+      // Render
+      updateNodes(svg, layout.nodes());
+      updateLinks(svg, layout.links());
+      // updateSlices(svg, layout.slices(nodes));
 
-      ////////////// Update function //////////////////
-
-      function updateNodes(nodes) {
-        var nodeSel = svg.select('.nodes').selectAll('.node')
-              .data(nodes, function(d) { return d.id; });
-
-        var nodeEnter = nodeSel.enter()
-              .append('g')
-              .classed('node', true)
-        // .classed('offstage', getNodeOffstage)
-              .on('click', selectNode);
-
-        nodeSel
-          .call(node)
-          .attr('class', d => `node node-type-${(d.data || {}).style || 'default'}`
-                + (d.id === selectedNode ? ' selected' : ''));
-
-        nodeSel.exit().remove();
-      }
-
-      function updateLinks(edges) {
-        var link = svg.select('.links').selectAll('.link')
-              .data(edges, d => d.id);
-
-        var linkEnter = link.enter();
-        linkEnter.append('path')
-          .attr('class', 'link')
-          .attr('d', path)
-          .style('fill', pprop('edgeStyle', 'fill'))
-          .style('opacity', pprop('edgeStyle', 'opacity'))
-          .style('visibility', pprop('edgeStyle', 'visibility'))
-          .each(function(d) { this._current = d; }) // store initial values
-          .sort(linkOrder)
-          .on('click', selectEdge)
-          .append('title');
-
-        // Update
-        link.transition().ease('linear')
-          .style('fill', pprop('edgeStyle', 'fill'))
-          .style('opacity', pprop('edgeStyle', 'opacity'))
-          .style('visibility', pprop('edgeStyle', 'visibility'))
-          .attrTween('d', tweenLink);
-
-        let metaTitle = pprop('nodeMetadata', 'title');
-            // edgeValue = layout.edgeValue();
-        link.select('title')
-          .text(function(d) {
-            const parts = [];
-            // if (d.title) parts.push(d.title);
-            const sourceTitle = d.source ? metaTitle(d.source) : 'elsewhere',
-                  targetTitle = d.target ? metaTitle(d.target) : 'elsewhere';
-            parts.push(`${sourceTitle} → ${targetTitle}`);
-            if (d.title) parts.push(d.title);
-            else if (d.material) parts.push(d.material);
-            // parts.push(format(d._value !== undefined ? d._value : edgeValue(d)));
-            return parts.join('\n');
-          });
-
-        link.classed('selected', (d) => d.id === selectedEdge);
-
-        link.sort(linkOrder);
-
-        link.exit()
-          .remove();
-      }
-
-      // Store the displayed state in _current.
-      // Then, interpolate from _current to the new state.
-      // During the transition, _current is updated in-place by d3.interpolate.
-      function tweenLink(b) {
-        var i = d3.interpolate(this._current, {
-          x0: b.x0,
-          y0: b.y0,
-          x1: b.x1,
-          y1: b.y1,
-          dy: b.dy,
-          r0: b.r0,
-          r1: b.r1,
-        });
-        this._current = i(0);
-        return function(t) {
-          var link = i(t);
-          //link.source = {direction: b.source ? b.source.direction : 'r' };
-          //link.target = {direction: b.target ? b.target.direction : 'r' };
-          return path(i(t));
-        };
-      }
-
-      function updateSlices(slices) {
-        var slice = svg.select('.slice-titles').selectAll('.slice')
-            .data(slices, function(d) { return d.id; });
-
-        var textWidth = (slices.length > 1 ?
-                         0.9 * (slices[1].x - slices[0].x) :
-                         null);
-
-        slice.enter().append('g')
-          .attr('class', 'slice')
-          .append('foreignObject')
-          .attr('requiredFeatures',
-                'http://www.w3.org/TR/SVG11/feature#Extensibility')
-          .attr('height', margin.top)
-          .attr('class', 'title')
-          .append('xhtml:div')
-          .style('text-align', 'center')
-          .style('word-wrap', 'break-word')
-          .text(pprop('sliceMetadata', 'title'));
-
-        slice
-          .attr('transform', function(d) {
-            return 'translate(' + (d.x - textWidth / 2) + ',0)'; })
-          .select('foreignObject')
-          .attr('width', textWidth)
-          .select('div')
-          .text(pprop('sliceMetadata', 'title'));
-
-        slice.exit().remove();
-      }
-
-      function linkOrder(a, b) {
-        // var f = style('edges', 'zIndex');
-        // return (f(a) || 0) - (f(b) || 0);
-        if (a.id === selectedEdge) return +1;
-        if (b.id === selectedEdge) return -1;
-        if (!a.source || a.target && a.target.direction === 'd') return -1;
-        if (!b.source || b.target && b.target.direction === 'd') return +1;
-        if (!a.target || a.source && a.source.direction === 'd') return -1;
-        if (!b.target || b.source && b.source.direction === 'd') return +1;
-        return a.dy - b.dy;
-      }
-
-      /* Events */
+      // Events
       svg.on('click', function() {
         dispatch.selectNode.call(this, null);
         dispatch.selectEdge.call(this, null);
       });
 
-      function selectEdge(d) {
-        d3.event.stopPropagation();
-        var el = d3.select(this)[0][0];
-        dispatch.selectEdge.call(el, d);
-      }
-
-      function selectNode(d) {
-        d3.event.stopPropagation();
-        var el = d3.select(this)[0][0];
-        dispatch.selectNode.call(el, d);
-      }
-
     });
+  }
+
+  function updateNodes(svg, nodes) {
+    var nodeSel = svg.select('.nodes').selectAll('.node')
+          .data(nodes, d => d.id);
+
+    nodeSel.enter()
+      .append('g')
+      .classed('node', true)
+    // .classed('offstage', getNodeOffstage)
+      .on('click', selectNode);
+
+    nodeSel
+      .call(node)
+      .attr('class', d => `node node-type-${(d.data || {}).style || 'default'}`
+            + (d.id === selectedNode ? ' selected' : ''));
+
+    nodeSel.exit().remove();
+  }
+
+  function updateLinks(svg, edges) {
+    var linkSel = svg.select('.links').selectAll('.link')
+          .data(edges, d => d.id);
+
+    linkSel.enter()
+      .append('path')
+      .attr('class', 'link')
+      .style('fill', linkColor)
+      .style('opacity', linkOpacity)
+      .on('click', selectEdge);
+
+    // Update
+    linkSel.call(link);
+    linkSel.transition()
+      .style('fill', linkColor)
+      .style('opacity', linkOpacity);
+
+    linkSel.classed('selected', (d) => d.id === selectedEdge);
+    linkSel.sort(linkOrder);
+
+    linkSel.exit().remove();
+  }
+
+  function updateSlices(svg, slices) {
+    var slice = svg.select('.slice-titles').selectAll('.slice')
+          .data(slices, function(d) { return d.id; });
+
+    var textWidth = (slices.length > 1 ?
+                     0.9 * (slices[1].x - slices[0].x) :
+                     null);
+
+    slice.enter().append('g')
+      .attr('class', 'slice')
+      .append('foreignObject')
+      .attr('requiredFeatures',
+            'http://www.w3.org/TR/SVG11/feature#Extensibility')
+      .attr('height', margin.top)
+      .attr('class', 'title')
+      .append('xhtml:div')
+      .style('text-align', 'center')
+      .style('word-wrap', 'break-word');
+    // .text(pprop('sliceMetadata', 'title'));
+
+    slice
+      .attr('transform', function(d) {
+        return 'translate(' + (d.x - textWidth / 2) + ',0)'; })
+      .select('foreignObject')
+      .attr('width', textWidth)
+      .select('div');
+    // .text(pprop('sliceMetadata', 'title'));
+
+    slice.exit().remove();
+  }
+
+  function linkOrder(a, b) {
+    // var f = style('edges', 'zIndex');
+    // return (f(a) || 0) - (f(b) || 0);
+    if (a.id === selectedEdge) return +1;
+    if (b.id === selectedEdge) return -1;
+    if (!a.source || a.target && a.target.direction === 'd') return -1;
+    if (!b.source || b.target && b.target.direction === 'd') return +1;
+    if (!a.target || a.source && a.source.direction === 'd') return -1;
+    if (!b.target || b.source && b.source.direction === 'd') return +1;
+    return a.dy - b.dy;
+  }
+
+  function linkTitle(d) {
+    const parts = [];
+    const sourceTitle = node.nodeTitle()(d.source),
+          targetTitle = node.nodeTitle()(d.target),
+          matTitle = materialTitle(d);
+    parts.push(`${sourceTitle} → ${targetTitle}`);
+    if (matTitle) parts.push(matTitle);
+    parts.push(format(d.value));
+    return parts.join('\n');
+  }
+
+  function selectEdge(d) {
+    d3.event.stopPropagation();
+    var el = d3.select(this)[0][0];
+    dispatch.selectEdge.call(el, d);
+  }
+
+  function selectNode(d) {
+    d3.event.stopPropagation();
+    var el = d3.select(this)[0][0];
+    dispatch.selectNode.call(el, d);
   }
 
   /* Public API */
@@ -262,21 +189,20 @@ export default function sankeyDiagram() {
     return this;
   };
 
+  exports.margins = function(_x) {
+    if (!arguments.length) return margin;
+    margin = {
+      top: _x.top === undefined ? margin.top : _x.top,
+      left: _x.left === undefined ? margin.left : _x.left,
+      bottom: _x.bottom === undefined ? margin.bottom : _x.bottom,
+      right: _x.right === undefined ? margin.right : _x.right,
+    };
+    return this;
+  };
+
   exports.ease = function(_x) {
     if (!arguments.length) return ease;
     ease = _x;
-    return this;
-  };
-
-  exports.showIds = function(_x) {
-    if (!arguments.length) return showIds;
-    showIds = _x;
-    return this;
-  };
-
-  exports.presentation = function(_x) {
-    if (!arguments.length) return presentation;
-    presentation = _x;
     return this;
   };
 
@@ -286,20 +212,31 @@ export default function sankeyDiagram() {
     return this;
   };
 
-  exports.index = function(_x) {
-    if (!arguments.length) return index;
-    index = _x;
+  // Node styles and title
+
+  exports.nodeTitle = function(_x) {
+    if (!arguments.length) return node.nodeTitle;
+    node.nodeTitle(_x);
     return this;
   };
 
-  exports.margins = function(_x) {
-    if (!arguments.length) return margin;
-    margin = {
-      top: _x.top === undefined ? margin.top : _x.top,
-      left: _x.left === undefined ? margin.left : _x.left,
-      bottom: _x.bottom === undefined ? margin.bottom : _x.bottom,
-      right: _x.right === undefined ? margin.right : _x.right,
-    };
+  // Link styles and titles
+
+  exports.materialTitle = function(_x) {
+    if (!arguments.length) return materialTitle;
+    materialTitle = d3.functor(_x);
+    return this;
+  };
+
+  exports.linkColor = function(_x) {
+    if (!arguments.length) return linkColor;
+    linkColor = d3.functor(_x);
+    return this;
+  };
+
+  exports.linkOpacity = function(_x) {
+    if (!arguments.length) return linkOpacity;
+    linkOpacity = d3.functor(_x);
     return this;
   };
 
@@ -349,4 +286,14 @@ function nodeSeparation(a, b, G) {
 
   if (n === 0) { return 1; }
   return 1 - 0.6 * k / n;
+}
+
+
+function createGroups(svg) {
+  const gEnter = svg.enter().append('svg')
+          .append('g')
+          .classed('sankey', true);
+  gEnter.append('g').classed('links', true);  // Links below nodes
+  gEnter.append('g').classed('nodes', true);
+  gEnter.append('g').classed('slice-titles', true);  // Slice titles
 }
