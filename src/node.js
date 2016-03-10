@@ -94,7 +94,8 @@ export default function() {
         t = d => nodeTitle(d) || d.id;
         tOpacity = d => nodeTitle(d) ? null : 0.1;
       } else {
-        t = nodeTitle;
+        // don't cann nodeTitle on dummy nodes
+        t = d.data ? nodeTitle : (d => '');
         tOpacity = 1;
       }
 
@@ -102,7 +103,7 @@ export default function() {
         .text(t);
 
       g.select('text')
-        .text(nodeTitle)
+        .text(t)
         .style('opacity', tOpacity)
         .call(wrap, 100);
 
