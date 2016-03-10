@@ -34,29 +34,44 @@ export default function sankeyLink() {
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
-        y1 = d.y1,
-        fx = dir === 'll' ? -1 : 1,
-        Dx = fx * (d.x1 - d.x0),
-        Dy = fx * (d.y1 - d.y0),
-        Rlim = radiusBounds(d),
-        defaultRadius = Math.max(Rlim[0], Math.min(Rlim[1], Dx/3)),
-        r = Math.max(Rlim[0], Math.min(Rlim[1], (d.r || defaultRadius))),
-        l = Math.sqrt(Math.max(0, Dx*Dx + Dy*Dy - 4 * r * Math.abs(Dy))),
-        theta = 2 * Math.atan2(Dy, Dx + l),
-        f = d.y1 > d.y0 ? 1 : -1,
-        hs = h * Math.sin(theta),
+        y1 = d.y1;
+
+    if (x1 < x0) {
+      [x0, x1] = [x1, x0];
+      [y0, y1] = [y1, y0];
+    }
+
+    let f = y1 > y0 ? 1 : -1,
+        fx = 1;  // dir === 'll' ? -1 : 1;
+
+    const Rlim = radiusBounds(d),
+          defaultRadius = Math.max(Rlim[0], Math.min(Rlim[1], (x1 - x0)/3));
+
+    let r0 = Math.max(Rlim[0], Math.min(Rlim[1], (d.r0 || defaultRadius))),
+        r1 = Math.max(Rlim[0], Math.min(Rlim[1], (d.r1 || defaultRadius)));
+
+    const dcx = (x1 - x0),
+          dcy = (y1 - y0) - f * (r0 + r1),
+          D = Math.sqrt(dcx*dcx + dcy*dcy);
+
+    const phi = -f * Math.acos((r0 + r1) / D),
+          psi = Math.atan2(dcy, dcx);
+
+    let theta = Math.PI/2 + f * (psi + phi);
+
+    let hs = h * f * Math.sin(theta),
         hc = h * Math.cos(theta),
-        x2 = d.x0 + fx * r * Math.sin(Math.abs(theta)),
-        x3 = d.x1 - fx * r * Math.sin(Math.abs(theta)),
-        y2 = d.y0 + r * f * (1 - Math.cos(theta)),
-        y3 = d.y1 - r * f * (1 - Math.cos(theta));
+        x2 = x0 + fx * r0 * Math.sin(Math.abs(theta)),
+        x3 = x1 - fx * r1 * Math.sin(Math.abs(theta)),
+        y2 = y0 + r0 * f * (1 - Math.cos(theta)),
+        y3 = y1 - r1 * f * (1 - Math.cos(theta));
 
     if (isNaN(theta) || Math.abs(theta) < 1e-3) {
-      theta = r = 0;
-      x2 = d.x0;
-      x3 = d.x1;
-      y2 = d.y0;
-      y3 = d.y1;
+      theta = r0 = r1 = 0;
+      x2 = x0;
+      x3 = x1;
+      y2 = y0;
+      y3 = y1;
       hs = 0;
       hc = h;
     }
@@ -66,36 +81,36 @@ export default function sankeyLink() {
     //   console.log('link', r, d.r, d.Rmax);
     // }
 
-    function arc(dir) {
-      var f = ( dir * theta > 0) ? 1 : 0,
-          rr = (fx * dir * theta > 0) ? (r + h) : (r - h);
+    function arc(dir, r) {
+      var f = ( dir * (y1-y0) > 0) ? 1 : 0,
+          rr = (fx * dir * (y1-y0) > 0) ? (r + h) : (r - h);
       // straight line
       if (theta === 0) { rr = r; }
       return "A" + rr + " " + rr + " " + Math.abs(theta) + " 0 " + f + " ";
     }
 
     var path;
-    if (fx * (x2 - x3) < 0 || Math.abs(Dy) > 4*h) {
+    if (fx * (x2 - x3) < 0 || Math.abs(y1 - y0) > 4*h) {
       path =  ("M"     + [x0,    y0-h ] + " " +
-              arc(+1) + [x2+hs, y2-hc] + " " +
+               arc(+1, r0) + [x2+hs, y2-hc] + " " +
               "L"     + [x3+hs, y3-hc] + " " +
-              arc(-1) + [x1,    y1-h ] + " " +
+               arc(-1, r1) + [x1,    y1-h ] + " " +
               "L"     + [x1,    y1+h ] + " " +
-              arc(+1) + [x3-hs, y3+hc] + " " +
+               arc(+1, r1) + [x3-hs, y3+hc] + " " +
               "L"     + [x2-hs, y2+hc] + " " +
-              arc(-1) + [x0,    y0+h ] + " " +
+               arc(-1, r0) + [x0,    y0+h ] + " " +
               "Z");
     } else {
       // keep same number of points
       theta = Math.abs(theta);
       path = ("M"     + [x0,    y0-h ] + " " +
-              arc(+1) + [x1,    y1-h ] + " " +
+              arc(+1, r0) + [x1,    y1-h ] + " " +
               "L"     + [x1,    y1-h ] + " " +
-              arc(-1) + [x1,    y1-h ] + " " +
+              arc(-1, r1) + [x1,    y1-h ] + " " +
               "L"     + [x1,    y1+h ] + " " +
-              arc(+1) + [x0,    y0+h ] + " " +
+              arc(+1, r1) + [x0,    y0+h ] + " " +
               "L"     + [x0,    y0+h ] + " " +
-              arc(-1) + [x0,    y0+h ] + " " +
+              arc(-1, r0) + [x0,    y0+h ] + " " +
               "Z");
     }
     if (/NaN/.test(path)) {

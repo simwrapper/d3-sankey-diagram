@@ -2,9 +2,11 @@
 
 
 export default function compareSVGPath(t, actual, expected, message) {
-  let { equal, i, x, y } = pathEqual(actual, expected);
+  let { equal, i, x, y, wrongLengths } = pathEqual(actual, expected);
   if (equal) {
     t.pass(message);
+  } else if (wrongLengths) {
+    t.fail(message + `: Different lengths: "${actual}" != "${expected}"`);
   } else {
     t.fail(message + `: Mismatch at position ${i}: "${x}" != "${y}"`);
   }
@@ -16,7 +18,8 @@ function pathEqual(a, b, tol=1e-3) {
   a = parsePath(a.replace(/\s+/g, ' '));
   b = parsePath(b.replace(/\s+/g, ' '));
   var n = a.length, i = -1, x, y;
-  if (n !== b.length) return false;
+  if (n !== b.length)
+    return { equal: false, x: a.slice(Math.min(n, b.length)), y: b.slice(Math.min(n, b.length)), wrongLengths: true };
   while (++i < n) {
     x = a[i];
     y = b[i];

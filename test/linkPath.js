@@ -6,6 +6,54 @@ import { assertAlmostEqual } from './assert-almost-equal';
 import compareSVGPath from './compareSVGPath';
 
 
+test('link SVG: different radii', t => {
+  let link = sankeyLink();
+  let edge1 = {
+    x0: 0,
+    y0: 0,
+    x1: 30,
+    y1: 70,
+    dy: 2,
+    r0: 10,
+    r1: 20,
+  };
+
+  // Arc: A rx ry theta large-arc-flag direction-flag x y
+  compareSVGPath(t, link(edge1),
+                 'M0,-1 ' +
+                 'A11 11 1.571 0 1 11,10 ' +
+                 'L11,50 ' +
+                 'A19 19 1.571 0 0 30,69 ' +
+                 'L30,71 ' +
+                 'A21 21 1.571 0 1 9,50 '+
+                 'L9,10 ' +
+                 'A9 9 1.571 0 0 0,1 ' +
+                 'Z', 'edge1');
+
+  let edge2 = {
+    x0: 0,
+    y0: 0,
+    x1: 30,
+    y1: -70,
+    dy: 2,
+    r0: 10,
+    r1: 20,
+  };
+
+  compareSVGPath(t, link(edge2),
+                 'M0,-1 ' +
+                 'A9 9 1.571 0 0 9,-10 ' +
+                 'L9,-50 ' +
+                 'A21 21 1.571 0 1 30,-71 ' +
+                 'L30,-69 ' +
+                 'A19 19 1.571 0 0 11,-50 '+
+                 'L11,-10 ' +
+                 'A11 11 1.571 0 1 0,1 ' +
+                 'Z', 'edge2');
+  t.end();
+});
+
+
 test('link SVG: default link shape has two adjacent circular arcs', t => {
   let link = sankeyLink();
   let edge = {
@@ -36,10 +84,12 @@ test('link SVG: default link shape reduces to straight line', t => {
   let link = sankeyLink();
   let edge = {
     x0: 0,
-    x1: 10,
     y0: 0,
+    x1: 10,
     y1: 0,
-    dy: 2
+    dy: 2,
+    r0: 1,
+    r1: 1,
   };
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
@@ -147,8 +197,8 @@ test('link SVG: minimum thickness', t => {
 test('link SVG: flow from forward to reverse node', t => {
   let edge = {
     x0: 0,
-    x1: 0,
     y0: 0,
+    x1: 0,
     y1: 50,
     dy: 10,
     d0: 'r',
@@ -173,8 +223,8 @@ test('link SVG: flow from forward to reverse node', t => {
 test('link SVG: flow from reverse to forward node', t => {
   let edge = {
     x0: 0,
-    x1: 0,
     y0: 0,
+    x1: 0,
     y1: 50,
     dy: 10,
     d0: 'l',
@@ -199,8 +249,8 @@ test('link SVG: flow from reverse to forward node', t => {
 test('link SVG: flow from reverse to reverse node', t => {
   let edge = {
     x0: 20,
-    x1: 0,
     y0: 0,
+    x1: 0,
     y1: 0,
     dy: 10,
     d0: 'l',
@@ -209,14 +259,14 @@ test('link SVG: flow from reverse to reverse node', t => {
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
   compareSVGPath(t, sankeyLink()(edge),
-                 'M20,-5 ' +
-                 'A0 0 0 0 0 20,-5 ' +
-                 'L0,-5 ' +
+                 'M0,-5 ' +
                  'A0 0 0 0 0 0,-5 ' +
-                 'L0,5 ' +
-                 'A0 0 0 0 0 0,5 ' +
+                 'L20,-5 ' +
+                 'A0 0 0 0 0 20,-5 ' +
                  'L20,5 ' +
                  'A0 0 0 0 0 20,5 ' +
+                 'L0,5 ' +
+                 'A0 0 0 0 0 0,5 ' +
                  'Z');
   t.end();
 });
