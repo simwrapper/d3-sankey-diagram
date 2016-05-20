@@ -4,6 +4,7 @@ import { sankeyLayout } from 'sankey-layout';
 
 import sankeyLink from './link';
 import sankeyNode from './node';
+import positionGroup from './positionGroup';
 
 import d3 from 'd3';
 import {Graph} from 'graphlib';
@@ -53,11 +54,21 @@ export default function sankeyDiagram() {
       if (!datum) return;
       layout.size([width - margin.left - margin.right,
                    height - margin.top - margin.bottom]);
-      layout(datum.flows || [], datum.processes || [], datum.rankSets || []);
+      layout(datum.flows || [], datum.processes || [], {
+        rankSets: datum.rankSets || [],
+        order: datum.order || null,
+        alignMaterials: datum.alignMaterials || false,
+      });
+
+      // Groups of nodes
+      const nodeMap = new Map();
+      layout.nodes().forEach(n => nodeMap.set(n.id, n));
+      const groups = (datum.groups || []).map(g => positionGroup(nodeMap, g));
 
       // Render
       updateNodes(svg, layout.nodes());
       updateLinks(svg, layout.links());
+      updateGroups(svg, groups);
       // updateSlices(svg, layout.slices(nodes));
 
       // Events
@@ -139,6 +150,37 @@ export default function sankeyDiagram() {
     // .text(pprop('sliceMetadata', 'title'));
 
     slice.exit().remove();
+  }
+
+  function updateGroups(svg, groups) {
+    const group = svg.select('.groups').selectAll('.group')
+      .data(groups);
+
+    console.log('groups', groups);
+
+    const enter = group.enter().append('g')
+            .attr('class', 'group');
+    enter.append('rect')
+      .style('fill', '#eee')
+      .style('stroke', '#bbb')
+      .style('stroke-width', '0.5');
+    enter.append('text')
+      .style('fill', '#999')
+      .attr('x', -10)
+      .attr('y', -25);
+
+    group
+      .attr('transform', d => `translate(${d.rect.left},${d.rect.top})`)
+      .select('rect')
+      .attr('x', -10)
+      .attr('y', -20)
+      .attr('width', d => d.rect.right - d.rect.left + 20)
+      .attr('height', d => d.rect.bottom - d.rect.top + 30);
+
+    group.select('text')
+      .text(d => d.title);
+
+    group.exit().remove();
   }
 
   function linkOrder(a, b) {
@@ -293,6 +335,7 @@ function createGroups(svg) {
   const gEnter = svg.enter().append('svg')
           .append('g')
           .classed('sankey', true);
+  gEnter.append('g').classed('groups', true);
   gEnter.append('g').classed('links', true);  // Links below nodes
   gEnter.append('g').classed('nodes', true);
   gEnter.append('g').classed('slice-titles', true);  // Slice titles
