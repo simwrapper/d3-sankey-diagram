@@ -1,7 +1,7 @@
 import sankeyDiagram from '../src/diagram';
 
 import d3 from 'd3';
-import test from 'prova';
+import test from 'tape';
 
 
 test('diagram: renders something and updates', t => {

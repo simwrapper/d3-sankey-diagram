@@ -54,3 +54,4 @@ jspm_packages
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
 
+/d3-sankey-diagram.js
