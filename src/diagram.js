@@ -283,8 +283,8 @@ export default function sankeyDiagram() {
   };
 
   exports.scale = function(_x) {
-    if (!arguments.length) return scale;
-    scale = _x;
+    if (!arguments.length) return layout.scale();
+    layout.scale(_x);
     return this;
   };
 
