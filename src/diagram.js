@@ -111,7 +111,7 @@ export default function sankeyDiagram() {
 
     // Update
     linkSel.call(link);
-    linkSel.transition()
+    linkSel //.transition()
       .style('fill', linkColor)
       .style('opacity', linkOpacity);
 
