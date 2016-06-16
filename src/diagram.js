@@ -35,7 +35,7 @@ export default function sankeyDiagram() {
 
   /* Main chart */
 
-  var dispatch = d3.dispatch('selectNode', 'selectEdge');
+  var dispatch = d3.dispatch('selectNode', 'selectGroup', 'selectEdge');
   function exports(_selection) {
     _selection.each(function(datum) {
 
@@ -159,7 +159,9 @@ export default function sankeyDiagram() {
     console.log('groups', groups);
 
     const enter = group.enter().append('g')
-            .attr('class', 'group');
+            .attr('class', 'group')
+            .on('click', selectGroup);
+
     enter.append('rect')
       .style('fill', '#eee')
       .style('stroke', '#bbb')
@@ -170,6 +172,7 @@ export default function sankeyDiagram() {
       .attr('y', -25);
 
     group
+      .style('visibility', d => d.title && d.processes.length > 1 ? 'visible' : 'hidden')
       .attr('transform', d => `translate(${d.rect.left},${d.rect.top})`)
       .select('rect')
       .attr('x', -10)
@@ -216,6 +219,12 @@ export default function sankeyDiagram() {
     d3.event.stopPropagation();
     var el = d3.select(this)[0][0];
     dispatch.selectNode.call(el, d);
+  }
+
+  function selectGroup(d) {
+    d3.event.stopPropagation();
+    var el = d3.select(this)[0][0];
+    dispatch.selectGroup.call(el, d);
   }
 
   /* Public API */

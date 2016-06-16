@@ -2,7 +2,7 @@ import d3 from 'd3';
 
 
 export default function() {
-  let visibility = (d) => 'visible',
+  let visibility = (d) => (d.data || {}).title ? 'visible' : 'hidden',
       nodeTitle = (d) => d.id;
 
   function sankeyNode(selection) {

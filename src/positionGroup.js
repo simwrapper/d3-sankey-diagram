@@ -15,9 +15,5 @@ export default function positionGroup(nodes, group) {
     if (node.y + node.dy > rect.bottom) rect.bottom = node.y + node.dy;
   });
 
-  return {
-    title: group.title,
-    processes: group.processes,
-    rect: rect
-  };
+  return Object.assign({}, group, { rect });
 }
