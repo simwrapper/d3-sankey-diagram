@@ -35,7 +35,7 @@ export default function sankeyDiagram() {
 
   /* Main chart */
 
-  var dispatch = d3.dispatch('selectNode', 'selectGroup', 'selectEdge');
+  var dispatch = d3.dispatch('selectNode', 'selectGroup', 'selectLink');
   function exports(_selection) {
     _selection.each(function(datum) {
 
@@ -54,7 +54,7 @@ export default function sankeyDiagram() {
       if (!datum) return;
       layout.size([width - margin.left - margin.right,
                    height - margin.top - margin.bottom]);
-      layout(datum.flows || [], datum.processes || [], {
+      layout(datum.links || [], datum.nodes || [], {
         rankSets: datum.rankSets || [],
         order: datum.order || null,
         alignMaterials: datum.alignMaterials || false,
@@ -74,7 +74,7 @@ export default function sankeyDiagram() {
       // Events
       svg.on('click', function() {
         dispatch.selectNode.call(this, null);
-        dispatch.selectEdge.call(this, null);
+        dispatch.selectLink.call(this, null);
       });
 
     });
@@ -87,12 +87,12 @@ export default function sankeyDiagram() {
     nodeSel.enter()
       .append('g')
       .classed('node', true)
+      .call(node)
     // .classed('offstage', getNodeOffstage)
       .on('click', selectNode);
 
-    nodeSel
-      .call(node)
-      .attr('class', d => `node node-type-${(d.data || {}).style || 'default'}`
+    nodeSel.transition().ease('linear').call(node);
+    nodeSel.attr('class', d => `node node-type-${(d.data || {}).style || 'default'}`
             + (d.id === selectedNode ? ' selected' : ''));
 
     nodeSel.exit().remove();
@@ -107,7 +107,7 @@ export default function sankeyDiagram() {
       .attr('class', 'link')
       .style('fill', linkColor)
       .style('opacity', linkOpacity)
-      .on('click', selectEdge);
+      .on('click', selectLink);
 
     // Update
     linkSel.call(link);
@@ -156,8 +156,6 @@ export default function sankeyDiagram() {
     const group = svg.select('.groups').selectAll('.group')
       .data(groups);
 
-    console.log('groups', groups);
-
     const enter = group.enter().append('g')
             .attr('class', 'group')
             .on('click', selectGroup);
@@ -172,7 +170,7 @@ export default function sankeyDiagram() {
       .attr('y', -25);
 
     group
-      .style('visibility', d => d.title && d.processes.length > 1 ? 'visible' : 'hidden')
+      .style('visibility', d => d.title && d.nodes.length > 1 ? 'visible' : 'hidden')
       .attr('transform', d => `translate(${d.rect.left},${d.rect.top})`)
       .select('rect')
       .attr('x', -10)
@@ -209,10 +207,10 @@ export default function sankeyDiagram() {
     return parts.join('\n');
   }
 
-  function selectEdge(d) {
+  function selectLink(d) {
     d3.event.stopPropagation();
     var el = d3.select(this)[0][0];
-    dispatch.selectEdge.call(el, d);
+    dispatch.selectLink.call(el, d);
   }
 
   function selectNode(d) {
@@ -302,7 +300,7 @@ export default function sankeyDiagram() {
     return this;
   };
 
-  exports.selectEdge = function(_x) {
+  exports.selectLink = function(_x) {
     selectedEdge = _x;
     return this;
   };

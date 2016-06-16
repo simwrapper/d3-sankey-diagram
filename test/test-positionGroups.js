@@ -27,22 +27,22 @@ test('positionGroup()', t => {
 
   const group1 = {
     "title": "Group",
-    "processes": ["a1", "a2"]
+    "nodes": ["a1", "a2"]
   };
 
   const group2 = {
     "title": "B",
-    "processes": ["b"]
+    "nodes": ["b"]
   };
 
   const group3 = {
     "title": "All",
-    "processes": ["a1", "a2", "b"]
+    "nodes": ["a1", "a2", "b"]
   };
 
   t.deepEqual(positionGroup(nodes, group1), {
     title: "Group",
-    processes: ["a1", "a2"],
+    nodes: ["a1", "a2"],
     rect: {
       top: 30,
       left: 0,
@@ -53,7 +53,7 @@ test('positionGroup()', t => {
 
   t.deepEqual(positionGroup(nodes, group2), {
     title: "B",
-    processes: ["b"],
+    nodes: ["b"],
     rect: {
       top: 75,
       left: 300,
@@ -64,7 +64,7 @@ test('positionGroup()', t => {
 
   t.deepEqual(positionGroup(nodes, group3), {
     title: "All",
-    processes: ["a1", "a2", "b"],
+    nodes: ["a1", "a2", "b"],
     rect: {
       top: 30,
       left: 0,

@@ -2,12 +2,14 @@ import d3 from 'd3';
 
 
 export default function() {
-  let visibility = (d) => (d.data || {}).title ? 'visible' : 'hidden',
-      nodeTitle = (d) => d.id;
+  let nodeTitle = (d) => d.id,
+      visibility = (d) => nodeTitle(d) ? 'visible' : 'hidden';
 
-  function sankeyNode(selection) {
-    selection.each(function(d) {
-      const g = d3.select(this);
+  function sankeyNode(context) {
+    context.each(function(d) {
+      // transition is either the selection or the transition
+      const g = d3.select(this),
+            transition = d3.transition(g);
 
       const title = g.selectAll('title').data([0]),
             text = g.selectAll('text').data([0]),
@@ -26,8 +28,6 @@ export default function() {
         .style('pointer-events', 'all');
 
       // Update
-      const transition = g.transition().ease('linear');
-
       transition
         .attr('transform', nodeTransform)
         .style('visibility', function(d) {

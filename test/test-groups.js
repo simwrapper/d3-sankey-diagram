@@ -6,22 +6,22 @@ import test from 'tape';
 
 test('groups: draws box around nodes', t => {
   // prepare data
-  const processes = [
+  const nodes = [
   ];
 
-  const flows = [
+  const links = [
     {source: 'a1', target: 'b', value: 1},
     {source: 'a2', target: 'b', value: 1},
   ];
 
   const groups = [
-    {title: 'Group', processes: ['a1', 'a2']},
-    {title: 'B', processes: ['b']},
+    {title: 'Group', nodes: ['a1', 'a2']},
+    {title: 'B', nodes: ['b']},
   ];
 
   // diagram
   const diagram = sankeyDiagram();
-  const el = render({processes, flows, groups}, diagram);
+  const el = render({nodes, links, groups}, diagram);
 
   t.equal(el.selectAll('.node')[0].length, 3,
           'right number of nodes');

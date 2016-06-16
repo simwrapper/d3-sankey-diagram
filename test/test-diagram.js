@@ -6,7 +6,7 @@ import test from 'tape';
 
 test('diagram: renders something and updates', t => {
   // prepare data
-  const {processes, flows} = exampleBlastFurnace();
+  const {nodes, links} = exampleBlastFurnace();
 
   // diagram
 
@@ -15,7 +15,7 @@ test('diagram: renders something and updates', t => {
   const el = d3.select('body').append('div');
 
   el
-    .datum({processes, flows})
+    .datum({nodes, links})
     .call(diagram);
   flushAnimationFrames();
 
@@ -28,7 +28,7 @@ test('diagram: renders something and updates', t => {
   // update
   const h0 = +el.select('.node').select('rect').attr('height');
 
-  flows.forEach(e => { e.value *= 1.1; });
+  links.forEach(e => { e.value *= 1.1; });
   el.call(diagram);
   flushAnimationFrames();
   const h1 = +el.select('.node rect').attr('height');
@@ -39,13 +39,13 @@ test('diagram: renders something and updates', t => {
 
 
 test('diagram: materials', t => {
-  const {processes, flows} = exampleMaterials();
+  const {nodes, links} = exampleMaterials();
 
   const color = d3.scale.category10();
   const diagram = sankeyDiagram()
           .linkColor(d => color(d.data.material));
 
-  const el = render({processes, flows}, diagram);
+  const el = render({nodes, links}, diagram);
 
   t.equal(el.selectAll('.node')[0].length, 4,
           'right number of nodes');
@@ -58,7 +58,7 @@ test('diagram: materials', t => {
 
 
 test('diagram: link attributes', t => {
-  const flows = [
+  const links = [
     {source: 'a', target: 'b', value: 2, material: 'x',
      color: 'red'},
   ];
@@ -69,7 +69,7 @@ test('diagram: link attributes', t => {
           .linkColor(d => d.data.color)
           .linkOpacity(d => 1 / d.data.value);
 
-  const el = render({flows}, diagram),
+  const el = render({links}, diagram),
         link = el.selectAll('.link');
 
   t.deepEqual(d3.rgb(link.style('fill')), d3.rgb('red'), 'link color');
@@ -83,7 +83,7 @@ test('diagram: link attributes', t => {
     .linkColor('blue')
     .linkOpacity(0.9);
 
-  const el2 = render({flows}, diagram),
+  const el2 = render({links}, diagram),
         link2 = el2.selectAll('.link');
 
   t.deepEqual(d3.rgb(link2.style('fill')), d3.rgb('blue'), 'link color (const)');
@@ -104,11 +104,11 @@ function render(datum, diagram) {
 
 
 function exampleBlastFurnace() {
-  // Simplified example of flows through coke oven and blast furnace
-  const processes = [
+  // Simplified example of links through coke oven and blast furnace
+  const nodes = [
   ];
 
-  const flows = [
+  const links = [
     // main flow
     {source: 'input', target: 'oven', value: 2.5},
     {source: 'oven', target: 'coke', value: 2.5},
@@ -118,7 +118,7 @@ function exampleBlastFurnace() {
     {source: 'bf', target: 'output', value: 1},
     {source: 'bf', target: 'export', value: 1},
 
-    // additional export flows, and input-sinter
+    // additional export links, and input-sinter
     {source: 'sinter', target: 'export', value: 0.2},
     {source: 'oven', target: 'export', value: 0.2},
     {source: 'input', target: 'sinter', value: 0.2},
@@ -128,15 +128,15 @@ function exampleBlastFurnace() {
     {source: 'bf', target: 'input', value: 0.5},
   ];
 
-  return {processes, flows};
+  return {nodes, links};
 }
 
 
 function exampleMaterials() {
-  const processes = [
+  const nodes = [
   ];
 
-  const flows = [
+  const links = [
     {source: 'a', target: 'b', value: 2, material: 'x'},
     {source: 'a', target: 'b', value: 2, material: 'y'},
     {source: 'b', target: 'c', value: 1, material: 'x'},
@@ -144,7 +144,7 @@ function exampleMaterials() {
     {source: 'b', target: 'd', value: 1, material: 'x'},
   ];
 
-  return {processes, flows};
+  return {nodes, links};
 }
 
 

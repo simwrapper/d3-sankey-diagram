@@ -6,7 +6,7 @@ export default function positionGroup(nodes, group) {
     right: 0
   };
 
-  group.processes.forEach(n => {
+  group.nodes.forEach(n => {
     const node = nodes.get(n);
     if (!node) return;
     if (node.x < rect.left) rect.left = node.x;
