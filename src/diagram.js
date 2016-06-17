@@ -92,7 +92,7 @@ export default function sankeyDiagram() {
       .on('click', selectNode);
 
     nodeSel.transition().ease('linear').call(node);
-    nodeSel.attr('class', d => `node node-type-${(d.data || {}).style || 'default'}`
+    nodeSel.attr('class', d => `node node-style-${(d.data || {}).style || 'default'}`
             + (d.id === selectedNode ? ' selected' : ''));
 
     nodeSel.exit().remove();
@@ -160,12 +160,8 @@ export default function sankeyDiagram() {
             .attr('class', 'group')
             .on('click', selectGroup);
 
-    enter.append('rect')
-      .style('fill', '#eee')
-      .style('stroke', '#bbb')
-      .style('stroke-width', '0.5');
+    enter.append('rect');
     enter.append('text')
-      .style('fill', '#999')
       .attr('x', -10)
       .attr('y', -25);
 
@@ -246,12 +242,6 @@ export default function sankeyDiagram() {
       bottom: _x.bottom === undefined ? margin.bottom : _x.bottom,
       right: _x.right === undefined ? margin.right : _x.right,
     };
-    return this;
-  };
-
-  exports.ease = function(_x) {
-    if (!arguments.length) return ease;
-    ease = _x;
     return this;
   };
 
