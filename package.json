@@ -1,6 +1,6 @@
 {
   "name": "d3-sankey-diagram",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Sankey diagram d3 component",
   "main": "index.js",
   "directories": {
