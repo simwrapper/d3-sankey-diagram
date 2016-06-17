@@ -63,5 +63,5 @@ export default function() {
 
 
 function defaultLinkTitle(d) {
-  return `${d.source.id} → ${d.target.id}\n${d.data.material || ''}`;
+  return `${d.source.id} → ${d.target.id}\n${d.data.type || ''}`;
 }

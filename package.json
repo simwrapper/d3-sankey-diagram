@@ -9,7 +9,7 @@
   "dependencies": {
     "graphlib": "~2.1.0",
     "d3": "~3.5.16",
-    "sankey-layout": "~0.2.1"
+    "sankey-layout": "~0.2.2"
   },
   "devDependencies": {
     "almost-equal": "~1.0.0",
@@ -27,7 +27,7 @@
   "scripts": {
     "prepublish": "npm run build && npm run bundle",
     "build": "babel src -d lib",
-    "bundle": "npm run build && browserify --standalone sankeyDiagram -t babelify -t [ browserify-global-shim --d3 d3 ] index.js > d3-sankey-diagram.js",
+    "bundle": "browserify --standalone sankeyDiagram -t babelify -t [ browserify-global-shim --d3 d3 ] index.js > d3-sankey-diagram.js",
     "test": "browserify -t babelify test/test-*.js | tape-run",
     "jsdoc": "jsdoc --package package.json -r lib/ -d docs"
   },

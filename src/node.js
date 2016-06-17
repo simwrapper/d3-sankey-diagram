@@ -138,7 +138,7 @@ function positionTitle(nodeSelection) {
         dy = (d.dy === 0) ? 0 : Math.max(1, d.dy);
 
     // If thin, and there's enough space, put above
-    if (d.spaceAbove > 20 && d.style !== 'material') {
+    if (d.spaceAbove > 20 && d.style !== 'type') {
       titleAbove = true;
     } else {
       titleAbove = false;
@@ -246,7 +246,7 @@ function titlePosition(d) {
       right = false;
 
   // If thin, and there's enough space, put above
-  if (d.spaceAbove > 20 && d.style !== 'material') {
+  if (d.spaceAbove > 20 && d.style !== 'type') {
     titleAbove = true;
   } else {
     titleAbove = false;

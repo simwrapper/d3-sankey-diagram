@@ -18,7 +18,7 @@ export default function sankeyDiagram() {
 
   let linkColor = (d => null),
       linkOpacity = (d => null),
-      materialTitle = (d => d.data.material);
+      linkTypeTitle = (d => d.data.type);
 
   let selectedNode = null,
       selectedEdge = null;
@@ -57,7 +57,7 @@ export default function sankeyDiagram() {
       layout(datum.links || [], datum.nodes || [], {
         rankSets: datum.rankSets || [],
         order: datum.order || null,
-        alignMaterials: datum.alignMaterials || false,
+        alignLinkTypes: datum.alignLinkTypes || false,
       });
 
       // Groups of nodes
@@ -200,7 +200,7 @@ export default function sankeyDiagram() {
     const parts = [];
     const sourceTitle = node.nodeTitle()(d.source),
           targetTitle = node.nodeTitle()(d.target),
-          matTitle = materialTitle(d);
+          matTitle = linkTypeTitle(d);
     parts.push(`${sourceTitle} → ${targetTitle}`);
     if (matTitle) parts.push(matTitle);
     parts.push(format(d.value));
@@ -255,25 +255,25 @@ export default function sankeyDiagram() {
     return this;
   };
 
-  exports.edgeValue = function(_x) {
-    if (!arguments.length) return layout.edgeValue();
-    layout.edgeValue(_x);
+  exports.linkValue = function(_x) {
+    if (!arguments.length) return layout.linkValue();
+    layout.linkValue(_x);
     return this;
   };
 
   // Node styles and title
 
   exports.nodeTitle = function(_x) {
-    if (!arguments.length) return node.nodeTitle;
+    if (!arguments.length) return node.nodeTitle();
     node.nodeTitle(_x);
     return this;
   };
 
   // Link styles and titles
 
-  exports.materialTitle = function(_x) {
-    if (!arguments.length) return materialTitle;
-    materialTitle = d3.functor(_x);
+  exports.linkTypeTitle = function(_x) {
+    if (!arguments.length) return linkTypeTitle;
+    linkTypeTitle = d3.functor(_x);
     return this;
   };
 

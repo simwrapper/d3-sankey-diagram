@@ -38,12 +38,12 @@ test('diagram: renders something and updates', t => {
 });
 
 
-test('diagram: materials', t => {
-  const {nodes, links} = exampleMaterials();
+test('diagram: types', t => {
+  const {nodes, links} = exampleLinkTypes();
 
   const color = d3.scale.category10();
   const diagram = sankeyDiagram()
-          .linkColor(d => color(d.data.material));
+          .linkColor(d => color(d.data.type));
 
   const el = render({nodes, links}, diagram);
 
@@ -59,13 +59,13 @@ test('diagram: materials', t => {
 
 test('diagram: link attributes', t => {
   const links = [
-    {source: 'a', target: 'b', value: 2, material: 'x',
+    {source: 'a', target: 'b', value: 2, type: 'x',
      color: 'red'},
   ];
 
   const diagram = sankeyDiagram()
           .nodeTitle(d => `Node ${d.id}`)
-          .materialTitle(d => `Material: ${d.data.material}`)
+          .linkTypeTitle(d => `Type: ${d.data.type}`)
           .linkColor(d => d.data.color)
           .linkOpacity(d => 1 / d.data.value);
 
@@ -75,11 +75,11 @@ test('diagram: link attributes', t => {
   t.deepEqual(d3.rgb(link.style('fill')), d3.rgb('red'), 'link color');
   t.equal(link.style('opacity'), '0.5', 'link opacity');
   t.equal(link.select('title').text(),
-          'Node a → Node b\nMaterial: x\n2.00', 'link title');
+          'Node a → Node b\nType: x\n2.00', 'link title');
 
   diagram
     .nodeTitle('node')
-    .materialTitle('z')
+    .linkTypeTitle('z')
     .linkColor('blue')
     .linkOpacity(0.9);
 
@@ -132,16 +132,16 @@ function exampleBlastFurnace() {
 }
 
 
-function exampleMaterials() {
+function exampleLinkTypes() {
   const nodes = [
   ];
 
   const links = [
-    {source: 'a', target: 'b', value: 2, material: 'x'},
-    {source: 'a', target: 'b', value: 2, material: 'y'},
-    {source: 'b', target: 'c', value: 1, material: 'x'},
-    {source: 'b', target: 'c', value: 2, material: 'y'},
-    {source: 'b', target: 'd', value: 1, material: 'x'},
+    {source: 'a', target: 'b', value: 2, type: 'x'},
+    {source: 'a', target: 'b', value: 2, type: 'y'},
+    {source: 'b', target: 'c', value: 1, type: 'x'},
+    {source: 'b', target: 'c', value: 2, type: 'y'},
+    {source: 'b', target: 'd', value: 1, type: 'x'},
   ];
 
   return {nodes, links};
