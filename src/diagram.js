@@ -16,6 +16,8 @@ export default function sankeyDiagram() {
       width = 500,
       height = 500;
 
+  let duration = 500;
+
   let linkColor = (d => null),
       linkOpacity = (d => null),
       linkTypeTitle = (d => d.data.type);
@@ -91,7 +93,7 @@ export default function sankeyDiagram() {
     // .classed('offstage', getNodeOffstage)
       .on('click', selectNode);
 
-    nodeSel.transition().ease('linear').call(node);
+    getTransition(nodeSel).call(node);
     nodeSel.attr('class', d => `node node-style-${(d.data || {}).style || 'default'}`
             + (d.id === selectedNode ? ' selected' : ''));
 
@@ -110,7 +112,7 @@ export default function sankeyDiagram() {
       .on('click', selectLink);
 
     // Update
-    linkSel.call(link);
+    getTransition(linkSel).call(link);
     linkSel //.transition()
       .style('fill', linkColor)
       .style('opacity', linkOpacity);
@@ -221,16 +223,26 @@ export default function sankeyDiagram() {
     dispatch.selectGroup.call(el, d);
   }
 
+  function getTransition(sel) {
+    if (duration === null) {
+      return sel;
+    } else {
+      return sel.transition()
+        .ease('linear')
+        .duration(duration);
+    }
+  }
+
   /* Public API */
   exports.width = function(_x) {
     if (!arguments.length) return width;
-    width = parseInt(_x);
+    width = parseInt(_x, 10);
     return this;
   };
 
   exports.height = function(_x) {
     if (!arguments.length) return height;
-    height = parseInt(_x);
+    height = parseInt(_x, 10);
     return this;
   };
 
@@ -242,6 +254,12 @@ export default function sankeyDiagram() {
       bottom: _x.bottom === undefined ? margin.bottom : _x.bottom,
       right: _x.right === undefined ? margin.right : _x.right,
     };
+    return this;
+  };
+
+  exports.duration = function(_x) {
+    if (!arguments.length) return duration;
+    duration = _x === null ? null : parseFloat(_x);
     return this;
   };
 

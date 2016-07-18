@@ -1,5 +1,6 @@
 import sankeyDiagram from '../src/diagram';
 
+import getBody from './get-document-body';
 import d3 from 'd3';
 import test from 'tape';
 
@@ -44,7 +45,7 @@ test('groups: draws box around nodes', t => {
 
 
 function render(datum, diagram) {
-  const el = d3.select('body').append('div');
+  const el = d3.select(getBody()).append('div');
   el.datum(datum).call(diagram);
   flushAnimationFrames();
   return el;

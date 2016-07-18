@@ -1,5 +1,6 @@
 import sankeyDiagram from '../src/diagram';
 
+import getBody from './get-document-body';
 import d3 from 'd3';
 import test from 'tape';
 
@@ -12,7 +13,7 @@ test('diagram: renders something and updates', t => {
 
   const diagram = sankeyDiagram();
 
-  const el = d3.select('body').append('div');
+  const el = d3.select(getBody()).append('div');
 
   el
     .datum({nodes, links})
@@ -25,12 +26,46 @@ test('diagram: renders something and updates', t => {
   t.equal(el.selectAll('.link')[0].length, 26,
           'right number of links');
 
+  // update does not work in jsdom unless transitions are disabled
+  if (process.browser) {
+    const h0 = +el.select('.node').select('rect').attr('height');
+
+    links.forEach(e => { e.value *= 1.1; });
+    el.call(diagram);
+    flushAnimationFrames();
+    const h1 = +el.select('.node rect').attr('height');
+    t.ok(h1 > h0, 'height updates');
+  }
+
+  t.end();
+});
+
+
+test('diagram: renders something and updates with transitions disabled', t => {
+  // prepare data
+  const {nodes, links} = exampleBlastFurnace();
+
+  // diagram -- disable transitions
+  const diagram = sankeyDiagram().duration(null);
+  const el = d3.select(getBody()).append('div');
+
+  el
+    .datum({nodes, links})
+    .call(diagram);
+
+  // flushAnimationFrames not needed
+  t.equal(el.selectAll('.node')[0].length, 21,
+          'right number of nodes');
+
+  t.equal(el.selectAll('.link')[0].length, 26,
+          'right number of links');
+
   // update
   const h0 = +el.select('.node').select('rect').attr('height');
 
   links.forEach(e => { e.value *= 1.1; });
   el.call(diagram);
-  flushAnimationFrames();
+  // flushAnimationFrames not needed
   const h1 = +el.select('.node rect').attr('height');
   t.ok(h1 > h0, 'height updates');
 
@@ -51,6 +86,25 @@ test('diagram: types', t => {
           'right number of nodes');
 
   t.equal(el.selectAll('.link')[0].length, 5,
+          'right number of links');
+
+  t.end();
+});
+
+
+test('diagram: types 2', t => {
+  const example = exampleLinkTypes2();
+
+  const color = d3.scale.category10();
+  const diagram = sankeyDiagram()
+          .linkColor(d => color(d.data.type));
+
+  const el = render(example, diagram);
+
+  t.equal(el.selectAll('.node')[0].length, 5,
+          'right number of nodes');
+
+  t.equal(el.selectAll('.link')[0].length, 9,
           'right number of links');
 
   t.end();
@@ -96,7 +150,7 @@ test('diagram: link attributes', t => {
 
 
 function render(datum, diagram) {
-  const el = d3.select('body').append('div');
+  const el = d3.select(getBody()).append('div');
   el.datum(datum).call(diagram);
   flushAnimationFrames();
   return el;
@@ -148,7 +202,36 @@ function exampleLinkTypes() {
 }
 
 
+function exampleLinkTypes2() {
+  // this sometimes fails in Safari
+  return {
+    nodes: [
+      { id: 'a', title: 'a' },
+      { id: 'b', title: 'b' },
+      { id: 'c', title: 'c' },
+      { id: 'x', title: 'd' },
+      { id: 'y', title: 'e' },
+    ],
+    links: [
+      { source: 'a', target: 'x', value: 1.0, type: 'x' },
+      { source: 'a', target: 'y', value: 0.7, type: 'y' },
+      { source: 'a', target: 'y', value: 0.3, type: 'z' },
+
+      { source: 'b', target: 'x', value: 2.0, type: 'x' },
+      { source: 'b', target: 'y', value: 0.3, type: 'y' },
+      { source: 'b', target: 'y', value: 0.9, type: 'z' },
+
+      { source: 'x', target: 'c', value: 3.0, type: 'x' },
+      { source: 'y', target: 'c', value: 1.0, type: 'y' },
+      { source: 'y', target: 'c', value: 1.2, type: 'z' },
+    ],
+    alignLinkTypes: true
+  };
+}
+
+
 /* Make animations synchronous for testing */
+
 var flushAnimationFrames = function() {
   var now = Date.now;
   Date.now = function() { return Infinity; };

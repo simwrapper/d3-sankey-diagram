@@ -10,7 +10,8 @@ export default function() {
 
   function sankeyLink(selection) {
     selection.each(function(d) {
-      const link = d3.select(this);
+      const link = d3.select(this),
+            transition = d3.transition(link);
 
       if (!this._current) {
         // first time
@@ -23,8 +24,11 @@ export default function() {
       title.enter().append('title');
 
       // Update
-      link.transition().ease('linear')
-        .attrTween('d', tweenLink);
+      if (transition.attrTween) {
+        transition.attrTween('d', tweenLink);
+      } else {
+        transition.attr('d', path);
+      }
 
       link.select('title')
         .text(linkTitle);
