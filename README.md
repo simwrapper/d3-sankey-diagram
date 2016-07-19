@@ -45,6 +45,12 @@ Try more [live examples](https://ricklupton.github.io/d3-sankey-diagram).
 If you use the Jupyter notebook, try
 [ipysankeywidget](https://github.com/ricklupton/ipysankeywidget).
 
+`d3-sankey-diagram` works both in node (using jsdom) and in the browser. To use
+jsdom, transitions must be disabled using
+```js
+diagram.duration(null);
+```
+
 ## Documentation
 
 API docs are on the [wiki](https://github.com/ricklupton/d3-sankey-diagram/wiki).
