@@ -216,6 +216,20 @@ test('link SVG: flow from forward to reverse node', t => {
                  'L5,10 ' +
                  'A5 5 1.570 0 0 0,5 ' +
                  'Z');
+
+  // force radius
+  edge.r0 = edge.r1 = 20;
+  compareSVGPath(t, sankeyLink()(edge),
+                 'M0,-5 ' +
+                 'A25 25 1.570 0 1 25,20 ' +
+                 'L25,30 ' +
+                 'A25 25 1.570 0 1 0,55 ' +
+                 'L0,45 ' +
+                 'A15 15 1.570 0 0 15,30 ' +
+                 'L15,20 ' +
+                 'A15 15 1.570 0 0 0,5 ' +
+                 'Z');
+
   t.end();
 });
 

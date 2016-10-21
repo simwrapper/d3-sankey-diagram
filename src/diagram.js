@@ -62,6 +62,15 @@ export default function sankeyDiagram() {
         alignLinkTypes: datum.alignLinkTypes || false,
       });
 
+      const links = layout.links();
+      if (datum.overrideLinks) {
+        links.forEach(link => {
+          const override = datum.overrideLinks[link.id];
+          if (override && override.r0 !== undefined) link.r0 = override.r0;
+          if (override && override.r1 !== undefined) link.r1 = override.r1;
+        });
+      }
+
       // Groups of nodes
       const nodeMap = new Map();
       layout.nodes().forEach(n => nodeMap.set(n.id, n));
