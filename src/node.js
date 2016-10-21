@@ -3,7 +3,7 @@ import d3 from 'd3';
 
 export default function() {
   let nodeTitle = (d) => d.id,
-      visibility = (d) => nodeTitle(d) ? 'visible' : 'hidden';
+      nodeVisible = (d) => nodeTitle(d) ? true : false;
 
   function sankeyNode(context) {
     context.each(function(d) {
@@ -30,10 +30,10 @@ export default function() {
       // Update
       transition
         .attr('transform', nodeTransform)
-        .style('visibility', function(d) {
-          if (d.dy === 0 || d.dummy || visibility(d) == 'hidden') {
-            return 'hidden';
-          } else return null;
+        .style('display', function(d) {
+          if (d.dy === 0 || d.dummy || !nodeVisible(d)) {
+            return 'none';
+          } else return 'inline';
         });
 
       let {titleAbove, right} = titlePosition(d),
@@ -113,9 +113,9 @@ export default function() {
     });
   }
 
-  sankeyNode.visibility = function(x) {
-    if (!arguments.length) return visibility;
-    visibility = d3.functor(x);
+  sankeyNode.nodeVisible = function(x) {
+    if (!arguments.length) return nodeVisible;
+    nodeVisible = d3.functor(x);
     return sankeyNode;
   };
 

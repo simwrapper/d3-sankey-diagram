@@ -28,6 +28,7 @@ export default function() {
         transition.attrTween('d', tweenLink);
       } else {
         transition.attr('d', path);
+        this._current = path;
       }
 
       link.select('title')

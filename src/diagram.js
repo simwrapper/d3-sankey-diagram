@@ -177,7 +177,7 @@ export default function sankeyDiagram() {
       .attr('y', -25);
 
     group
-      .style('visibility', d => d.title && d.nodes.length > 1 ? 'visible' : 'hidden')
+      .style('display', d => d.title && d.nodes.length > 1 ? 'inline' : 'none')
       .attr('transform', d => `translate(${d.rect.left},${d.rect.top})`)
       .select('rect')
       .attr('x', -10)
