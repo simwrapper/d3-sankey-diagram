@@ -18,8 +18,7 @@ export default function sankeyDiagram() {
 
   let duration = 500;
 
-  let linkColor = (d => null),
-      linkOpacity = (d => null),
+  let linkCustom = (d => null),
       linkTypeTitle = (d => d.data.type);
 
   let selectedNode = null,
@@ -110,21 +109,19 @@ export default function sankeyDiagram() {
   }
 
   function updateLinks(svg, edges) {
-    var linkSel = svg.select('.links').selectAll('.link')
+    var linkSel = svg.select('.links').selectAll('path')
           .data(edges, d => d.id);
 
     linkSel.enter()
       .append('path')
-      .attr('class', 'link')
-      .style('fill', linkColor)
-      .style('opacity', linkOpacity)
+      .call(linkCustom)
+      .classed('link', true)
       .on('click', selectLink);
 
     // Update
-    getTransition(linkSel).call(link);
-    linkSel //.transition()
-      .style('fill', linkColor)
-      .style('opacity', linkOpacity);
+    getTransition(linkSel)
+      .call(link)
+      .call(linkCustom);
 
     linkSel.classed('selected', (d) => d.id === selectedEdge);
     linkSel.sort(linkOrder);
@@ -294,15 +291,9 @@ export default function sankeyDiagram() {
     return this;
   };
 
-  exports.linkColor = function(_x) {
-    if (!arguments.length) return linkColor;
-    linkColor = d3.functor(_x);
-    return this;
-  };
-
-  exports.linkOpacity = function(_x) {
-    if (!arguments.length) return linkOpacity;
-    linkOpacity = d3.functor(_x);
+  exports.link = function(_x) {
+    if (!arguments.length) return linkCustom;
+    linkCustom = _x;
     return this;
   };
 

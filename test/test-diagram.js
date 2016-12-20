@@ -78,7 +78,7 @@ test('diagram: types', t => {
 
   const color = d3.scale.category10();
   const diagram = sankeyDiagram()
-          .linkColor(d => color(d.data.type));
+        .link(sel => sel.style('fill', d => color(d.data.type)));
 
   const el = render({nodes, links}, diagram);
 
@@ -97,7 +97,7 @@ test('diagram: types 2', t => {
 
   const color = d3.scale.category10();
   const diagram = sankeyDiagram()
-          .linkColor(d => color(d.data.type));
+        .link(sel => sel.style('fill', d => color(d.data.type)));
 
   const el = render(example, diagram);
 
@@ -117,31 +117,34 @@ test('diagram: link attributes', t => {
      color: 'red'},
   ];
 
+  function customLink(link) {
+    link
+      .attr('class', d => `link type-${d.data.type}`)
+      .style('fill', d => d.data.color)
+      .style('opacity', d => 1 / d.data.value);
+  }
+
   const diagram = sankeyDiagram()
-          .nodeTitle(d => `Node ${d.id}`)
-          .linkTypeTitle(d => `Type: ${d.data.type}`)
-          .linkColor(d => d.data.color)
-          .linkOpacity(d => 1 / d.data.value);
+        .nodeTitle(d => `Node ${d.id}`)
+        .linkTypeTitle(d => `Type: ${d.data.type}`)
+        .link(customLink);
 
   const el = render({links}, diagram),
         link = el.selectAll('.link');
 
   t.deepEqual(d3.rgb(link.style('fill')), d3.rgb('red'), 'link color');
   t.equal(link.style('opacity'), '0.5', 'link opacity');
+  t.equal(link.attr('class'), 'link type-x', 'link class');
   t.equal(link.select('title').text(),
           'Node a → Node b\nType: x\n2.00', 'link title');
 
   diagram
     .nodeTitle('node')
-    .linkTypeTitle('z')
-    .linkColor('blue')
-    .linkOpacity(0.9);
+    .linkTypeTitle('z');
 
   const el2 = render({links}, diagram),
         link2 = el2.selectAll('.link');
 
-  t.deepEqual(d3.rgb(link2.style('fill')), d3.rgb('blue'), 'link color (const)');
-  t.equal(link2.style('opacity'), '0.9', 'link opacity (const)');
   t.equal(link2.select('title').text(),
           'node → node\nz\n2.00', 'link title (const)');
 
