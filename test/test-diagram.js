@@ -152,6 +152,30 @@ test('diagram: link attributes', t => {
 });
 
 
+test('diagram: node attributes', t => {
+  const links = [
+    {source: 'a', target: 'b', value: 2}
+  ];
+
+  function customNode(node) {
+    node
+      .attr('class', 'node myclass');
+  }
+
+  // disable transitions
+  const diagram = sankeyDiagram().duration(null);
+  const el = render({links}, diagram);
+
+  t.equal(el.selectAll('.node').attr('class'), 'node', 'node class before');
+
+  diagram.node(customNode);
+  el.call(diagram);
+
+  t.equal(el.selectAll('.node').attr('class'), 'node myclass', 'node class after');
+
+  t.end();
+});
+
 function render(datum, diagram) {
   const el = d3.select(getBody()).append('div');
   el.datum(datum).call(diagram);

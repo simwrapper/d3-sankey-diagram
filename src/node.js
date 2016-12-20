@@ -106,10 +106,6 @@ export default function() {
         .text(t)
         .style('opacity', tOpacity)
         .call(wrap, 100);
-
-      // node
-      //   .attr('class', 'node')  // reset
-      //   .classed(`node-type-${d.style || 'default'}`, true);
     });
   }
 
@@ -225,10 +221,6 @@ function positionTitle(nodeSelection) {
       .text(nodeTitle)
       .style('opacity', titleOpacity)
       .call(wrap, 100);
-
-    node
-      .attr('class', 'node')  // reset
-      .classed(`node-type-${d.style || 'default'}`, true);
   });
 
 

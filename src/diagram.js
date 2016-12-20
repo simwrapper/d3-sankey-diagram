@@ -18,7 +18,8 @@ export default function sankeyDiagram() {
 
   let duration = 500;
 
-  let linkCustom = (d => null),
+  let nodeCustom = (d => null),
+      linkCustom = (d => null),
       linkTypeTitle = (d => d.data.type);
 
   let selectedNode = null,
@@ -96,14 +97,14 @@ export default function sankeyDiagram() {
 
     nodeSel.enter()
       .append('g')
-      .classed('node', true)
       .call(node)
-    // .classed('offstage', getNodeOffstage)
+      .call(nodeCustom)
+      .classed('node', true)
       .on('click', selectNode);
 
-    getTransition(nodeSel).call(node);
-    nodeSel.attr('class', d => `node node-style-${(d.data || {}).style || 'default'}`
-            + (d.id === selectedNode ? ' selected' : ''));
+    getTransition(nodeSel)
+      .call(node)
+      .call(nodeCustom);
 
     nodeSel.exit().remove();
   }
@@ -280,6 +281,12 @@ export default function sankeyDiagram() {
   exports.nodeTitle = function(_x) {
     if (!arguments.length) return node.nodeTitle();
     node.nodeTitle(_x);
+    return this;
+  };
+
+  exports.node = function(_x) {
+    if (!arguments.length) return nodeCustom;
+    nodeCustom = _x;
     return this;
   };
 
