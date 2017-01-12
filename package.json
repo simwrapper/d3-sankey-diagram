@@ -18,7 +18,7 @@
     "url": "https://github.com/ricklupton/d3-sankey-diagram.git"
   },
   "scripts": {
-    "pretest": "rm -rf build && mkdir build && rollup -f umd -n d3 -g d3-collection:d3,d3-array:d3 -o build/d3-sankey-diagram.js -- index.js",
+    "pretest": "rm -rf build && mkdir build && rollup -c",
     "test1": "tape -r ../test/buble-register -r reify 'test/**/*-test.js' && standard index.js src test",
     "test": "tape-watch -r ../test/buble-register -r reify 'test/**/*-test.js'",
     "prepublish": "npm run test && uglifyjs build/d3-sankey-diagram.js -c -m -o build/d3-sankey-diagram.min.js",
@@ -36,6 +36,8 @@
     "faucet": "0.0.1",
     "reify": "^0.4.4",
     "rollup": "0.27",
+    "rollup-plugin-commonjs": "^7.0.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
     "standard": "^8.6.0",
     "tape": "4",
     "tape-watch": "^2.2.4",
