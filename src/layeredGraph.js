@@ -28,6 +28,8 @@ export default function () {
     var nodesByKey = {}
     var source
     var target
+    var sid
+    var tid
 
     for (i = 0; i < nn; ++i) {
       d = nodeData[i]
@@ -41,10 +43,16 @@ export default function () {
 
     for (i = 0; i < ne; ++i) {
       d = edgeData[i]
-      source = nodesByKey[keyPrefix + sourceId(d)]
-      target = nodesByKey[keyPrefix + targetId(d)]
-      if (!source) throw new Error('unknown source id: ' + sourceId(d))
-      if (!target) throw new Error('unknown target id: ' + targetId(d))
+      sid = sourceId(d)
+      tid = targetId(d)
+      source = nodesByKey[keyPrefix + sid]
+      target = nodesByKey[keyPrefix + tid]
+      if (!source) {
+        nodes.push(source = nodesByKey[keyPrefix + sid] = {id: sid, data: {}})
+      }
+      if (!target) {
+        nodes.push(target = nodesByKey[keyPrefix + tid] = {id: tid, data: {}})
+      }
       edges[i] = { source: source, target: target, data: d }
     }
 
