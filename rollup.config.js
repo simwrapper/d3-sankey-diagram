@@ -1,6 +1,7 @@
 // Rollup plugins
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
+import buble from 'rollup-plugin-buble'
 
 export default {
   entry: 'index.js',
@@ -20,6 +21,7 @@ export default {
       namedExports: {
         'node_modules/graphlib/index.js': ['Graph', 'alg']
       }
-    })
+    }),
+    buble()
   ]
 }
