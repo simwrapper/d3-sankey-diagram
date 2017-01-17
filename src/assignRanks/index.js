@@ -7,10 +7,9 @@ import { min } from 'd3-array'
  * Assign ranks to the nodes in G, according to rankSets.
  */
 export default function assignRanks (G, rankSets) {
-  if (G.nodeCount() === 0) return
-
   // Group nodes together, and add additional edges from Smin to sources
   const GG = groupedGraph(G, rankSets)
+  if (GG.nodeCount() === 0) return
 
   // Add additional edges from Smin to sources
   addTemporaryEdges(GG)
@@ -25,20 +24,16 @@ export default function assignRanks (G, rankSets) {
   moveSourcesRight(GG)
 
   // Apply calculated ranks to original graph
-  G.nodes().forEach(u => {
-    if (!G.node(u)) G.setNode(u, {})
-  })
-
-  const ranks = []
+  // const ranks = []
   GG.nodes().forEach(u => {
     const node = GG.node(u)
-    while (node.rank >= ranks.length) ranks.push([])
+    // while (node.rank >= ranks.length) ranks.push([])
     node.nodes.forEach(v => {
-      ranks[node.rank].push(v)
-      // G.node(v).rank = node.rank
+      // ranks[node.rank].push(v)
+      G.node(v).rank = node.rank
     })
   })
-  return ranks
+  // return ranks
 }
 
 function addTemporaryEdges (GG) {

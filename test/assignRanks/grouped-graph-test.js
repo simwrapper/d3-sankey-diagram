@@ -1,14 +1,15 @@
 import groupedGraph from '../../src/assignRanks/grouped-graph'
-import { Graph } from 'graphlib'
+import graphify from '../../src/graphify.js'
 import tape from 'tape'
 
 // XXX reversing edges into Smin and out of Smax?
 // XXX reversing edges marked as "right to left"?
 
 tape('rank assignment: groupedGraph() produces one group per node, without ranksets', (test) => {
-  const G = new Graph({directed: true})
-  G.setEdge('a', 'b')
-  G.setEdge('a', 'c')
+  const G = graphify()([], [
+    {source: 'a', target: 'b'},
+    {source: 'a', target: 'c'}
+  ])
 
   const GG = groupedGraph(G)
 
@@ -21,9 +22,10 @@ tape('rank assignment: groupedGraph() produces one group per node, without ranks
 })
 
 tape('rank assignment: groupedGraph() ignores repeated edges', (test) => {
-  const G = new Graph({directed: true, multigraph: true})
-  G.setEdge('a', 'b', 'x')
-  G.setEdge('a', 'b', 'y')
+  const G = graphify()([], [
+    {source: 'a', target: 'b', type: 'x'},
+    {source: 'a', target: 'b', type: 'y'}
+  ])
 
   const GG = groupedGraph(G)
 
@@ -35,9 +37,10 @@ tape('rank assignment: groupedGraph() ignores repeated edges', (test) => {
 })
 
 tape('rank assignment: groupedGraph() produces one group per rankset', (test) => {
-  const G = new Graph({directed: true})
-  G.setEdge('a', 'b')
-  G.setEdge('a', 'c')
+  const G = graphify()([], [
+    {source: 'a', target: 'b'},
+    {source: 'a', target: 'c'}
+  ])
 
   const GG = groupedGraph(G, [{type: 'same', nodes: ['b', 'c']}])
 
@@ -49,9 +52,10 @@ tape('rank assignment: groupedGraph() produces one group per rankset', (test) =>
 })
 
 tape('rank assignment: groupedGraph() respects explicit "min" rankset', (test) => {
-  const G = new Graph({directed: true})
-  G.setEdge('a', 'b')
-  G.setEdge('a', 'c')
+  const G = graphify()([], [
+    {source: 'a', target: 'b'},
+    {source: 'a', target: 'c'}
+  ])
 
   const GG = groupedGraph(G, [{type: 'min', nodes: ['b', 'c']}])
 
@@ -63,8 +67,8 @@ tape('rank assignment: groupedGraph() respects explicit "min" rankset', (test) =
 })
 
 tape('rank assignment: groupedGraph() sets delta on forward edges to 1', (test) => {
-  const G = new Graph({directed: true})
-  const GG = groupedGraph(G.setEdge('a', 'b'))
+  const G = graphify()([], [{source: 'a', target: 'b'}])
+  const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.node('1'), {type: 'same', nodes: ['b']})
   test.deepEqual(GG.edge('0', '1'), {delta: 1})
@@ -72,8 +76,8 @@ tape('rank assignment: groupedGraph() sets delta on forward edges to 1', (test) 
 })
 
 tape('rank assignment: groupedGraph() sets delta on forward-backwards edges to 0', (test) => {
-  const G = new Graph({directed: true})
-  const GG = groupedGraph(G.setEdge('a', 'b').setNode('b', {direction: 'l'}))
+  const G = graphify()([{id: 'b', backwards: true}], [{source: 'a', target: 'b'}])
+  const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.node('1'), {type: 'same', nodes: ['b']})
   test.deepEqual(GG.edge('0', '1'), {delta: 0})
@@ -81,8 +85,8 @@ tape('rank assignment: groupedGraph() sets delta on forward-backwards edges to 0
 })
 
 tape('rank assignment: groupedGraph() sets delta on backwards-forwards edges to 0 and reverses', (test) => {
-  const G = new Graph({directed: true})
-  const GG = groupedGraph(G.setEdge('a', 'b').setNode('a', {direction: 'l'}))
+  const G = graphify()([{id: 'a', backwards: true}], [{source: 'a', target: 'b'}])
+  const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.node('1'), {type: 'same', nodes: ['b']})
   test.deepEqual(GG.edge('1', '0'), {delta: 0})
@@ -90,8 +94,8 @@ tape('rank assignment: groupedGraph() sets delta on backwards-forwards edges to 
 })
 
 tape('rank assignment: groupedGraph() sets delta on backwards-backwards edges to 1 and reverses', (test) => {
-  const G = new Graph({directed: true})
-  const GG = groupedGraph(G.setEdge('a', 'b').setNode('a', {direction: 'l'}).setNode('b', {direction: 'l'}))
+  const G = graphify()([{id: 'a', backwards: true}, {id: 'b', backwards: true}], [{source: 'a', target: 'b'}])
+  const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.node('1'), {type: 'same', nodes: ['b']})
   test.deepEqual(GG.edge('1', '0'), {delta: 1})
@@ -99,16 +103,16 @@ tape('rank assignment: groupedGraph() sets delta on backwards-backwards edges to
 })
 
 tape('rank assignment: groupedGraph() sets delta on forward-forward loops to 0', (test) => {
-  const G = new Graph({directed: true})
-  const GG = groupedGraph(G.setEdge('a', 'a').setNode('a', {direction: 'r'}))
+  const G = graphify()([{id: 'a', backwards: false}], [{source: 'a', target: 'a'}])
+  const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.edge('0', '0'), {delta: 0})
   test.end()
 })
 
 tape('rank assignment: groupedGraph() sets delta on backwards-backwards loops to 0', (test) => {
-  const G = new Graph({directed: true})
-  const GG = groupedGraph(G.setEdge('a', 'a').setNode('a', {direction: 'l'}))
+  const G = graphify()([{id: 'a', backwards: true}], [{source: 'a', target: 'a'}])
+  const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.edge('0', '0'), {delta: 0})
   test.end()

@@ -2,7 +2,8 @@ import initialOrdering from '../../src/sortNodes/initial-ordering.js'
 import { exampleBlastFurnaceWithDummy } from './examples'
 import tape from 'tape'
 
-tape('initialOrdering', test => {
+// too complicated as a test
+tape.skip('initialOrdering', test => {
   let {G, ranks} = exampleBlastFurnaceWithDummy()
   let order = initialOrdering(G, ranks)
 

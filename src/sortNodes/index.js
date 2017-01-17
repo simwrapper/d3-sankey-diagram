@@ -1,9 +1,11 @@
 /** @module node-ordering */
 
+import { map } from 'd3-collection'
+import buildGraph from './build-graph.js'
 import initialOrdering from './initial-ordering.js'
 import swapNodes from './swap-nodes.js'
 import countCrossings from './count-crossings.js'
-import sortNodes from './weighted-median-sort.js'
+import sortNodesOnce from './weighted-median-sort.js'
 
 /**
  * Return an ordering for the graph G.
@@ -14,13 +16,14 @@ import sortNodes from './weighted-median-sort.js'
  * @param {Graph} G - The graph. Nodes must have a `rank` attribute.
  *
  */
-export default function ordering (G, ranks, maxIterations = 25) {
+export default function sortNodes (graph, maxIterations = 25) {
+  let { G, ranks } = buildGraph(graph)
   let order = initialOrdering(G, ranks)
   let best = order
   let i = 0
 
   while (i++ < maxIterations) {
-    sortNodes(G, order, (i % 2 === 0))
+    sortNodesOnce(G, order, (i % 2 === 0))
     swapNodes(G, order)
     if (allCrossings(G, order) < allCrossings(G, best)) {
       // console.log('improved', allCrossings(G, order), order);
@@ -28,10 +31,27 @@ export default function ordering (G, ranks, maxIterations = 25) {
     }
   }
 
-  // Put all nodes into the same band
-  // best = best.map(rank => [rank])
+  // Assign depth to nodes
+  const depths = map()
+  best.forEach(nodes => {
+    nodes.forEach((u, i) => {
+      depths.set(u, i)
+    })
+  })
 
-  return best
+  graph.nodes().forEach(node => {
+    node.depth = depths.get(node.id)
+  })
+
+  // XXX depends on buildGraph() setting edge.dummyNodes
+  graph.edges().forEach(edge => {
+    edge.dummyNodes.forEach((node, i) => {
+      const id = `__${edge.source.id}_${edge.target.id}_${i}`
+      node.depth = depths.get(id)
+    })
+  })
+
+  return graph
 }
 
 function allCrossings (G, order) {
@@ -44,10 +64,8 @@ function allCrossings (G, order) {
 
 function copy (order) {
   let result = []
-  for (let rank of order) {
-    let r = []
-    result.push(r)
-    for (let node of rank) r.push(node)
-  }
+  order.forEach(rank => {
+    result.push(rank.map(d => d))
+  })
   return result
 }
