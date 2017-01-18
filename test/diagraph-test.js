@@ -13,6 +13,29 @@ tape('Digraph.sources()', test => {
   test.end()
 })
 
+tape('Digraph.updateDummyNodes() adds dummy nodes', test => {
+  var G = graphify()([
+    {id: 'a'},
+    {id: 'b'},
+    {id: 'c'}
+  ], [
+    {source: 'a', target: 'b', type: 'x'},
+    {source: 'b', target: 'c', type: 'x'}
+  ]).ordering([ ['a'], [], ['b'], ['c'] ])
+
+  test.deepEqual(G.dummyNodes(), [])
+  test.equal(G.edges()[0].dummyNodes, undefined)
+  test.equal(G.edges()[1].dummyNodes, undefined)
+
+  test.deepEqual(G.updateDummyNodes().dummyNodes(), [
+    {id: '__a_b_1', rank: 1, backwards: false, edges: [G.edges()[0]]}
+  ])
+  test.equal(G.edges()[0].dummyNodes.length, 1)
+  test.equal(G.edges()[1].dummyNodes.length, 0)
+
+  test.end()
+})
+
 tape('Digraph.node() returns node by id', test => {
   var G = graphify()([
     {id: 'a'},

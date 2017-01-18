@@ -45,7 +45,7 @@ export default function sortNodes (graph, maxIterations = 25) {
 
   // XXX depends on buildGraph() setting edge.dummyNodes
   graph.edges().forEach(edge => {
-    edge.dummyNodes.forEach((node, i) => {
+    (edge.dummyNodes || []).forEach((node, i) => {
       const id = `__${edge.source.id}_${edge.target.id}_${i}`
       node.depth = depths.get(id)
     })

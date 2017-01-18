@@ -1,13 +1,20 @@
+import { map } from 'd3-collection'
 import sortNodes from './sortNodes/index.js'
+import dummyNodes from './sortNodes/dummy-nodes.js'
 import assignRanks from './assignRanks/index.js'
 
 export default function Digraph () {
   this._nodes = []
   this._edges = []
+  this._dummyNodes = map()
 }
 
 Digraph.prototype.nodes = function () {
   return this._nodes
+}
+
+Digraph.prototype.dummyNodes = function () {
+  return this._dummyNodes.values()
 }
 
 Digraph.prototype.edges = function () {
@@ -62,11 +69,33 @@ Digraph.prototype.ordering = function (order) {
 }
 
 Digraph.prototype.sortNodes = function (maxIterations = 25) {
-  sortNodes(this, maxIterations)
-  return this
+  return sortNodes(this, maxIterations)
 }
 
 Digraph.prototype.assignRanks = function (rankSets = []) {
-  assignRanks(this, rankSets)
+  return assignRanks(this, rankSets).updateDummyNodes()
+}
+
+Digraph.prototype.updateDummyNodes = function () {
+  this._dummyNodes.clear()
+
+  this._edges.forEach(edge => {
+    edge.dummyNodes = []
+    dummyNodes(edge).forEach(dummy => {
+      const id = `__${edge.source.id}_${edge.target.id}_${dummy.rank}`
+      var d
+      if (!this._dummyNodes.has(id)) {
+        d = dummy
+        d.edges = []
+        d.id = id
+        this._dummyNodes.set(id, dummy)
+      } else {
+        d = this._dummyNodes.get(id)
+      }
+      d.edges.push(edge)
+      edge.dummyNodes.push(d)
+    })
+  })
+
   return this
 }

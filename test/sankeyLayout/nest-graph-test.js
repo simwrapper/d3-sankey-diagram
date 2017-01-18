@@ -26,6 +26,27 @@ tape('nestGraph()', test => {
   test.end()
 })
 
+tape('nestGraph() includes dummy nodes', test => {
+  //
+  // a ---*--- c
+  //  `-- b --`
+  //
+  const graph = graphify()([], [
+    {source: 'a', target: 'b', value: 1},
+    {source: 'b', target: 'c', value: 1},
+    {source: 'a', target: 'c', value: 1}
+  ]).ordering([ [['a']], [['b']], [['c']] ])
+        .updateDummyNodes()
+
+  const nested = nestGraph(graph)
+  test.deepEqual(ids(nested), [
+    [ ['a'] ],
+    [ ['b', '__a_c_1'] ],
+    [ ['c'] ]
+  ])
+  test.end()
+})
+
 function ids (layers) {
   return layers.map(bands => bands.map(nodes => nodes.map(d => d.id)))
 }

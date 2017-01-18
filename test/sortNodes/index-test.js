@@ -22,7 +22,7 @@ tape('sortNodes()', test => {
 
   sortNodes(graph)
 
-  test.deepEqual(depths(graph), {
+  test.deepEqual(depths(graph.nodes()), {
     'a': 0,
     'b': 0,
     'c': 1,
@@ -48,25 +48,24 @@ tape('sortNodes() with dummy nodes', test => {
   graph.node('c').rank = 2
   graph.node('d').rank = 2
 
-  sortNodes(graph)
+  sortNodes(graph.updateDummyNodes())
 
-  test.deepEqual(depths(graph), {
+  test.deepEqual(depths(graph.nodes()), {
     'a': 0,
     'b': 1,
     'c': 1,
     'd': 0
   })
 
-  const edge = graph.edges().filter(e => e.source.id === 'a' && e.target.id === 'd')[0]
-  test.deepEqual(edge.dummyNodes, [
-    {backwards: false, rank: 1, depth: 0}
-  ])
+  test.deepEqual(depths(graph.dummyNodes()), {
+    '__a_d_1': 0
+  })
 
   test.end()
 })
 
-function depths (G) {
+function depths (nodes) {
   var r = {}
-  G.nodes().forEach(d => { r[d.id] = d.depth })
+  nodes.forEach(d => { r[d.id] = d.depth })
   return r
 }
