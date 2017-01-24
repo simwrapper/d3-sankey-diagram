@@ -10,6 +10,8 @@ import { sum } from 'd3-array'
 import positionHorizontally from './horizontal.js'
 import { default as positionVertically, bandValues } from './vertical.js'
 import nestGraph from './nest-graph.js'
+import orderLinks from './link-ordering.js'
+import layoutLinks from './layout-links.js'
 
 export default function sankeyLayout () {
   var size = [1, 1]
@@ -28,6 +30,8 @@ export default function sankeyLayout () {
     // position nodes
     positionVertically(graph, nested, size[1], whitespace, separation)
     positionHorizontally(nested, size[0])
+    orderLinks(graph)
+    layoutLinks(graph)
 
     return graph
   }
@@ -69,6 +73,12 @@ export default function sankeyLayout () {
     return position
   }
 
+  position.edgeValue = function (x) {
+    if (!arguments.length) return edgeValue
+    edgeValue = x
+    return position
+  }
+
   return position
 }
 
@@ -82,6 +92,11 @@ function setNodeValues (graph, edgeValue, scale) {
     const incoming = sum(d.incoming, d => d.value)
     const outgoing = sum(d.outgoing, d => d.value)
     d.value = Math.max(incoming, outgoing)
+    d.dy = d.value * scale
+  })
+
+  graph.dummyNodes().forEach(d => {
+    d.value = sum(d.edges, d => d.value)
     d.dy = d.value * scale
   })
 }

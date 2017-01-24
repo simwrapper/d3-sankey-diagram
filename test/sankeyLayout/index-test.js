@@ -3,6 +3,30 @@ import tape from 'tape'
 import graphify from '../../src/graphify.js'
 import { assertAlmostEqual } from '../assert-almost-equal'
 
+tape('sankeyLayout() has the expected defaults', test => {
+  var l = sankeyLayout()
+  test.equal(l.edgeValue()({data: {value: 42}}), 42)
+  test.end()
+})
+
+tape('sankeyLayout() respects the edgeValue accessor', test => {
+  const layout = sankeyLayout()
+        .size([1, 8])
+        .edgeValue(d => d.data.foo)
+
+  const edges = [
+    {source: '0', target: '4', foo: 5},
+    {source: '1', target: '4', foo: 5},
+    {source: '2', target: '4', foo: 5},
+    {source: '3', target: '4', foo: 5}
+  ]
+
+  const graph = layout(graphify()([], edges).ordering([['0', '1', '2', '3'], ['4']]))
+
+  test.deepEqual(nodeAttr(graph, d => d.dy), [1, 1, 1, 1, 4])
+  test.end()
+})
+
 tape('sankeyLayout#scaleToFit', test => {
   const graph = example4to1()
   const pos = sankeyLayout()
@@ -18,7 +42,7 @@ tape('sankeyLayout#scaleToFit', test => {
   test.end()
 })
 
-tape('sankeyLayout() basic positioning', test => {
+tape('sankeyLayout() sets node.x and node.y', test => {
   const graph = example4to1()
 
   // 50% whitespace: scale = 8 / 20 * 0.5 = 0.2
@@ -38,6 +62,65 @@ tape('sankeyLayout() basic positioning', test => {
   ], 1e-6, 'node y')
 
   assertAlmostEqual(test, nodeAttr(graph, d => d.x), [0, 0, 0, 0, 1], 'node x')
+  test.end()
+})
+
+tape('sankeyLayout() sets edge.segments', test => {
+  const graph = example4to1()
+  sankeyLayout().size([1, 8])(graph)
+
+  test.deepEqual(graph.edges().map(d => d.segments.length), [1, 1, 1, 1])
+  test.equal(graph.edges()[0].segments[0].x0, 0)
+    // {x0: 0, y0: graph.node('0').y + 0.5, x1: 1, y1: graph.node('4').y + 0.5},
+    // {x0: 0, y0: graph.node('1').y + 0.5, x1: 1, y1: graph.node('4').y + 1.5},
+    // {x0: 0, y0: graph.node('2').y + 0.5, x1: 1, y1: graph.node('4').y + 2.5},
+    // {x0: 0, y0: graph.node('3').y + 0.5, x1: 1, y1: graph.node('4').y + 3.5}
+  test.end()
+})
+
+tape('sankeyLayout() positions dummy nodes', test => {
+  //
+  // a -- b -- c
+  //  `---*---`
+  //
+  const graph = graphify()([], [
+    {source: 'a', target: 'b', value: 1},
+    {source: 'b', target: 'c', value: 1},
+    {source: 'a', target: 'c', value: 1}
+  ]).ordering([ [['a']], [['b']], [['c']] ])
+        .updateDummyNodes()
+
+  sankeyLayout()(graph)
+
+  const dummy = graph.edges()[2].dummyNodes[0]
+  test.deepEqual(dummy, graph.dummyNodes()[0])
+  test.deepEqual(dummy.x, graph.node('b').x)
+  test.ok(dummy.y > graph.node('b').y, 'y > b.y')
+  test.equal(dummy.dy, graph.node('b').dy, 'dummy.dy == b.y')
+  test.end()
+})
+
+tape('sankeyLayout() positions links through dummy nodes with multiple segments', test => {
+  //
+  // a -- b -- c
+  //  `---*---`
+  //
+  const graph = graphify()([], [
+    {source: 'a', target: 'b', value: 1},
+    {source: 'b', target: 'c', value: 1},
+    {source: 'a', target: 'c', value: 1}
+  ]).ordering([ [['a']], [['b']], [['c']] ])
+        .updateDummyNodes()
+
+  sankeyLayout()(graph)
+
+  const segments = graph.edges()[2].segments
+  console.log(segments)
+  test.equal(segments.length, 2)
+  test.equal(segments[0].x0, graph.node('a').x)
+  test.equal(segments[0].x1, graph.node('b').x)
+  test.equal(segments[1].x0, graph.node('b').x)
+  test.equal(segments[1].x1, graph.node('c').x)
   test.end()
 })
 
