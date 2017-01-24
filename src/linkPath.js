@@ -1,6 +1,11 @@
-import d3 from 'd3';
+import { interpolate } from 'd3-interpolate'
+
+function defaultSegments (d) {
+  return d.segments
+}
 
 export default function sankeyLink() {
+  var segments = defaultSegments
 
   function radiusBounds(d) {
     var Dx = d.x1 - d.x0,
@@ -11,6 +16,14 @@ export default function sankeyLink() {
   }
 
   function link(d) {
+    var path = ''
+    segments(d).forEach(seg => {
+      path += segmentPath(seg)
+    })
+    return path
+  }
+
+  function segmentPath (d) {
     var dir = (d.d0 || 'r') + (d.d1 || 'r');
     //console.log(dir, d);
     if (d.source && d.source === d.target) {
@@ -283,5 +296,18 @@ export default function sankeyLink() {
             "Z");
   }
 
+  link.segments = function (x) {
+    if (arguments.length) {
+      segments = required(x)
+      return link
+    }
+    return segments
+  }
+
   return link;
+}
+
+function required (f) {
+  if (typeof f !== 'function') throw new Error()
+  return f
 }

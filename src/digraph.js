@@ -69,11 +69,13 @@ Digraph.prototype.ordering = function (order) {
 }
 
 Digraph.prototype.sortNodes = function (maxIterations = 25) {
-  return sortNodes(this, maxIterations)
+  sortNodes(this, maxIterations)
+  return this
 }
 
 Digraph.prototype.assignRanks = function (rankSets = []) {
-  return assignRanks(this, rankSets).updateDummyNodes()
+  assignRanks(this, rankSets)
+  return this.updateDummyNodes()
 }
 
 Digraph.prototype.updateDummyNodes = function () {

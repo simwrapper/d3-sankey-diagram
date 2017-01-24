@@ -1,99 +1,106 @@
-import sankeyLink from '../src/linkPath';
+import sankeyLink from '../src/linkPath.js'
+import tape from 'tape'
+import compareSVGPath from './compareSVGPath.js'
 
-import test from 'tape';
+tape('sankeyLink() has the expected defaults', test => {
+  var link = sankeyLink()
+  test.equal(link.segments()({segments: 'foo'}), 'foo')
+  test.end()
+})
 
-import { assertAlmostEqual } from './assert-almost-equal';
-import compareSVGPath from './compareSVGPath';
+tape('sankeyLink.segments(s) tests that s is a function', test => {
+  var link = sankeyLink()
+  test.throws(function () { link.segments(42) })
+  test.throws(function () { link.segments(null) })
+  test.end()
+})
 
-
-test('link SVG: different radii', t => {
-  let link = sankeyLink();
-  let edge1 = {
+tape('sankeyLink() path curves downwards with different radii', test => {
+  const segment = {
     x0: 0,
     y0: 0,
     x1: 30,
     y1: 70,
     dy: 2,
     r0: 10,
-    r1: 20,
-  };
+    r1: 20
+  }
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, link(edge1),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-1 ' +
                  'A11 11 1.571 0 1 11,10 ' +
                  'L11,50 ' +
                  'A19 19 1.571 0 0 30,69 ' +
                  'L30,71 ' +
-                 'A21 21 1.571 0 1 9,50 '+
+                 'A21 21 1.571 0 1 9,50 ' +
                  'L9,10 ' +
                  'A9 9 1.571 0 0 0,1 ' +
-                 'Z', 'edge1');
+                 'Z')
+  test.end()
+})
 
-  let edge2 = {
+tape('sankeyLink() path curves upwards with different radii', test => {
+  const segment = {
     x0: 0,
     y0: 0,
     x1: 30,
     y1: -70,
     dy: 2,
     r0: 10,
-    r1: 20,
-  };
+    r1: 20
+  }
 
-  compareSVGPath(t, link(edge2),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-1 ' +
                  'A9 9 1.571 0 0 9,-10 ' +
                  'L9,-50 ' +
                  'A21 21 1.571 0 1 30,-71 ' +
                  'L30,-69 ' +
-                 'A19 19 1.571 0 0 11,-50 '+
+                 'A19 19 1.571 0 0 11,-50 ' +
                  'L11,-10 ' +
                  'A11 11 1.571 0 1 0,1 ' +
-                 'Z', 'edge2');
-  t.end();
-});
+                 'Z')
+  test.end()
+})
 
-
-test('link SVG: default link shape has two adjacent circular arcs', t => {
-  let link = sankeyLink();
-  let edge = {
+tape('sankeyLink() default link shape has two adjacent circular arcs', test => {
+  const segment = {
     x0: 0,
     x1: 15,
     y0: 0,
     y1: 10,
     dy: 2
-  };
+  }
 
   // radius = 5
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, link(edge),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-1 ' +
                  'A6 6 0.729 0 1 4,0.527 ' +
                  'L12.333,7.981 ' +
                  'A4 4 0.729 0 0 15,9 ' +
                  'L15,11 ' +
-                 'A6 6 0.729 0 1 11,9.472 '+
+                 'A6 6 0.729 0 1 11,9.472 ' +
                  'L2.666,2.018 ' +
                  'A4 4 0.729 0 0 0,1 ' +
-                 'Z');
-  t.end();
-});
+                 'Z')
+  test.end()
+})
 
-
-test('link SVG: default link shape reduces to straight line', t => {
-  let link = sankeyLink();
-  let edge = {
+tape('sankeyLink() reduces to straight line', test => {
+  const segment = {
     x0: 0,
     y0: 0,
     x1: 10,
     y1: 0,
     dy: 2,
     r0: 1,
-    r1: 1,
-  };
+    r1: 1
+  }
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, link(edge),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-1 ' +
                  'A0 0 0 0 0 0,-1 ' +
                  'L10,-1 ' +
@@ -102,28 +109,25 @@ test('link SVG: default link shape reduces to straight line', t => {
                  'A0 0 0 0 0 10,1 ' +
                  'L0,1 ' +
                  'A0 0 0 0 0 0,1 ' +
-                 'Z');
-
-  t.end();
-});
-
+                 'Z')
+  test.end()
+})
 
 // XXX check this with r0, r1
-test('link SVG: specifying link radius', t => {
-  let link = sankeyLink();
-  let edge = {
+tape('sankeyLink() specifying link radius', test => {
+  const segment = {
     x0: 0,
     x1: 2,
     y0: 0,
     y1: 10,
     dy: 2,
     r1: 1,  // minimum radius
-    r2: 1,  // minimum radius
-  };
+    r2: 1   // minimum radius
+  }
 
   // radius = 1, angle = 90
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, link(edge),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-1 ' +
                  'A2 2 1.570 0 1 2,0.999 ' +
                  'L2,9 ' +
@@ -132,29 +136,37 @@ test('link SVG: specifying link radius', t => {
                  'A2 2 1.570 0 1 0,9 ' +
                  'L0,1 ' +
                  'A0 0 1.570 0 0 0,1 ' +
-                 'Z');
-  t.end();
-});
+                 'Z')
+  test.end()
+})
 
-
-test('link SVG: minimum thickness', t => {
-  let link = sankeyLink();
-  let edge = {
+tape('sankeyLink() minimum thickness when dy small', test => {
+  const segment = {
     x0: 0,
     x1: 10,
     y0: 0,
     y1: 0,
     dy: 2
-  };
+  }
 
-  let path1 = link(edge);
-  edge.dy = 0.01;
-  let path2 = link(edge);
+  const path1 = oneSegmentLink(segment)
+  segment.dy = 0.01
+  const path2 = oneSegmentLink(segment)
 
-  compareSVGPath(t, path1, path2, 'minimum thickness should be 2');
+  compareSVGPath(test, path1, path2)
+  test.end()
+})
 
-  edge.dy = 0;
-  compareSVGPath(t, link(edge),
+tape('sankeyLink() thickness goes to zero when dy = 0', test => {
+  const segment = {
+    x0: 0,
+    x1: 10,
+    y0: 0,
+    y1: 0,
+    dy: 0
+  }
+
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,0 ' +
                  'A0 0 0 0 0 0,0 ' +
                  'L10,0 ' +
@@ -163,16 +175,14 @@ test('link SVG: minimum thickness', t => {
                  'A0 0 0 0 0 10,0 ' +
                  'L0,0 ' +
                  'A0 0 0 0 0 0,0 ' +
-                 'Z', 'should disappear when dy = 0');
+                 'Z')
+  test.end()
+})
 
-  t.end();
-});
-
-
-// test('link SVG: self-loops are drawn below with default radius 1.5x width', t => {
+// tape('sankeyLink() self-loops are drawn below with default radius 1.5x width', test => {
 //   let link = sankeyLink(),
 //       node = {},
-//       edge = {
+//       segment = {
 //         x0: 0,
 //         x1: 0,
 //         y0: 0,
@@ -183,30 +193,29 @@ test('link SVG: minimum thickness', t => {
 //       };
 
 //   // Arc: A rx ry theta large-arc-flag direction-flag x y
-//   compareSVGPath(t, link(edge),
+//   compareSVGPath(test, link(segment),
 //                  'M0.1,-5 ' +
 //                  'A12.5 12.5 6.283 1 1 -0.1,-5 ' +
 //                  'L-0.1,5 ' +
 //                  'A2.5 2.5 6.283 1 0 0.1,5 ' +
 //                  'Z');
 
-//   t.end();
+//   test.end();
 // });
 
-
-test('link SVG: flow from forward to reverse node', t => {
-  let edge = {
+tape('sankeyLink() flow from forward to reverse node', test => {
+  let segment = {
     x0: 0,
     y0: 0,
     x1: 0,
     y1: 50,
     dy: 10,
     d0: 'r',
-    d1: 'l',
-  };
+    d1: 'l'
+  }
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, sankeyLink()(edge),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-5 ' +
                  'A15 15 1.570 0 1 15,10 ' +
                  'L15,40 ' +
@@ -215,11 +224,11 @@ test('link SVG: flow from forward to reverse node', t => {
                  'A5 5 1.570 0 0 5,40 ' +
                  'L5,10 ' +
                  'A5 5 1.570 0 0 0,5 ' +
-                 'Z');
+                 'Z')
 
   // force radius
-  edge.r0 = edge.r1 = 20;
-  compareSVGPath(t, sankeyLink()(edge),
+  segment.r0 = segment.r1 = 20
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-5 ' +
                  'A25 25 1.570 0 1 25,20 ' +
                  'L25,30 ' +
@@ -228,25 +237,24 @@ test('link SVG: flow from forward to reverse node', t => {
                  'A15 15 1.570 0 0 15,30 ' +
                  'L15,20 ' +
                  'A15 15 1.570 0 0 0,5 ' +
-                 'Z');
+                 'Z')
 
-  t.end();
-});
+  test.end()
+})
 
-
-test('link SVG: flow from reverse to forward node', t => {
-  let edge = {
+tape('sankeyLink() flow from reverse to forward node', test => {
+  let segment = {
     x0: 0,
     y0: 0,
     x1: 0,
     y1: 50,
     dy: 10,
     d0: 'l',
-    d1: 'r',
-  };
+    d1: 'r'
+  }
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, sankeyLink()(edge),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-5 ' +
                  'A15 15 1.570 0 0 -15,10 ' +
                  'L-15,40 ' +
@@ -255,24 +263,23 @@ test('link SVG: flow from reverse to forward node', t => {
                  'A5 5 1.570 0 1 -5,40 ' +
                  'L-5,10 ' +
                  'A5 5 1.570 0 1 0,5 ' +
-                 'Z');
-  t.end();
-});
+                 'Z')
+  test.end()
+})
 
-
-test('link SVG: flow from reverse to reverse node', t => {
-  let edge = {
+tape('sankeyLink() flow from reverse to reverse node', test => {
+  let segment = {
     x0: 20,
     y0: 0,
     x1: 0,
     y1: 0,
     dy: 10,
     d0: 'l',
-    d1: 'l',
-  };
+    d1: 'l'
+  }
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, sankeyLink()(edge),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,-5 ' +
                  'A0 0 0 0 0 0,-5 ' +
                  'L20,-5 ' +
@@ -281,28 +288,76 @@ test('link SVG: flow from reverse to reverse node', t => {
                  'A0 0 0 0 0 20,5 ' +
                  'L0,5 ' +
                  'A0 0 0 0 0 0,5 ' +
-                 'Z');
-  t.end();
-});
+                 'Z')
+  test.end()
+})
 
-
-test('link SVG: flow from forward to offstage node', t => {
-  let edge = {
+tape('sankeyLink() flow from forward to offstage node', test => {
+  let segment = {
     x0: 0,
     y0: 5,
     x1: 10,
     y1: 30,
     dy: 10,
     d0: 'r',
-    d1: 'd',
-  };
+    d1: 'd'
+  }
 
   // Arc: A rx ry theta large-arc-flag direction-flag x y
-  compareSVGPath(t, sankeyLink()(edge),
+  compareSVGPath(test, oneSegmentLink(segment),
                  'M0,0 ' +
                  'A15 15 1.570 0 1 15,15 ' +
                  'L15,30 5,30 5,15 ' +
                  'A5 5 1.570 0 0 0,10 ' +
-                 'Z');
-  t.end();
-});
+                 'Z')
+  test.end()
+})
+
+tape('sankeyLink() with multiple segments', test => {
+  const edge = {
+    segments: [
+      {
+        x0: 0,
+        y0: 0,
+        x1: 10,
+        y1: 0,
+        dy: 2
+      },
+      {
+        x0: 10,
+        y0: 0,
+        x1: 20,
+        y1: 0,
+        dy: 2
+      }
+    ]
+  }
+
+  // Arc: A rx ry theta large-arc-flag direction-flag x y
+  compareSVGPath(test, sankeyLink()(edge),
+                 'M0,-1 ' +
+                 'A0 0 0 0 0 0,-1 ' +
+                 'L10,-1 ' +
+                 'A0 0 0 0 0 10,-1 ' +
+                 'L10,1 ' +
+                 'A0 0 0 0 0 10,1 ' +
+                 'L0,1 ' +
+                 'A0 0 0 0 0 0,1 ' +
+                 'Z' +
+                 'M10,-1 ' +
+                 'A0 0 0 0 0 10,-1 ' +
+                 'L20,-1 ' +
+                 'A0 0 0 0 0 20,-1 ' +
+                 'L20,1 ' +
+                 'A0 0 0 0 0 20,1 ' +
+                 'L10,1 ' +
+                 'A0 0 0 0 0 10,1 ' +
+                 'Z')
+  test.end()
+})
+
+function oneSegmentLink (segment) {
+  return sankeyLink()({
+    segments: [segment]
+  })
+}
