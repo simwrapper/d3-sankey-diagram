@@ -73,9 +73,9 @@ Digraph.prototype.sortNodes = function (maxIterations = 25) {
   return this
 }
 
-Digraph.prototype.assignRanks = function (rankSets = []) {
+Digraph.prototype.assignRanks = function (rankSets = [], dummy = true) {
   assignRanks(this, rankSets)
-  return this.updateDummyNodes()
+  return dummy ? this.updateDummyNodes() : this
 }
 
 Digraph.prototype.updateDummyNodes = function () {
