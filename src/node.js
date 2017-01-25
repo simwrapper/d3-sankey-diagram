@@ -39,12 +39,20 @@ export default function () {
       nodeLayout.set(this, layoutData)
     })
 
+    // Update un-transitioned
+    title
+      .text(nodeTitle)
+
+    text
+      .attr('text-anchor', function (d) { return nodeLayout.get(this).right ? 'end' : 'start' })
+      .text(nodeTitle)
+      .each(wrap, 100)
+
     // Are we in a transition?
     if (context !== selection) {
-      // not sure all of these are needed
-      title = title.transition(context)
       text = text.transition(context)
       line = line.transition(context)
+      clickTarget = clickTarget.transition(context)
     }
 
     // Update
@@ -61,14 +69,8 @@ export default function () {
     clickTarget
       .attr('height', function (d) { return nodeLayout.get(this).dy + 5 })
 
-    title
-      .text(nodeTitle)
-
     text
       .attr('transform', textTransform)
-      .attr('text-anchor', function (d) { return nodeLayout.get(this).right ? 'end' : 'start' })
-      .text(nodeTitle)
-      .each(wrap, 100)
 
     function textTransform (d) {
       const layout = nodeLayout.get(this)
