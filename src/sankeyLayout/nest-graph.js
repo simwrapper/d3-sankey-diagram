@@ -1,5 +1,5 @@
 import { nest } from 'd3-collection'
-import { max } from 'd3-array'
+import { sum, max } from 'd3-array'
 
 export default function nestGraph (graph) {
   const maxRank = max(graph.nodes(), d => d.rank || 0)
@@ -21,5 +21,24 @@ export default function nestGraph (graph) {
     }
   }
 
+  result.bandValues = bandValues(result)
+
   return result
+}
+
+export function bandValues (nested) {
+  if (nested.length === 0 || nested[0].length === 0) return []
+
+  const Nb = nested[0].length
+  const values = new Array(Nb)
+  for (let i = 0; i < Nb; i++) values[i] = 0
+
+  nested.forEach(rank => {
+    rank.forEach((band, j) => {
+      const total = sum(band, d => d.value)
+      values[j] = Math.max(values[j], total)
+    })
+  })
+
+  return values
 }

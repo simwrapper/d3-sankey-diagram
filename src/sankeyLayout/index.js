@@ -7,18 +7,18 @@
  */
 
 import { sum } from 'd3-array'
-import positionHorizontally from './horizontal.js'
-import { default as positionVertically, bandValues } from './vertical.js'
 import nestGraph from './nest-graph.js'
+import positionHorizontally from './horizontal.js'
+import positionVertically from './verticalJustified.js'
 import orderLinks from './link-ordering.js'
 import layoutLinks from './layout-links.js'
 
 export default function sankeyLayout () {
   var size = [1, 1]
   var scale = null
-  var separation = function (a, b) { return 1 }
   var edgeValue = function (e) { return e.data.value }
   var whitespace = 0.5
+  var verticalLayout = positionVertically()
 
   function position (graph) {
     if (scale === null) position.scaleToFit(graph)
@@ -28,8 +28,10 @@ export default function sankeyLayout () {
     const nested = nestGraph(graph)
 
     // position nodes
-    positionVertically(graph, nested, size[1], whitespace, separation)
+    verticalLayout(nested, size[1], whitespace)
     positionHorizontally(nested, size[0])
+
+    // sort & position links
     orderLinks(graph)
     layoutLinks(graph)
 
@@ -39,7 +41,7 @@ export default function sankeyLayout () {
   position.scaleToFit = function (graph) {
     setNodeValues(graph, edgeValue, scale)
     const nested = nestGraph(graph)
-    const maxValue = sum(bandValues(nested))
+    const maxValue = sum(nested.bandValues)
     if (maxValue <= 0) {
       scale = 1
     } else {
@@ -52,12 +54,6 @@ export default function sankeyLayout () {
   position.size = function (x) {
     if (!arguments.length) return size
     size = x
-    return position
-  }
-
-  position.separation = function (x) {
-    if (!arguments.length) return separation
-    separation = required(x)
     return position
   }
 
@@ -76,6 +72,12 @@ export default function sankeyLayout () {
   position.edgeValue = function (x) {
     if (!arguments.length) return edgeValue
     edgeValue = x
+    return position
+  }
+
+  position.verticalLayout = function (x) {
+    if (!arguments.length) return verticalLayout
+    verticalLayout = required(x)
     return position
   }
 

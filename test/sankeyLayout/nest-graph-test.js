@@ -26,6 +26,28 @@ tape('nestGraph()', test => {
   test.end()
 })
 
+tape('nestGraph() calculates band values', test => {
+  // 0 -- 2         : band x
+  //
+  //      1 -- 3    : band y
+  //        `- 4    :
+  //
+  const graph = graphify()([], [
+    {source: '0', target: '2', value: 5},
+    {source: '1', target: '3', value: 10},
+    {source: '1', target: '4', value: 15}
+  ]).ordering([ [['0'], []], [['2'], ['1']], [[], ['3', '4']] ])
+
+  graph.node('0').value = 5
+  graph.node('1').value = 25
+  graph.node('2').value = 5
+  graph.node('3').value = 10
+  graph.node('4').value = 15
+
+  test.deepEqual(nestGraph(graph).bandValues, [5, 25])
+  test.end()
+})
+
 tape('nestGraph() includes dummy nodes', test => {
   //
   // a ---*--- c
