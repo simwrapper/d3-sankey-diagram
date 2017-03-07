@@ -38,6 +38,17 @@ export default function sankeyLayout () {
     return graph
   }
 
+  position.layoutLinks = function (graph, doOrderLinks) {
+    if (scale === null) position.scaleToFit(graph)
+    // set node and edge sizes
+    setNodeValues(graph, edgeValue, scale)
+    if (doOrderLinks) {
+      orderLinks(graph)
+    }
+    layoutLinks(graph)
+    return graph
+  }
+
   position.scaleToFit = function (graph) {
     setNodeValues(graph, edgeValue, scale)
     const nested = nestGraph(graph)

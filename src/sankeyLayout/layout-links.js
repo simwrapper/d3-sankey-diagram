@@ -28,7 +28,7 @@ function setEdgeEndpoints (G) {
       const seg = edge.segments[0]
       seg.x0 = node.x
       seg.y0 = node.y + sy + edge.dy / 2
-      seg.d0 = node.direction || 'r'
+      seg.d0 = node.backwards ? 'l' : 'r'
       seg.dy = edge.dy
       sy += edge.dy
     })
@@ -37,7 +37,7 @@ function setEdgeEndpoints (G) {
       const seg = edge.segments[edge.segments.length - 1]
       seg.x1 = node.x
       seg.y1 = node.y + ty + edge.dy / 2
-      seg.d1 = node.direction || 'r'
+      seg.d1 = node.backwards ? 'l' : 'r'
       seg.dy = edge.dy
       ty += edge.dy
     })
@@ -54,7 +54,7 @@ function setEdgeEndpoints (G) {
           const segOut = edge.segments[i + 1]
           segIn.x1 = segOut.x0 = node.x
           segIn.y1 = segOut.y0 = node.y + y + edge.dy / 2
-          segIn.d1 = segOut.d0 = node.direction || 'r'
+          segIn.d1 = segOut.d0 = node.backwards ? 'l' : 'r'
           segIn.dy = edge.dy
           y += edge.dy
           break
