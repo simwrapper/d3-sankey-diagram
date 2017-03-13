@@ -77,6 +77,25 @@ tape('orderLinks() can align links by type', test => {
   test.end()
 })
 
+tape('orderLinks() puts self-loops at the bottom', test => {
+  const G = graphify()([], [
+    {source: '0', target: '1', value: 1},
+    {source: '1', target: '1', value: 1},
+    {source: '1', target: '2', value: 1}
+  ])
+  G.node('0').x = 0
+  G.node('0').y = 0
+  G.node('1').x = 1
+  G.node('1').y = 0
+  G.node('2').x = 2
+  G.node('2').y = 0
+  orderLinks(G)
+
+  test.deepEqual(outgoing(G.node('1')), ['2', '1'], 'node 1 outgoing')
+  test.deepEqual(incoming(G.node('1')), ['0', '1'], 'node 1 incoming')
+  test.end()
+})
+
 function example4to1 () {
   // 0|---\
   //       \

@@ -22,11 +22,11 @@ export default function orderEdges (G, {alignLinkTypes = false} = {}) {
   })
 }
 
-function compareDirection (clockwise = true) {
+function compareDirection (head = true) {
   return function (a, b) {
-    var da = linkDirection(a)
-    var db = linkDirection(b)
-    var c = clockwise ? 1 : -1
+    var da = linkDirection(a, head)
+    var db = linkDirection(b, head)
+    var c = head ? 1 : -1
 
     // links between same node, sort on type
     if (a.source === b.source && a.target === b.target) {

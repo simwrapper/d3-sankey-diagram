@@ -20,7 +20,7 @@ export default function neighbourPositions (G, order, i, j, u, includeLoops = fa
     thisRank.forEach((n, i) => {
       if (G.nodeEdges(n, u).length > 0) {
         positions.push(i + 0.5)
-        console.log('   ', n, i)
+        // console.log('   ', n, i)
       }
     })
   }
