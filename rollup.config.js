@@ -10,8 +10,22 @@ export default {
   moduleName: 'd3',
   globals: {
     'd3-collection': 'd3',
-    'd3-array': 'd3'
+    'd3-array': 'd3',
+    'd3-selection': 'd3',
+    'd3-transition': 'd3',
+    'd3-dispatch': 'd3',
+    'd3-format': 'd3',
+    'd3-interpolate': 'd3'
   },
+  external: [
+    'd3-collection',
+    'd3-array',
+    'd3-selection',
+    'd3-transition',
+    'd3-dispatch',
+    'd3-format',
+    'd3-interpolate'
+  ],
   plugins: [
     resolve({
       jsnext: true,
