@@ -19,6 +19,7 @@ export default function sankeyLayout () {
   var edgeValue = function (e) { return e.data.value }
   var whitespace = 0.5
   var verticalLayout = positionVertically()
+  var alignLinkTypes = false
 
   function position (graph) {
     if (scale === null) position.scaleToFit(graph)
@@ -32,7 +33,7 @@ export default function sankeyLayout () {
     positionHorizontally(nested, size[0])
 
     // sort & position links
-    orderLinks(graph)
+    orderLinks(graph, { alignLinkTypes: alignLinkTypes })
     layoutLinks(graph)
 
     return graph
@@ -89,6 +90,12 @@ export default function sankeyLayout () {
   position.verticalLayout = function (x) {
     if (!arguments.length) return verticalLayout
     verticalLayout = required(x)
+    return position
+  }
+
+  position.alignLinkTypes = function (x) {
+    if (!arguments.length) return alignLinkTypes
+    alignLinkTypes = !!x
     return position
   }
 
