@@ -2,8 +2,8 @@ import { nest } from 'd3-collection'
 import { sum, max } from 'd3-array'
 
 export default function nestGraph (graph) {
-  const maxRank = max(graph.nodes(), d => d.rank || 0)
-  const maxBand = max(graph.nodes(), d => d.band || 0)
+  const maxRank = max(graph.nodes(), d => d.rank || 0) || 0
+  const maxBand = max(graph.nodes(), d => d.band || 0) || 0
 
   const nodes = graph.nodes().concat(graph.dummyNodes())
 
@@ -14,10 +14,18 @@ export default function nestGraph (graph) {
     .map(nodes)
 
   const result = new Array(maxRank + 1)
+  let rank
   for (let i = 0; i <= maxRank; ++i) {
     result[i] = new Array(maxBand + 1)
-    for (let j = 0; j <= maxBand; ++j) {
-      result[i][j] = nested.get(i).get(j) || []
+    rank = nested.get(i)
+    if (rank) {
+      for (let j = 0; j <= maxBand; ++j) {
+        result[i][j] = rank.get(j) || []
+      }
+    } else {
+      for (let j = 0; j <= maxBand; ++j) {
+        result[i][j] = []
+      }
     }
   }
 
