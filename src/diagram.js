@@ -275,14 +275,14 @@ export default function sankeyDiagram () {
 
   function selectLink (d) {
     event.stopPropagation()
-    var el = select(this)[0][0]
-    dispatch.call('selectLink', el, d)
+    var el = select(this).node()
+    listeners.call('selectLink', el, d)
   }
 
   function selectNode (d) {
     event.stopPropagation()
-    var el = select(this)[0][0]
-    dispatch.call('selectNode', el, d)
+    var el = select(this).node()
+    listeners.call('selectNode', el, d)
   }
 
   // function selectGroup(d) {
