@@ -5,7 +5,7 @@ import Digraph from '../src/digraph.js'
 tape('graphify() has the expected defaults', test => {
   var g = graphify()
   test.equal(g.nodeId()({id: 'foo'}), 'foo')
-  test.equal(g.nodeBackwards()({backwards: true}), true)
+  test.equal(g.nodeBackwards()({direction: 'l'}), true)
   test.equal(g.sourceId()({source: 'bar'}), 'bar')
   test.equal(g.targetId()({target: 'baz'}), 'baz')
   test.equal(g.edgeType()({type: 'x'}), 'x')
@@ -15,7 +15,7 @@ tape('graphify() has the expected defaults', test => {
 tape('graphify(nodes, edges) builds the graph structure', test => {
   var g = graphify()
   var l = g([
-    {id: 'a', backwards: true},
+    {id: 'a', direction: 'l'},
     {id: 'b'}
   ], [
     {source: 'a', target: 'b', type: 'c'}
@@ -25,7 +25,7 @@ tape('graphify(nodes, edges) builds the graph structure', test => {
   var n = l.nodes()
   var e = l.edges()
   test.deepEqual(n, [
-    {id: 'a', incoming: [], outgoing: [e[0]], backwards: true, data: {id: 'a', backwards: true}},
+    {id: 'a', incoming: [], outgoing: [e[0]], backwards: true, data: {id: 'a', direction: 'l'}},
     {id: 'b', incoming: [e[0]], outgoing: [], backwards: false, data: {id: 'b'}}
   ])
   test.deepEqual(l.edges(), [

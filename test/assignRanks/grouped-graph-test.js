@@ -76,7 +76,7 @@ tape('rank assignment: groupedGraph() sets delta on forward edges to 1', (test) 
 })
 
 tape('rank assignment: groupedGraph() sets delta on forward-backwards edges to 0', (test) => {
-  const G = graphify()([{id: 'b', backwards: true}], [{source: 'a', target: 'b'}])
+  const G = graphify()([{id: 'b', direction: 'l'}], [{source: 'a', target: 'b'}])
   const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.node('1'), {type: 'same', nodes: ['b']})
@@ -85,7 +85,7 @@ tape('rank assignment: groupedGraph() sets delta on forward-backwards edges to 0
 })
 
 tape('rank assignment: groupedGraph() sets delta on backwards-forwards edges to 0 and reverses', (test) => {
-  const G = graphify()([{id: 'a', backwards: true}], [{source: 'a', target: 'b'}])
+  const G = graphify()([{id: 'a', direction: 'l'}], [{source: 'a', target: 'b'}])
   const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.node('1'), {type: 'same', nodes: ['b']})
@@ -94,7 +94,7 @@ tape('rank assignment: groupedGraph() sets delta on backwards-forwards edges to 
 })
 
 tape('rank assignment: groupedGraph() sets delta on backwards-backwards edges to 1 and reverses', (test) => {
-  const G = graphify()([{id: 'a', backwards: true}, {id: 'b', backwards: true}], [{source: 'a', target: 'b'}])
+  const G = graphify()([{id: 'a', direction: 'l'}, {id: 'b', direction: 'l'}], [{source: 'a', target: 'b'}])
   const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.node('1'), {type: 'same', nodes: ['b']})
@@ -111,7 +111,7 @@ tape('rank assignment: groupedGraph() sets delta on forward-forward loops to 0',
 })
 
 tape('rank assignment: groupedGraph() sets delta on backwards-backwards loops to 0', (test) => {
-  const G = graphify()([{id: 'a', backwards: true}], [{source: 'a', target: 'a'}])
+  const G = graphify()([{id: 'a', direction: 'l'}], [{source: 'a', target: 'a'}])
   const GG = groupedGraph(G)
   test.deepEqual(GG.node('0'), {type: 'min', nodes: ['a']})
   test.deepEqual(GG.edge('0', '0'), {delta: 0})

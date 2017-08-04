@@ -12,8 +12,8 @@ tape('rank assignment: overall', test => {
   //      <h---<g-`
   //
   const G = graphify()([
-    {id: 'g', backwards: true},
-    {id: 'h', backwards: true}
+    {id: 'g', direction: 'l'},
+    {id: 'h', direction: 'l'}
   ], [
     {source: 'a', target: 'b'},
     {source: 'b', target: 'c'},

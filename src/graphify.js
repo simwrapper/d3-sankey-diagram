@@ -6,7 +6,7 @@ function defaultNodeId (d) {
 }
 
 function defaultNodeBackwards (d) {
-  return d.backwards
+  return d.direction && d.direction.toLowerCase() === 'l'
 }
 
 function defaultSourceId (d) {
