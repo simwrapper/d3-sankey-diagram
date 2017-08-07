@@ -41,7 +41,7 @@ export default function () {
     var tid
 
     for (i = 0; i < nn; ++i) {
-      node = nodes[i] = newNode(nodeId(nodeData[i]), nodeData[i])
+      node = nodes[i] = newNode(nodeId(nodeData[i], i), nodeData[i])
       if (nodesByKey.has(node.id)) {
         throw new Error('duplicate node id: ' + node.id)
       }

@@ -61,6 +61,18 @@ tape('graphify(nodes, edges) observes the specified accessor functions', test =>
   test.end()
 })
 
+tape('nodeId() is given the node and its index', test => {
+  var g = graphify().nodeId(function (d, i) { return i })
+
+  var l = g([{id: 'a'}, {id: 'b'}], [{source: 0, target: 1}])
+
+  var n = l.nodes()
+  test.deepEqual(l.edges(), [
+    {source: n[0], target: n[1], type: undefined, data: {source: 0, target: 1}}
+  ])
+  test.end()
+})
+
 tape('graphify.nodeId(id) tests that nodeId is a function', test => {
   var g = graphify()
   test.throws(function () { g.nodeId(42) })
