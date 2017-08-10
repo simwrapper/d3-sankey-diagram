@@ -52,7 +52,12 @@ export default function sankeyLayout () {
   var rankSets = [] // XXX setter/getter
   var maxIterations = 25 // XXX setter/getter
 
-  var size = [1, 1]
+  // extent
+  var x0 = 0
+  var y0 = 0
+  var x1 = 1
+  var y1 = 1
+
   var scale = null
   var linkValue = function (e) { return e.value }
   var whitespace = 0.5
@@ -81,8 +86,15 @@ export default function sankeyLayout () {
     setWidths(G, scale)
 
     // position nodes
-    verticalLayout(nested, size[1], whitespace)
-    positionHorizontally(G, size[0])
+    verticalLayout(nested, y1 - y0, whitespace)
+    positionHorizontally(G, x1 - x0)
+
+    // adjust origin
+    G.nodes().forEach(u => {
+      const node = G.node(u)
+      node.x += x0
+      node.y += y0
+    })
 
     // // sort & position links
     orderLinks(G, { alignLinkTypes: alignLinkTypes })
@@ -154,7 +166,7 @@ export default function sankeyLayout () {
     if (maxValue <= 0) {
       scale = 1
     } else {
-      scale = size[1] / maxValue
+      scale = (y1 - y0) / maxValue
       if (whitespace !== 1) scale *= (1 - whitespace)
     }
   }
@@ -166,8 +178,19 @@ export default function sankeyLayout () {
   }
 
   sankey.size = function (x) {
-    if (!arguments.length) return size
-    size = x
+    if (!arguments.length) return [x1 - x0, y1 - y0]
+    x0 = y0 = 0
+    x1 = +x[0]
+    y1 = +x[1]
+    return sankey
+  }
+
+  sankey.extent = function (x) {
+    if (!arguments.length) return [[x0, y0], [x1, y1]]
+    x0 = +x[0][0]
+    y0 = +x[0][1]
+    x1 = +x[1][0]
+    y1 = +x[1][1]
     return sankey
   }
 

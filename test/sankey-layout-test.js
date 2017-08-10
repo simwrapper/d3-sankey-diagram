@@ -118,6 +118,45 @@ tape('sankey() sets link.points on long links', test => {
   test.end()
 })
 
+tape('sankey().size() sets width and height', test => {
+  const graph = {
+    nodes: [
+      {id: '0'},
+      {id: '1'}
+    ],
+    links: [
+      {source: '0', target: '1', value: 5}
+    ]
+  }
+
+  sankey().size([100, 100])(graph)
+  test.deepEqual(nodeAttr(graph, d => d.x), [0, 100], 'x')
+  test.deepEqual(nodeAttr(graph, d => d.y), [25, 25], 'y')
+
+  sankey().size([200, 200])(graph)
+  test.deepEqual(nodeAttr(graph, d => d.x), [0, 200], 'x')
+  test.deepEqual(nodeAttr(graph, d => d.y), [50, 50], 'y')
+
+  test.end()
+})
+
+tape('sankey().extent() sets x0, y0, x1, y1', test => {
+  const graph = {
+    nodes: [
+      {id: '0'},
+      {id: '1'}
+    ],
+    links: [
+      {source: '0', target: '1', value: 5}
+    ]
+  }
+
+  sankey().extent([[100, 100], [200, 200]])(graph)
+  test.deepEqual(nodeAttr(graph, d => d.x), [100, 200], 'x')
+  test.deepEqual(nodeAttr(graph, d => d.y), [125, 125], 'y')
+  test.end()
+})
+
 tape('sankey() horizontal positioning', test => {
   function nodeX (width) {
     const graph = {
