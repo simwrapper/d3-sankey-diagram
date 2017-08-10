@@ -1,11 +1,11 @@
 import { interpolate } from 'd3-interpolate'
 
-function defaultSegments (d) {
-  return d.segments
-}
+// function defaultSegments (d) {
+//   return d.segments
+// }
 
 export default function sankeyLink() {
-  var segments = defaultSegments
+  // var segments = defaultSegments
 
   function radiusBounds(d) {
     var Dx = d.x1 - d.x0,
@@ -17,15 +17,26 @@ export default function sankeyLink() {
 
   function link(d) {
     var path = ''
-    segments(d).forEach(seg => {
+    var seg
+    for (var i = 0; i < d.points.length - 1; ++i) {
+      seg = {
+        x0: d.points[i].x,
+        y0: d.points[i].y,
+        x1: d.points[i + 1].x,
+        y1: d.points[i + 1].y,
+        r0: d.points[i].ro,
+        r1: d.points[i + 1].ri,
+        d0: d.points[i].d,
+        d1: d.points[i + 1].d,
+        dy: d.dy
+      }
       path += segmentPath(seg)
-    })
+    }
     return path
   }
 
   function segmentPath (d) {
     var dir = (d.d0 || 'r') + (d.d1 || 'r');
-    //console.log(dir, d);
     if (d.source && d.source === d.target) {
       return selfLink(d);
     }
@@ -88,11 +99,6 @@ export default function sankeyLink() {
       hs = 0;
       hc = h;
     }
-
-    // if (d.source.id === 'ImprovedGrass' &&
-    //     d.target.id === 'Domestic bioenergy') {
-    //   console.log('link', r, d.r, d.Rmax);
-    // }
 
     function arc(dir, r) {
       var f = ( dir * (y1-y0) > 0) ? 1 : 0,

@@ -2,13 +2,14 @@
 
 import sankeyLink from './linkPath.js'
 import sankeyNode from './node.js'
-// import positionGroup from './positionGroup.js'
+import positionGroup from './positionGroup.js'
 
 import {select, event} from 'd3-selection'
 import {transition} from 'd3-transition'
 import {dispatch} from 'd3-dispatch'
 import {format} from 'd3-format'
 import {interpolate} from 'd3-interpolate'
+import {map} from 'd3-collection'
 
 export default function sankeyDiagram () {
   let margin = {top: 100, right: 100, bottom: 100, left: 100}
@@ -19,7 +20,7 @@ export default function sankeyDiagram () {
   let nodeCustom = d => null
   let linkCustom = d => null
   let linkColor = d => null
-  let linkTypeTitle = d => d.data.type
+  let linkTypeTitle = d => d.type
 
   let selectedNode = null
   let selectedEdge = null
@@ -70,15 +71,14 @@ export default function sankeyDiagram () {
       //   });
       // }
 
-      // // Groups of nodes
-      // const nodeMap = new Map();
-      // layout.nodes().forEach(n => nodeMap.set(n.id, n));
-      // const groups = (datum.groups || []).map(g => positionGroup(nodeMap, g));
+      // Groups of nodes
+      const nodeMap = map(G.nodes, n => n.id)
+      const groups = (G.groups || []).map(g => positionGroup(nodeMap, g));
 
       // Render
-      updateNodes(sankey, context, G.nodes())
-      updateLinks(sankey, context, G.edges())
-      // updateGroups(svg, groups);
+      updateNodes(sankey, context, G.nodes)
+      updateLinks(sankey, context, G.links)
+      updateGroups(svg, groups);
       // updateSlices(svg, layout.slices(nodes));
 
       // Events
@@ -214,33 +214,35 @@ export default function sankeyDiagram () {
   //   slice.exit().remove();
   // }
 
-  // function updateGroups(svg, groups) {
-  //   const group = svg.select('.groups').selectAll('.group')
-  //     .data(groups);
+  function updateGroups(svg, groups) {
+    let group = svg.select('.groups').selectAll('.group')
+      .data(groups);
 
-  //   const enter = group.enter().append('g')
-  //           .attr('class', 'group')
-  //           .on('click', selectGroup);
+    const enter = group.enter().append('g')
+            .attr('class', 'group')
+            // .on('click', selectGroup);
 
-  //   enter.append('rect');
-  //   enter.append('text')
-  //     .attr('x', -10)
-  //     .attr('y', -25);
+    enter.append('rect');
+    enter.append('text')
+      .attr('x', -10)
+      .attr('y', -25);
 
-  //   group
-  //     .style('display', d => d.title && d.nodes.length > 1 ? 'inline' : 'none')
-  //     .attr('transform', d => `translate(${d.rect.left},${d.rect.top})`)
-  //     .select('rect')
-  //     .attr('x', -10)
-  //     .attr('y', -20)
-  //     .attr('width', d => d.rect.right - d.rect.left + 20)
-  //     .attr('height', d => d.rect.bottom - d.rect.top + 30);
+    group = group.merge(enter)
 
-  //   group.select('text')
-  //     .text(d => d.title);
+    group
+      .style('display', d => d.title && d.nodes.length > 1 ? 'inline' : 'none')
+      .attr('transform', d => `translate(${d.rect.left},${d.rect.top})`)
+      .select('rect')
+      .attr('x', -10)
+      .attr('y', -20)
+      .attr('width', d => d.rect.right - d.rect.left + 20)
+      .attr('height', d => d.rect.bottom - d.rect.top + 30);
 
-  //   group.exit().remove();
-  // }
+    group.select('text')
+      .text(d => d.title);
+
+    group.exit().remove();
+  }
 
   function interpolateLink (b) {
     var interp = interpolate(this._currentSegments, b.segments)

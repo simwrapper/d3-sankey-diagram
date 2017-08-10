@@ -1,11 +1,11 @@
 import { nest } from 'd3-collection'
 import { sum, max } from 'd3-array'
 
-export default function nestGraph (graph) {
-  const maxRank = max(graph.nodes(), d => d.rank || 0) || 0
-  const maxBand = max(graph.nodes(), d => d.band || 0) || 0
+export default function nestGraph (nodes) {
+  const maxRank = max(nodes, d => d.rank || 0) || 0
+  const maxBand = max(nodes, d => d.band || 0) || 0
 
-  const nodes = graph.nodes().concat(graph.dummyNodes())
+  // const nodes = graph.nodes().concat(graph.dummyNodes())
 
   const nested = nest()
     .key(d => d.rank || 0)

@@ -1,7 +1,7 @@
 import { findFirst, sweepCurvatureInwards } from '../../src/sankeyLayout/utils.js'
 import tape from 'tape'
 
-tape('sankeyLayout: findMiddle() returns first link satisfying test', test => {
+tape('sankeyLayout: findFirst() returns first link satisfying test', test => {
   const links = [
     {y0: 0, y1: -10},
     {y0: 1, y1: 0},

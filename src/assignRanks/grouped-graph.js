@@ -1,6 +1,5 @@
 import { Graph } from 'graphlib'
 import { map } from 'd3-collection'
-
 /**
  * Create a new graph where nodes in the same rank set are merged into one node.
  *
@@ -33,48 +32,51 @@ export default function groupedGraph (G, rankSets = []) {
   }
 
   // use i to keep counting new ids
-  var d
   var nodes = G.nodes()
-  for (j = 0; j < nodes.length; ++j) {
-    d = nodes[j]
-    if (!nodeSets.has(d.id)) {
+  G.nodes().forEach(u => {
+    const d = G.node(u)
+    if (!nodeSets.has(u)) {
       id = '' + (i++)
-      set = { type: 'same', nodes: [d.id] }
-      nodeSets.set(d.id, id)
+      set = { type: 'same', nodes: [u] }
+      nodeSets.set(u, id)
       GG.setNode(id, set)
     }
-  }
+  })
 
   // Add edges between nodes/groups
-  var sourceSet
-  var targetSet
-  var edges = G.edges()
-  var edge
-  for (i = 0; i < edges.length; ++i) {
-    d = edges[i]
-    sourceSet = nodeSets.get(d.source.id)
-    targetSet = nodeSets.get(d.target.id)
+  G.edges().forEach(e => {
+    const d = G.edge(e)
+    const sourceSet = nodeSets.get(e.v)
+    const targetSet = nodeSets.get(e.w)
 
     // Minimum edge length depends on direction of nodes:
     //  -> to -> : 1
     //  -> to <- : 0
     //  <- to -> : 0 (in opposite direction??)
     //  <- to <- : 1 in opposite direction
-    edge = GG.edge(sourceSet, targetSet) || { delta: 0 }
+    const edge = GG.edge(sourceSet, targetSet) || { delta: 0 }
     if (sourceSet === targetSet) {
       edge.delta = 0
       GG.setEdge(sourceSet, targetSet, edge)
-    } else if (d.source.backwards) {
-      edge.delta = Math.max(edge.delta, d.target.backwards ? 1 : 0)
+    } else if (G.node(e.v).backwards) {
+      edge.delta = Math.max(edge.delta, G.node(e.w).backwards ? 1 : 0)
       GG.setEdge(targetSet, sourceSet, edge)
     } else {
-      edge.delta = Math.max(edge.delta, d.target.backwards ? 0 : 1)
+      edge.delta = Math.max(edge.delta, G.node(e.w).backwards ? 0 : 1)
       GG.setEdge(sourceSet, targetSet, edge)
     }
-  }
+  })
 
   return GG
 }
+
+// export function linkDelta (nodeBackwards, link) {
+//   if (nodeBackwards(link.source)) {
+//     return nodeBackwards(link.target) ? 1 : 0
+//   } else {
+//     return nodeBackwards(link.target) ? 0 : 1
+//   }
+// }
 
 function ensureSmin (G, rankSets) {
   for (var i = 0; i < rankSets.length; ++i) {
@@ -85,6 +87,6 @@ function ensureSmin (G, rankSets) {
 
   // find the first sourceSet node, or else use the first node
   var sources = G.sources()
-  var n0 = sources.length ? sources[0] : G.nodes()[0].id
+  var n0 = sources.length ? sources[0] : G.nodes()[0]
   return [{ type: 'min', nodes: [ n0 ] }].concat(rankSets)
 }

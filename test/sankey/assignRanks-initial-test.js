@@ -1,16 +1,20 @@
 import assignInitialRanks from '../../src/assignRanks/initial-ranks'
-
 import { Graph } from 'graphlib'
 import tape from 'tape'
 
 tape('rank assignment: assignInitialRanks', test => {
   const G = new Graph({directed: true})
-  G.setEdge('a', 'b')
-  G.setEdge('a', 'cd')
-  G.setEdge('b', 'cd')
-  G.setEdge('cd', 'e')
-  G.setEdge('b', 'e')  // REVERSED from other example
-  G.setEdge('f', 'cd')
+  G.setNode('a', {})
+  G.setNode('b', {})
+  G.setNode('cd', {})
+  G.setNode('e', {})
+  G.setNode('f', {})
+  G.setEdge('a', 'b', {})
+  G.setEdge('a', 'cd', {})
+  G.setEdge('b', 'cd', {})
+  G.setEdge('cd', 'e', {})
+  G.setEdge('b', 'e', {})  // REVERSED from other example
+  G.setEdge('f', 'cd', {})
 
   assignInitialRanks(G)
 
@@ -31,6 +35,9 @@ tape('rank assignment: assignInitialRanks', test => {
 tape('rank assignment: assignInitialRanks with loop', test => {
   // loops can easily happen with grouped nodes from rankSets
   const G = new Graph({directed: true})
+  G.setNode('a', {})
+  G.setNode('b', {})
+  G.setNode('c', {})
   G.setEdge('a', 'b', { delta: 1 })
   G.setEdge('b', 'c', { delta: 1 })
   G.setEdge('b', 'b', { delta: 0 })

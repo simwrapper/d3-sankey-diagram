@@ -26,15 +26,22 @@ export default function assignRanks (G, rankSets) {
   // Apply calculated ranks to original graph
   // const ranks = []
   GG.nodes().forEach(u => {
-    const node = GG.node(u)
+    const groupedNode = GG.node(u)
     // while (node.rank >= ranks.length) ranks.push([])
-    node.nodes.forEach(v => {
-      // ranks[node.rank].push(v)
-      G.node(v).rank = node.rank
+    groupedNode.nodes.forEach(v => {
+      G.node(v).rank = groupedNode.rank
     })
   })
   // return ranks
 }
+
+// export function nodeBackwards (link) {
+//   if (link.source.direction === 'l') {
+//     return link.target.direction === 'l' ? 1 : 0
+//   } else {
+//     return link.target.direction === 'l' ? 0 : 1
+//   }
+// }
 
 function addTemporaryEdges (GG) {
   // Add temporary edges between Smin and sources

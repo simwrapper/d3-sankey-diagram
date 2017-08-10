@@ -16,11 +16,9 @@ export default function neighbourPositions (G, order, i, j, u, includeLoops = fa
   if (positions.length === 0 && includeLoops) {
     // if no neighbours in other rank, look for loops to this rank
     // XXX only on one side?
-    // console.log('loops:', u)
     thisRank.forEach((n, i) => {
       if (G.nodeEdges(n, u).length > 0) {
         positions.push(i + 0.5)
-        // console.log('   ', n, i)
       }
     })
   }

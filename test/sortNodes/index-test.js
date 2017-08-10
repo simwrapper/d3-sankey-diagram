@@ -1,28 +1,25 @@
 import sortNodes from '../../src/sortNodes/index.js'
-// import { exampleBlastFurnaceWithDummy } from './examples'
-import graphify from '../../src/graphify.js'
 import tape from 'tape'
+import { Graph } from 'graphlib'
 
 tape('sortNodes()', test => {
   //
   //  a -- b -- d
   //   `-- c -- e
   //
-  const graph = graphify()([], [
-    {source: 'a', target: 'b'},
-    {source: 'a', target: 'c'},
-    {source: 'b', target: 'd'},
-    {source: 'c', target: 'e'}
-  ])
-  graph.node('a').rank = 0
-  graph.node('b').rank = 1
-  graph.node('c').rank = 1
-  graph.node('d').rank = 2
-  graph.node('e').rank = 2
+  const G = new Graph({directed: true, multigraph: true})
+  G.setNode('a', {rank: 0})
+  G.setNode('b', {rank: 1})
+  G.setNode('c', {rank: 1})
+  G.setNode('d', {rank: 2})
+  G.setNode('e', {rank: 2})
+  G.setEdge('a', 'b', {})
+  G.setEdge('a', 'c', {})
+  G.setEdge('b', 'd', {})
+  G.setEdge('c', 'e', {})
+  sortNodes(G)
 
-  sortNodes(graph)
-
-  test.deepEqual(depths(graph.nodes()), {
+  test.deepEqual(depths(G), {
     'a': 0,
     'b': 0,
     'c': 1,
@@ -33,39 +30,8 @@ tape('sortNodes()', test => {
   test.end()
 })
 
-tape('sortNodes() with dummy nodes', test => {
-  //
-  //  a ---*--- d
-  //   `-- b -- c
-  //
-  const graph = graphify()([], [
-    {source: 'a', target: 'b'},
-    {source: 'b', target: 'c'},
-    {source: 'a', target: 'd'}
-  ])
-  graph.node('a').rank = 0
-  graph.node('b').rank = 1
-  graph.node('c').rank = 2
-  graph.node('d').rank = 2
-
-  sortNodes(graph.updateDummyNodes())
-
-  test.deepEqual(depths(graph.nodes()), {
-    'a': 0,
-    'b': 1,
-    'c': 1,
-    'd': 0
-  })
-
-  test.deepEqual(depths(graph.dummyNodes()), {
-    '__a_d_1': 0
-  })
-
-  test.end()
-})
-
-function depths (nodes) {
+function depths (G) {
   var r = {}
-  nodes.forEach(d => { r[d.id] = d.depth })
+  G.nodes().forEach(u => { r[u] = G.node(u).depth })
   return r
 }

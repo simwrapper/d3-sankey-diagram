@@ -1,39 +1,45 @@
 /** @module edge-ordering */
 
-import linkTypeOrder from './link-type-order'
+import { set } from 'd3-collection'
 import linkDirection from './link-direction'
 
 /**
- * Order the edges in the graph G, with node positions already set.
- *
- * @param {Graph} G - The graph. Nodes must have `x` and `y` attributes.
- *
+ * Order the edges at all nodes.
  */
-export default function orderEdges (G, {alignLinkTypes = false} = {}) {
-  G.nodes().forEach(node => {
-    if (alignLinkTypes) {
-      const mo = linkTypeOrder(node)
-      node.incoming.sort(compareDirectionGroupingTypes(mo, false))
-      node.outgoing.sort(compareDirectionGroupingTypes(mo, true))
-    } else {
-      node.incoming.sort(compareDirection(false))
-      node.outgoing.sort(compareDirection(true))
-    }
-  })
+export default function orderEdges (G, opts) {
+  G.nodes().forEach(u => orderEdgesOne(G, u, opts))
 }
 
-function compareDirection (head = true) {
+/**
+ * Order the edges at the given node.
+ */
+function orderEdgesOne (G, v, {alignLinkTypes = false} = {}) {
+  const node = G.node(v)
+  node.incoming = G.inEdges(v)
+  node.outgoing = G.outEdges(v)
+
+  if (alignLinkTypes) {
+    const mo = linkTypeOrder(node)
+    node.incoming.sort(compareDirectionGroupingTypes(G, mo, false))
+    node.outgoing.sort(compareDirectionGroupingTypes(G, mo, true))
+  } else {
+    node.incoming.sort(compareDirection(G, false))
+    node.outgoing.sort(compareDirection(G, true))
+  }
+}
+
+function compareDirection (G, head = true) {
   return function (a, b) {
-    var da = linkDirection(a, head)
-    var db = linkDirection(b, head)
+    var da = linkDirection(G, a, head)
+    var db = linkDirection(G, b, head)
     var c = head ? 1 : -1
 
     // links between same node, sort on type
-    if (a.source === b.source && a.target === b.target) {
-      if (typeof a.type === 'number' && typeof b.type === 'number') {
-        return a.type - b.type
-      } else if (typeof a.type === 'string' && typeof b.type === 'string') {
-        return a.type.localeCompare(b.type)
+    if (a.v === b.v && a.w === b.w) {
+      if (typeof a.name === 'number' && typeof b.name === 'number') {
+        return a.name - b.name
+      } else if (typeof a.name === 'string' && typeof b.name === 'string') {
+        return a.name.localeCompare(b.name)
       } else {
         return 0
       }
@@ -41,10 +47,10 @@ function compareDirection (head = true) {
 
     // loops to same slice based on y-position
     if (Math.abs(da - db) < 1e-3) {
-      if (a.target === b.target) {
-        return b.source.y - a.source.y
-      } else if (a.source === b.source) {
-        return b.target.y - a.target.y
+      if (a.w === b.w) {
+        return G.node(b.v).y - G.node(a.v).y
+      } else if (a.v === b.v) {
+        return G.node(b.w).y - G.node(a.w).y
       } else {
         return 0
       }
@@ -55,24 +61,24 @@ function compareDirection (head = true) {
   }
 }
 
-function compareDirectionGroupingTypes (mo, clockwise = true) {
+function compareDirectionGroupingTypes (G, mo, clockwise = true) {
   return function (a, b) {
     // sort first by type order
-    if (a.type !== b.type) {
-      return mo.indexOf(a.type) - mo.indexOf(b.type)
+    if (a.name !== b.name) {
+      return mo.indexOf(a.name) - mo.indexOf(b.name)
     }
 
     // Sort on direction for same type
-    const da = linkDirection(a)
-    const db = linkDirection(b)
+    const da = linkDirection(G, a, clockwise)
+    const db = linkDirection(G, b, clockwise)
     const c = clockwise ? 1 : -1
 
     // loops to same slice based on y-position
     if (Math.abs(da - db) < 1e-3) {
-      if (a.target === b.target) {
-        return c * (da > 0 ? -1 : 1) * (a.source.y - b.source.y)
-      } else if (a.source === b.source) {
-        return c * (da > 0 ? -1 : 1) * (a.target.y - b.target.y)
+      if (a.w === b.w) {
+        return c * (da > 0 ? -1 : 1) * (G.node(a.v).y - G.node(b.v).y)
+      } else if (a.v === b.v) {
+        return c * (da > 0 ? -1 : 1) * (G.node(a.w).y - G.node(b.w).y)
       } else {
         return 0
       }
@@ -81,4 +87,14 @@ function compareDirectionGroupingTypes (mo, clockwise = true) {
     // otherwise sort by direction
     return c * (da - db)
   }
+}
+
+function linkTypeOrder (node) {
+  const types = set()
+  node.incoming.forEach(e => types.add(e.name))
+  node.outgoing.forEach(e => types.add(e.name))
+
+  const sorted = types.values()
+  sorted.sort()
+  return sorted
 }

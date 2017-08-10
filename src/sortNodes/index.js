@@ -1,23 +1,18 @@
 /** @module node-ordering */
 
-import { map } from 'd3-collection'
-import buildGraph from './build-graph.js'
 import initialOrdering from './initial-ordering.js'
 import swapNodes from './swap-nodes.js'
 import countCrossings from './count-crossings.js'
 import sortNodesOnce from './weighted-median-sort.js'
 
 /**
- * Return an ordering for the graph G.
- *
- * The ordering is a list of lists of node ids, corresponding to the ranks of
- * the graphs, and the order of nodes within each rank.
+ * Sorts the nodes in G, setting the `depth` attribute on each.
  *
  * @param {Graph} G - The graph. Nodes must have a `rank` attribute.
  *
  */
-export default function sortNodes (graph, maxIterations = 25) {
-  let { G, ranks } = buildGraph(graph)
+export default function sortNodes (G, maxIterations = 25) {
+  let ranks = getRanks(G)
   let order = initialOrdering(G, ranks)
   let best = order
   let i = 0
@@ -32,26 +27,23 @@ export default function sortNodes (graph, maxIterations = 25) {
   }
 
   // Assign depth to nodes
-  const depths = map()
+  // const depths = map()
   best.forEach(nodes => {
     nodes.forEach((u, i) => {
-      depths.set(u, i)
+      // depths.set(u, i)
+      G.node(u).depth = i
     })
   })
+}
 
-  graph.nodes().forEach(node => {
-    node.depth = depths.get(node.id)
+function getRanks (G) {
+  const ranks = []
+  G.nodes().forEach(u => {
+    const r = G.node(u).rank || 0
+    while (r >= ranks.length) ranks.push([])
+    ranks[r].push(u)
   })
-
-  // XXX depends on buildGraph() setting edge.dummyNodes
-  graph.edges().forEach(edge => {
-    (edge.dummyNodes || []).forEach((node, i) => {
-      const id = `__${edge.source.id}_${edge.target.id}_${i}`
-      node.depth = depths.get(id)
-    })
-  })
-
-  return graph
+  return ranks
 }
 
 function allCrossings (G, order) {

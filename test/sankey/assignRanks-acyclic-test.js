@@ -121,54 +121,54 @@ tape('rank assignment: find spanning tree - multiple solutions', test => {
   test.end()
 })
 
-tape('rank assignment: find spanning tree with reversed edges', test => {
-  // const G = new Graph({directed: true})
-  // G.setEdge('a', 'b')
-  // G.setEdge('b', 'c')
-  // G.setEdge('c', 'd')
-  // G.setNode('c', { reversed: true })
-  // G.setNode('d', { reversed: true })
+// tape('rank assignment: find spanning tree with reversed edges', test => {
+//   // const G = new Graph({directed: true})
+//   // G.setEdge('a', 'b')
+//   // G.setEdge('b', 'c')
+//   // G.setEdge('c', 'd')
+//   // G.setNode('c', { reversed: true })
+//   // G.setNode('d', { reversed: true })
 
-  // // test.ok(!alg.isAcyclic(G), 'not acyclic to start with')
+//   // // test.ok(!alg.isAcyclic(G), 'not acyclic to start with')
 
-  // const tree = findSpanningTree(G, 'a')
+//   // const tree = findSpanningTree(G, 'a')
 
-  // test.ok(alg.isAcyclic(tree), 'tree should not have cycles')
-  // test.deepEqual(tree.nodes(), ['a', 'b', 'c', 'd'], 'all nodes in tree')
-  // test.deepEqual(tree.nodes().map(u => tree.node(u)),
-  //             [
-  //               { depth: 0, thread: 'b' },
-  //               { depth: 1, thread: 'c' },
-  //               { depth: 2, thread: 'd' },
-  //               { depth: 3, thread: 'a' },
-  //             ],
-  //             'depth and thread in tree')
-  // test.deepEqual(tree.edges(), [
-  //   {v: 'a', w: 'b'},
-  //   {v: 'b', w: 'c'},
-  //   {v: 'c', w: 'd'},
-  // ], 'tree edges')
+//   // test.ok(alg.isAcyclic(tree), 'tree should not have cycles')
+//   // test.deepEqual(tree.nodes(), ['a', 'b', 'c', 'd'], 'all nodes in tree')
+//   // test.deepEqual(tree.nodes().map(u => tree.node(u)),
+//   //             [
+//   //               { depth: 0, thread: 'b' },
+//   //               { depth: 1, thread: 'c' },
+//   //               { depth: 2, thread: 'd' },
+//   //               { depth: 3, thread: 'a' },
+//   //             ],
+//   //             'depth and thread in tree')
+//   // test.deepEqual(tree.edges(), [
+//   //   {v: 'a', w: 'b'},
+//   //   {v: 'b', w: 'c'},
+//   //   {v: 'c', w: 'd'},
+//   // ], 'tree edges')
 
-  // // add same edges in a different order: a-c before b-c
-  // const G2 = new Graph({directed: true})
-  // G2.setEdge('a', 'c')
-  // G2.setEdge('a', 'b')
-  // G2.setEdge('b', 'c')
-  // G2.setEdge('b', 'd')
-  // G2.setEdge('d', 'a')
+//   // // add same edges in a different order: a-c before b-c
+//   // const G2 = new Graph({directed: true})
+//   // G2.setEdge('a', 'c')
+//   // G2.setEdge('a', 'b')
+//   // G2.setEdge('b', 'c')
+//   // G2.setEdge('b', 'd')
+//   // G2.setEdge('d', 'a')
 
-  // const tree2 = findSpanningTree(G2, 'a')
+//   // const tree2 = findSpanningTree(G2, 'a')
 
-  // test.ok(alg.isAcyclic(tree2), 'tree2 should not have cycles')
-  // test.deepEqual(tree2.nodes(), ['a', 'c', 'b', 'd'], 'all nodes in tree2')
-  // test.deepEqual(tree2.edges(), [
-  //   {v: 'a', w: 'c'},
-  //   {v: 'a', w: 'b'},
-  //   {v: 'b', w: 'd'},
-  // ], 'tree2 edges')
+//   // test.ok(alg.isAcyclic(tree2), 'tree2 should not have cycles')
+//   // test.deepEqual(tree2.nodes(), ['a', 'c', 'b', 'd'], 'all nodes in tree2')
+//   // test.deepEqual(tree2.edges(), [
+//   //   {v: 'a', w: 'c'},
+//   //   {v: 'a', w: 'b'},
+//   //   {v: 'b', w: 'd'},
+//   // ], 'tree2 edges')
 
-  test.end()
-})
+//   test.end()
+// })
 
 tape('rank assignment: relationship of nodes in tree', test => {
   // Same spanning tree as before:
