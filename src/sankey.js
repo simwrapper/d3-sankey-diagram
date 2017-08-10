@@ -256,8 +256,8 @@ function required (f) {
 function addLinkEndpoints (G) {
   G.edges().forEach(e => {
     const edge = G.edge(e)
-    edge.points.unshift({x: edge.x0, y: edge.y0})
-    edge.points.push({x: edge.x1, y: edge.y1})
+    edge.points.unshift({x: edge.x0, y: edge.y0, ro: edge.r0})
+    edge.points.push({x: edge.x1, y: edge.y1, ri: edge.r1})
   })
 }
 
@@ -284,5 +284,6 @@ function copyResultsToGraph (G, graph) {
     edge.data.value = edge.value
     edge.data.dy = edge.dy
     edge.data.points = edge.points || []
+    edge.data.id = `${e.v}-${e.w}-${e.name}`
   })
 }

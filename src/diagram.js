@@ -138,7 +138,7 @@ export default function sankeyDiagram () {
     linkEnter.append('path')
       .attr('d', link)
       .style('fill', 'white')
-      .each(function (d) { this._currentSegments = d.segments })
+      .each(function (d) { this._current = d })
 
     linkEnter.append('title')
 
@@ -245,11 +245,23 @@ export default function sankeyDiagram () {
   }
 
   function interpolateLink (b) {
-    var interp = interpolate(this._currentSegments, b.segments)
+    // XXX should limit radius better
+	  b.points.forEach(function (p) {
+	  	if (p.ri > 1e3) p.ri = 1e3
+	  	if (p.ro > 1e3) p.ro = 1e3
+	  })
+    var interp = interpolate(linkGeom(this._current), b)
     var that = this
     return function (t) {
-      that._currentSegments = interp(t)
-      return link({segments: that._currentSegments})
+      that._current = interp(t)
+      return link(that._current)
+    }
+  }
+
+  function linkGeom (l) {
+    return {
+      points: l.points,
+      dy: l.dy
     }
   }
 

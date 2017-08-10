@@ -106,14 +106,14 @@ tape('sankey() sets link.points on long links', test => {
 
   test.deepEqual(graph.links.map(l => l.dy), [ 1, 1, 1, 1 ])
   test.deepEqual(graph.links[0].points, [
-    { x: 0, y: 1.5 },
-    { x: 1, y: 0.9 }
+    { x: 0, y: 1.5, ro: 0.5 },
+    { x: 1, y: 0.9, ri: 0.5 }
   ])
   test.deepEqual(graph.links[3].points, [
-    { x: 0, y: 2.5 },
-    { x: 1, y: 3.1 },
-    { x: 2, y: 3.1 },
-    { x: 3, y: 2.5 }
+    { x: 0, y: 2.5, ro: 0.5 },
+    { x: 1, y: 3.1, ri: 0.5, ro: Infinity },
+    { x: 2, y: 3.1, ri: Infinity, ro: 0.5 },
+    { x: 3, y: 2.5, ri: 0.5 }
   ])
   test.end()
 })
