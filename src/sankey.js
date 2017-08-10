@@ -79,6 +79,7 @@ export default function sankeyLayout () {
 
     addDummyNodes(G)
     setNodeValues(G, linkValue)
+    sortNodes(G, maxIterations)
     // XXX sort nodes?
 
     const nested = nestGraph(G.nodes().map(u => G.node(u)))
@@ -174,6 +175,12 @@ export default function sankeyLayout () {
   sankey.ordering = function (x) {
     if (!arguments.length) return ordering
     ordering = x
+    return sankey
+  }
+
+  sankey.rankSets = function (x) {
+    if (!arguments.length) return rankSets
+    rankSets = x
     return sankey
   }
 

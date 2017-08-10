@@ -18,21 +18,33 @@ tape('sankey: scale', test => {
 })
 
 tape('sankey() sets node.rank and node.depth', test => {
+  //
+  //   .-------.
+  //  0----1----2
+  //   `-,__`:::3,
+  //            4`
+  //
   const graph = {
     nodes: [
       {id: '0'},
       {id: '1'},
-      {id: '2', direction: 'l'}
+      {id: '2'},
+      {id: '3'},
+      {id: '4', direction: 'l'}
     ],
     links: [
       {source: '0', target: '1', value: 5},
-      {source: '1', target: '2', value: 5}
+      {source: '0', target: '3', value: 5},
+      {source: '1', target: '2', value: 5},
+      {source: '1', target: '3', value: 1},
+      {source: '0', target: '2', value: 1},
+      {source: '3', target: '4', value: 1}
     ]
   }
   sankey()(graph)
 
-  test.deepEqual(nodeAttr(graph, d => d.rank), [0, 1, 1], 'node ranks')
-  test.deepEqual(nodeAttr(graph, d => d.depth), [0, 0, 1], 'node depths')
+  test.deepEqual(nodeAttr(graph, d => d.rank), [0, 1, 2, 2, 2], 'node ranks')
+  test.deepEqual(nodeAttr(graph, d => d.depth), [0, 1, 0, 1, 2], 'node depths')
   test.end()
 })
 
@@ -106,14 +118,14 @@ tape('sankey() sets link.points on long links', test => {
 
   test.deepEqual(graph.links.map(l => l.dy), [ 1, 1, 1, 1 ])
   test.deepEqual(graph.links[0].points, [
-    { x: 0, y: 1.5, ro: 0.5 },
-    { x: 1, y: 0.9, ri: 0.5 }
+    { x: 0, y: 2.5, ro: 0.5 },
+    { x: 1, y: 3.1, ri: 0.5 }
   ])
   test.deepEqual(graph.links[3].points, [
-    { x: 0, y: 2.5, ro: 0.5 },
-    { x: 1, y: 3.1, ri: 0.5, ro: Infinity },
-    { x: 2, y: 3.1, ri: Infinity, ro: 0.5 },
-    { x: 3, y: 2.5, ri: 0.5 }
+    { x: 0, y: 1.5, ro: 0.5 },
+    { x: 1, y: 0.9, ri: 0.5, ro: Infinity },
+    { x: 2, y: 0.9, ri: Infinity, ro: 0.5 },
+    { x: 3, y: 1.5, ri: 0.5 }
   ])
   test.end()
 })
@@ -154,6 +166,30 @@ tape('sankey().extent() sets x0, y0, x1, y1', test => {
   sankey().extent([[100, 100], [200, 200]])(graph)
   test.deepEqual(nodeAttr(graph, d => d.x), [100, 200], 'x')
   test.deepEqual(nodeAttr(graph, d => d.y), [125, 125], 'y')
+  test.end()
+})
+
+tape('sankey.rankSets() affects ranking of nodes', test => {
+  const graph = {
+    nodes: [
+      {id: '0'},
+      {id: '1'},
+      {id: '2'},
+      {id: '3'}
+    ],
+    links: [
+      {source: '0', target: '1', value: 5},
+      {source: '1', target: '2', value: 5},
+      {source: '0', target: '3', value: 5}
+    ]
+  }
+
+  sankey()(graph)
+  test.deepEqual(nodeAttr(graph, d => d.rank), [0, 1, 2, 1], 'no rankSets')
+
+  sankey().rankSets([{ type: 'same', nodes: ['2', '3'] }])(graph)
+  test.deepEqual(nodeAttr(graph, d => d.rank), [0, 1, 2, 2], 'with rankSets')
+
   test.end()
 })
 
