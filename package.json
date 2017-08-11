@@ -19,8 +19,8 @@
   },
   "scripts": {
     "pretest": "rm -rf build && mkdir build && rollup -c",
-    "test1": "tape -r ../test/buble-register -r reify 'test/**/*-test.js' && standard index.js src test",
-    "test": "tape-watch -r ../test/buble-register -r reify 'test/**/*-test.js'",
+    "test": "tape -r ./test/buble-register -r reify 'test/**/*-test.js' && standard index.js src test",
+    "test:watch": "tape-watch -r ../test/buble-register -r reify 'test/**/*-test.js'",
     "prepublishOnly": "npm run test && uglifyjs build/d3-sankey-diagram.js -c -m -o build/d3-sankey-diagram.min.js",
     "postpublish": "zip -j build/d3-sankey-diagram.zip -- LICENSE README.md build/d3-sankey-diagram.js build/d3-sankey-diagram.min.js"
   },
