@@ -79,8 +79,10 @@ export default function sankeyLayout () {
 
     addDummyNodes(G)
     setNodeValues(G, linkValue)
-    sortNodes(G, maxIterations)
-    // XXX sort nodes?
+    if (ordering === null) {
+      // XXX sort nodes?
+      sortNodes(G, maxIterations)
+    }
 
     const nested = nestGraph(G.nodes().map(u => G.node(u)))
     maybeScaleToFit(G, nested)
