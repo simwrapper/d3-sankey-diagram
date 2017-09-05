@@ -378,6 +378,12 @@ export default function sankeyDiagram () {
     return this
   };
 
+  exports.linkMinWidth = function (_x) {
+    if (!arguments.length) return link.minWidth()
+    link.minWidth(_x)
+    return this
+  };
+
   exports.link = function (_x) {
     if (!arguments.length) return linkCustom
     linkCustom = _x

@@ -4,8 +4,13 @@ import { interpolate } from 'd3-interpolate'
 //   return d.segments
 // }
 
+function defaultMinWidth (d) {
+  return (d.dy === 0) ? 0 : 2
+}
+
 export default function sankeyLink() {
   // var segments = defaultSegments
+  var minWidth = defaultMinWidth
 
   function radiusBounds(d) {
     var Dx = d.x1 - d.x0,
@@ -54,7 +59,7 @@ export default function sankeyLink() {
     }
 
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -141,7 +146,7 @@ export default function sankeyLink() {
   }
 
   function selfLink(d) {
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         r = h*1.5,
         theta = 2 * Math.PI,
         x0 = d.x0,
@@ -162,7 +167,7 @@ export default function sankeyLink() {
 
   function fbLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -203,7 +208,7 @@ export default function sankeyLink() {
 
   function fdLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -234,7 +239,7 @@ export default function sankeyLink() {
 
   function dfLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -265,7 +270,7 @@ export default function sankeyLink() {
 
   function bfLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -304,12 +309,12 @@ export default function sankeyLink() {
             "Z");
   }
 
-  link.segments = function (x) {
+  link.minWidth = function (x) {
     if (arguments.length) {
-      segments = required(x)
+      minWidth = required(x)
       return link
     }
-    return segments
+    return minWidth
   }
 
   return link;
