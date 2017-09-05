@@ -9,7 +9,8 @@ export function buildGraph (graph, nodeId, nodeBackwards, sourceId, targetId, li
       data: node,
       index: i,
       backwards: nodeBackwards(node, i),
-      x: node.x,
+      x0: node.x0,
+      x1: node.x1,
       y: node.y
     })
   })

@@ -6,6 +6,6 @@ export default function linkDirection (G, e, head = true) {
     const source = G.node(e.v)
     const target = G.node(e.w)
     return Math.atan2(target.y - source.y,
-                      target.x - source.x)
+                      target.x0 - source.x1)
   }
 }

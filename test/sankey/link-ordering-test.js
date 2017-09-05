@@ -4,11 +4,11 @@ import { Graph } from 'graphlib'
 
 tape('orderLinks() works between neighbouring layers', test => {
   const graph = new Graph({ directed: true, multigraph: true })
-  graph.setNode('0', {x: 0, y: 0})
-  graph.setNode('1', {x: 0, y: 1})
-  graph.setNode('2', {x: 0, y: 2})
-  graph.setNode('3', {x: 0, y: 3})
-  graph.setNode('4', {x: 1, y: 1.5})
+  graph.setNode('0', {x0: 0, x1: 1, y: 0})
+  graph.setNode('1', {x0: 0, x1: 1, y: 1})
+  graph.setNode('2', {x0: 0, x1: 1, y: 2})
+  graph.setNode('3', {x0: 0, x1: 1, y: 3})
+  graph.setNode('4', {x0: 2, x1: 3, y: 1.5})
   graph.setEdge('0', '4', {})
   graph.setEdge('1', '4', {})
   graph.setEdge('2', '4', {})
@@ -38,13 +38,13 @@ tape('orderLinks() starting and ending in same slice', test => {
   //     |--5--|
   //
   const graph = new Graph({ directed: true, multigraph: true })
-  graph.setNode('0', {x: 0, y: 2})
-  graph.setNode('1', {x: 1, y: 0})
-  graph.setNode('2', {x: 1, y: 1})
-  graph.setNode('3', {x: 1, y: 2})
-  graph.setNode('4', {x: 1, y: 3})
-  graph.setNode('5', {x: 1, y: 4})
-  graph.setNode('6', {x: 2, y: 2})
+  graph.setNode('0', {x0: 0, x1: 1, y: 2})
+  graph.setNode('1', {x0: 2, x1: 3, y: 0})
+  graph.setNode('2', {x0: 2, x1: 3, y: 1})
+  graph.setNode('3', {x0: 2, x1: 3, y: 2})
+  graph.setNode('4', {x0: 2, x1: 3, y: 3})
+  graph.setNode('5', {x0: 2, x1: 3, y: 4})
+  graph.setNode('6', {x0: 4, x1: 5, y: 2})
   graph.setEdge('0', '3', {value: 2})
   graph.setEdge('1', '3', {value: 2})
   graph.setEdge('2', '3', {value: 2})
@@ -96,9 +96,9 @@ tape('orderLinks() sorts links with numeric types', test => {
 
 tape('orderLinks() puts self-loops at the bottom', test => {
   const graph = new Graph({ directed: true, multigraph: true })
-  graph.setNode('0', {x: 0, y: 0})
-  graph.setNode('1', {x: 1, y: 0})
-  graph.setNode('2', {x: 2, y: 0})
+  graph.setNode('0', {x0: 0, x1: 1, y: 0})
+  graph.setNode('1', {x0: 2, x1: 3, y: 0})
+  graph.setNode('2', {x0: 4, x1: 5, y: 0})
   graph.setEdge('0', '1', {value: 1})
   graph.setEdge('1', '1', {value: 1})
   graph.setEdge('1', '2', {value: 1})
@@ -115,9 +115,9 @@ function exampleTypes (types) {
   //  1 --|2
   //
   const graph = new Graph({ directed: true, multigraph: true })
-  graph.setNode('0', {x: 0, y: 0})
-  graph.setNode('1', {x: 0, y: 3})
-  graph.setNode('2', {x: 1, y: 0})
+  graph.setNode('0', {x0: 0, x1: 1, y: 0})
+  graph.setNode('1', {x0: 0, x1: 1, y: 3})
+  graph.setNode('2', {x0: 2, x1: 3, y: 0})
   types.forEach(m => {
     graph.setEdge('0', '2', {value: 1}, m)
     graph.setEdge('1', '2', {value: 1}, m)

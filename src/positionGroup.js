@@ -9,10 +9,10 @@ export default function positionGroup (nodes, group) {
   group.nodes.forEach(n => {
     const node = nodes.get(n)
     if (!node) return
-    if (node.x < rect.left) rect.left = node.x
-    if (node.x > rect.right) rect.right = node.x
-    if (node.y < rect.top) rect.top = node.y
-    if (node.y + node.dy > rect.bottom) rect.bottom = node.y + node.dy
+    if (node.x0 < rect.left) rect.left = node.x0
+    if (node.x1 > rect.right) rect.right = node.x1
+    if (node.y0 < rect.top) rect.top = node.y0
+    if (node.y1 > rect.bottom) rect.bottom = node.y1
   })
 
   group.rect = rect

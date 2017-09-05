@@ -35,7 +35,7 @@ export default function () {
     const nodeLayout = local()
     selection.each(function (d) {
       const layoutData = titlePosition(d)
-      layoutData.dy = (d.dy === 0) ? 0 : Math.max(1, d.dy)
+      layoutData.dy = (d.y0 === d.y1) ? 0 : Math.max(1, d.y1 - d.y0)
       nodeLayout.set(this, layoutData)
     })
 
@@ -59,7 +59,7 @@ export default function () {
     context
       .attr('transform', nodeTransform)
       .style('display', function (d) {
-        return (d.dy === 0 || !nodeVisible(d)) ? 'none' : 'inline'
+        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
       })
 
     line
@@ -74,7 +74,7 @@ export default function () {
 
     function textTransform (d) {
       const layout = nodeLayout.get(this)
-      const y = layout.titleAbove ? -10 : d.dy / 2
+      const y = layout.titleAbove ? -10 : (d.y1 - d.y0) / 2
       const x = (layout.right ? 1 : -1) * (layout.titleAbove ? 4 : -4)
       return 'translate(' + x + ',' + y + ')'
     }
@@ -100,7 +100,7 @@ export default function () {
 }
 
 function nodeTransform (d) {
-  return 'translate(' + d.x + ',' + d.y + ')'
+  return 'translate(' + d.x0 + ',' + d.y0 + ')'
 }
 
 function titlePosition (d) {

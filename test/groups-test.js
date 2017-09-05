@@ -41,9 +41,9 @@ test('groups: draws box around nodes', t => {
 
   // padding of 10px
   const rects = el.selectAll('.group').select('rect').nodes()
-  t.equal(select(rects[0]).attr('width'), '20', 'group1 width');
+  t.equal(select(rects[0]).attr('width'), '21', 'group1 width');
   t.equal(select(rects[0]).attr('height'), '270', 'group1 height');
-  t.equal(select(rects[1]).attr('width'), '20', 'group2 width');
+  t.equal(select(rects[1]).attr('width'), '21', 'group2 width');
   t.equal(select(rects[1]).attr('height'), '180', 'group2 height');
 
   t.end();

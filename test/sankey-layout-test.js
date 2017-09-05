@@ -48,7 +48,7 @@ tape('sankey() sets node.rank and node.depth', test => {
   test.end()
 })
 
-tape('sankey() sets node.x and node.y', test => {
+tape('sankey() sets node.{x0, y0, x1, y1}', test => {
   const {graph, ordering} = example4to1()
 
   // 50% whitespace: scale = 8 / 20 * 0.5 = 0.2
@@ -56,10 +56,10 @@ tape('sankey() sets node.x and node.y', test => {
   // total node height = 4 * 5 * 0.2 = 4
   // remaining space = 8 - 4 - 2*0.8 =2.4
   // spread betweeen 3 gaps = 0.8
-  sankey().size([1, 8]).ordering(ordering)(graph)
+  sankey().size([3, 8]).ordering(ordering)(graph)
 
-  test.deepEqual(nodeAttr(graph, d => d.dy), [1, 1, 1, 1, 4], 'node heights')
-  assertAlmostEqual(test, nodeAttr(graph, d => d.y), [
+  test.deepEqual(nodeAttr(graph, d => d.y1 - d.y0), [1, 1, 1, 1, 4], 'node heights')
+  assertAlmostEqual(test, nodeAttr(graph, d => d.y0), [
     0.8,
     0.8 + 1 + 0.8,
     0.8 + 1 + 0.8 + 1 + 0.8,
@@ -67,38 +67,39 @@ tape('sankey() sets node.x and node.y', test => {
     2  // centred
   ], 1e-6, 'node y')
 
-  assertAlmostEqual(test, nodeAttr(graph, d => d.x), [0, 0, 0, 0, 1], 'node x')
+  assertAlmostEqual(test, nodeAttr(graph, d => d.x0), [0, 0, 0, 0, 2], 'node x')
+  assertAlmostEqual(test, nodeAttr(graph, d => d.x1), [1, 1, 1, 1, 3], 'node x')
   test.end()
 })
 
 tape('sankey() sets link.dy and link.points', test => {
   const {graph, ordering} = example4to1()
-  sankey().size([1, 8]).ordering(ordering)(graph)
+  sankey().size([3, 8]).ordering(ordering)(graph)
 
   test.deepEqual(graph.links.map(l => l.dy), [1, 1, 1, 1], 'link thicknesses')
 
   const n0 = graph.nodes[0]
   const n4 = graph.nodes[4]
   const l0 = graph.links[0]
-  assertAlmostEqual(test, l0.points[0].x, n0.x, 1e-3, 'l0 x0')
-  assertAlmostEqual(test, l0.points[0].y, n0.y + l0.dy / 2, 1e-3, 'l0 y0')
-  assertAlmostEqual(test, l0.points[1].x, n4.x, 1e-3, 'l0 x1')
-  assertAlmostEqual(test, l0.points[1].y, n4.y + l0.dy / 2, 1e-3, 'l0 y1')
+  assertAlmostEqual(test, l0.points[0].x, n0.x1, 1e-3, 'l0 x0')
+  assertAlmostEqual(test, l0.points[0].y, n0.y0 + l0.dy / 2, 1e-3, 'l0 y0')
+  assertAlmostEqual(test, l0.points[1].x, n4.x0, 1e-3, 'l0 x1')
+  assertAlmostEqual(test, l0.points[1].y, n4.y0 + l0.dy / 2, 1e-3, 'l0 y1')
 
   const n1 = graph.nodes[1]
   const l1 = graph.links[1]
-  assertAlmostEqual(test, l1.points[0].x, n1.x, 1e-3, 'l1 x0')
-  assertAlmostEqual(test, l1.points[0].y, n1.y + l1.dy / 2, 1e-3, 'l1 y0')
-  assertAlmostEqual(test, l1.points[1].x, n4.x, 1e-3, 'l1 x1')
-  assertAlmostEqual(test, l1.points[1].y, n4.y + l0.dy + l1.dy / 2, 1e-3, 'l1 y1')
+  assertAlmostEqual(test, l1.points[0].x, n1.x1, 1e-3, 'l1 x0')
+  assertAlmostEqual(test, l1.points[0].y, n1.y0 + l1.dy / 2, 1e-3, 'l1 y0')
+  assertAlmostEqual(test, l1.points[1].x, n4.x0, 1e-3, 'l1 x1')
+  assertAlmostEqual(test, l1.points[1].y, n4.y0 + l0.dy + l1.dy / 2, 1e-3, 'l1 y1')
 
   test.end()
 })
 
 tape('sankey() sets link.points on long links', test => {
-  //
-  // a -- b -- c -- d
-  //  `---*----*---`
+  // 0 1 2 3 4 5 6 7 8 9
+  //  a --- b --- c --- d
+  //   `----*-----*----`
   //
   const graph = {
     nodes: [
@@ -114,27 +115,27 @@ tape('sankey() sets link.points on long links', test => {
       {source: 'a', target: 'd', value: 1}
     ]
   }
-  sankey().size([3, 4])(graph)
+  sankey().size([10, 12])(graph)
 
-  test.deepEqual(graph.links.map(l => l.dy), [ 1, 1, 1, 1 ])
+  test.deepEqual(graph.links.map(l => l.dy), [ 3, 3, 3, 3 ])
   test.deepEqual(graph.links[0].points, [
-    { x: 0, y: 2.5, ro: 0.5 },
-    { x: 1, y: 3.1, ri: 0.5 }
+    { x: 1, y: 7.5, ro: 1.5 },
+    { x: 3, y: 9.3, ri: 1.5 }
   ])
   test.deepEqual(graph.links[3].points, [
-    { x: 0, y: 1.5, ro: 0.5 },
-    { x: 1, y: 0.9, ri: 0.5, ro: Infinity },
-    { x: 2, y: 0.9, ri: Infinity, ro: 0.5 },
-    { x: 3, y: 1.5, ri: 0.5 }
+    { x: 1, y: 4.5, ro: 1.5 },
+    { x: 3.5, y: 2.7, ri: 1.5, ro: Infinity },
+    { x: 6.5, y: 2.7, ri: Infinity, ro: 1.5 },
+    { x: 9, y: 4.5, ri: 1.5 }
   ])
   test.end()
 })
 
-tape('sankey.update() sets node.dy, link.dy and link.points based on existing node positions', test => {
+tape('sankey.update() sets node.{x0, y0, x1, y1}, link.dy and link.points based on existing node positions', test => {
   const graph = {
     nodes: [
-      {id: 'a', x: 1, y: 1},
-      {id: 'b', x: 3, y: 1}
+      {id: 'a', x0: 1, x1: 2, y: 1},
+      {id: 'b', x0: 3, x1: 4, y: 1}
     ],
     links: [
       {source: 'a', target: 'b', value: 1}
@@ -144,7 +145,7 @@ tape('sankey.update() sets node.dy, link.dy and link.points based on existing no
 
   test.equal(graph.links[0].dy, 1)
   test.deepEqual(graph.links[0].points, [
-    { x: 1, y: 1.5, ro: Infinity },
+    { x: 2, y: 1.5, ro: Infinity },
     { x: 3, y: 1.5, ri: Infinity }
   ])
   test.end()
@@ -162,12 +163,12 @@ tape('sankey().size() sets width and height', test => {
   }
 
   sankey().size([100, 100])(graph)
-  test.deepEqual(nodeAttr(graph, d => d.x), [0, 100], 'x')
-  test.deepEqual(nodeAttr(graph, d => d.y), [25, 25], 'y')
+  test.deepEqual(nodeAttr(graph, d => d.x0), [0, 99], 'x')
+  test.deepEqual(nodeAttr(graph, d => d.y0), [25, 25], 'y')
 
   sankey().size([200, 200])(graph)
-  test.deepEqual(nodeAttr(graph, d => d.x), [0, 200], 'x')
-  test.deepEqual(nodeAttr(graph, d => d.y), [50, 50], 'y')
+  test.deepEqual(nodeAttr(graph, d => d.x0), [0, 199], 'x')
+  test.deepEqual(nodeAttr(graph, d => d.y0), [50, 50], 'y')
 
   test.end()
 })
@@ -184,8 +185,8 @@ tape('sankey().extent() sets x0, y0, x1, y1', test => {
   }
 
   sankey().extent([[100, 100], [200, 200]])(graph)
-  test.deepEqual(nodeAttr(graph, d => d.x), [100, 200], 'x')
-  test.deepEqual(nodeAttr(graph, d => d.y), [125, 125], 'y')
+  test.deepEqual(nodeAttr(graph, d => d.x0), [100, 199], 'x')
+  test.deepEqual(nodeAttr(graph, d => d.y0), [125, 125], 'y')
   test.end()
 })
 
@@ -223,10 +224,10 @@ tape('sankey() horizontal positioning', test => {
       ]
     }
     sankey().ordering([['0'], ['1'], ['2']]).size([width, 1])(graph)
-    return graph.nodes.map(d => d.x)
+    return graph.nodes.map(d => d.x0)
   }
 
-  test.deepEqual(nodeX(6), [0, 3, 6], 'equal when straight')
+  test.deepEqual(nodeX(7), [0, 3, 6], 'equal when straight')
   // test.deepEqual(nodeX([6, 0]), [0, 8, 10], 'min width moves x position');
   // test.deepEqual(nodeX([6, 2]), [0, 7, 10], 'min width moves x position 2');
   // test.deepEqual(nodeX([7, 5]), [0, 10*7/12, 10], 'width allocated fairly if insufficient');
@@ -258,12 +259,12 @@ tape('sankey() nodes with zero value are ignored', test => {
 
   sankey().ordering([['0', '1', '2', '3'], ['4']])(graph)
 
-  const y = nodeAttr(graph, d => d.y)
+  const y = nodeAttr(graph, d => d.y0)
 
   const sep01 = y[1] - y[0]
   const sep13 = y[3] - y[1]
 
-  test.equal(nodeAttr(graph, d => d.dy)[2], 0, 'node 2 should have no height')
+  test.equal(graph.nodes[2].y1 - graph.nodes[2].y0, 0, 'node 2 should have no height')
   assertAlmostEqual(test, sep01, sep13, 1e-6, 'node 2 should not affect spacing of others')
   test.end()
 })
@@ -299,18 +300,18 @@ tape('justifiedPositioning: bands', test => {
   const margin = (5 / 30) * 8 / 5
 
   // Bands should not overlap
-  const yb = margin + nodes[0].dy + margin
-  test.ok(nodes[0].y >= margin, 'node 0 >= margin')
-  test.ok(nodes[2].y >= margin, 'node 2 >= margin')
-  test.ok(nodes[0].y + nodes[0].dy < yb, 'node 0 above boundary')
-  test.ok(nodes[2].y + nodes[2].dy < yb, 'node 2 above boundary')
+  const yb = nodes[0].y1 + margin
+  test.ok(nodes[0].y0 >= margin, 'node 0 >= margin')
+  test.ok(nodes[2].y0 >= margin, 'node 2 >= margin')
+  test.ok(nodes[0].y1 < yb, 'node 0 above boundary')
+  test.ok(nodes[2].y1 < yb, 'node 2 above boundary')
 
-  test.ok(nodes[1].y > yb, 'node 1 below boundary')
-  test.ok(nodes[3].y > yb, 'node 3 below boundary')
-  test.ok(nodes[4].y > yb, 'node 4 below boundary')
-  test.ok(nodes[1].y + nodes[1].dy <= 8, 'node 1 within height')
-  test.ok(nodes[3].y + nodes[3].dy <= 8, 'node 3 within height')
-  test.ok(nodes[4].y + nodes[4].dy <= 8, 'node 4 within height')
+  test.ok(nodes[1].y0 > yb, 'node 1 below boundary')
+  test.ok(nodes[3].y0 > yb, 'node 3 below boundary')
+  test.ok(nodes[4].y0 > yb, 'node 4 below boundary')
+  test.ok(nodes[1].y1 <= 8, 'node 1 within height')
+  test.ok(nodes[3].y1 <= 8, 'node 3 within height')
+  test.ok(nodes[4].y1 <= 8, 'node 4 within height')
 
   test.end()
 })
