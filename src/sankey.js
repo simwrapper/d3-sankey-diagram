@@ -111,6 +111,33 @@ export default function sankeyLayout () {
     return graph
   }
 
+  sankey.update = function (graph, doOrderLinks) {
+    var G = buildGraph(graph, nodeId, nodeBackwards, sourceId, targetId, linkType, linkValue)
+    setNodeValues(G, linkValue)
+    const nested = nestGraph(G.nodes().map(u => G.node(u)))
+    maybeScaleToFit(G, nested)
+    setWidths(G, scale)
+
+    orderLinks(G, { alignLinkTypes: alignLinkTypes })
+    layoutLinks(G)
+
+    // removeDummyNodes(G)
+    addLinkEndpoints(G)
+
+    copyResultsToGraph(G, graph)
+
+    return graph
+  }
+  //   if (scale === null) sankey.scaleToFit(graph)
+  //   // set node and edge sizes
+  //   setNodeValues(graph, linkValue, scale)
+  //   if (doOrderLinks) {
+  //     orderLinks(graph)
+  //   }
+  //   layoutLinks(graph)
+  //   return graph
+  // }
+
   sankey.nodeId = function (x) {
     if (arguments.length) {
       nodeId = required(x)
@@ -150,17 +177,6 @@ export default function sankeyLayout () {
     }
     return linkType
   }
-
-  // sankey.layoutLinks = function (graph, doOrderLinks) {
-  //   if (scale === null) sankey.scaleToFit(graph)
-  //   // set node and edge sizes
-  //   setNodeValues(graph, linkValue, scale)
-  //   if (doOrderLinks) {
-  //     orderLinks(graph)
-  //   }
-  //   layoutLinks(graph)
-  //   return graph
-  // }
 
   // sankey.scaleToFit = function (graph) {
   function maybeScaleToFit (G, nested) {
@@ -313,7 +329,7 @@ function copyResultsToGraph (G, graph) {
     edge.data.target = G.node(e.w).data
     edge.data.source.outgoing.push(edge.data)
     edge.data.target.incoming.push(edge.data)
-    edge.data.value = edge.value
+    // edge.data.value = edge.value
     edge.data.dy = edge.dy
     edge.data.points = edge.points || []
     edge.data.id = `${e.v}-${e.w}-${e.name}`

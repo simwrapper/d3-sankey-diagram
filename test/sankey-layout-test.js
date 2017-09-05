@@ -130,6 +130,26 @@ tape('sankey() sets link.points on long links', test => {
   test.end()
 })
 
+tape('sankey.update() sets node.dy, link.dy and link.points based on existing node positions', test => {
+  const graph = {
+    nodes: [
+      {id: 'a', x: 1, y: 1},
+      {id: 'b', x: 3, y: 1}
+    ],
+    links: [
+      {source: 'a', target: 'b', value: 1}
+    ]
+  }
+  sankey().scale(1).update(graph)
+
+  test.equal(graph.links[0].dy, 1)
+  test.deepEqual(graph.links[0].points, [
+    { x: 1, y: 1.5, ro: Infinity },
+    { x: 3, y: 1.5, ri: Infinity }
+  ])
+  test.end()
+})
+
 tape('sankey().size() sets width and height', test => {
   const graph = {
     nodes: [

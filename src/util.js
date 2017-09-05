@@ -8,7 +8,9 @@ export function buildGraph (graph, nodeId, nodeBackwards, sourceId, targetId, li
     G.setNode(id, {
       data: node,
       index: i,
-      backwards: nodeBackwards(node, i)
+      backwards: nodeBackwards(node, i),
+      x: node.x,
+      y: node.y
     })
   })
 
