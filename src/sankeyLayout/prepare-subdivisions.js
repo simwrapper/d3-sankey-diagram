@@ -48,12 +48,12 @@ export default function buildSubdivisions (G) {
 
       sub.outgoing.forEach(e => {
         const link = G.edge(e)
-        link.x0 = node.x
+        link.x0 = node.x1
         link.y0 = node.y + sub.y + link.dy / 2
       })
       sub.incoming.forEach(e => {
         const link = G.edge(e)
-        link.x1 = node.x
+        link.x1 = node.x0
         link.y1 = node.y + sub.y + link.dy / 2
       })
       y += sub.dy

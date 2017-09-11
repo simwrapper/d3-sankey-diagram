@@ -23,9 +23,9 @@ tape('sankey() aligns subdivisions', test => {
 
   // Order at node 2 should be link 0, 2, 1
   const n2 = graph.nodes[2]
-  assertAlmostEqual(test, graph.links[0].points[1].y, n2.y + 1, 1e-3, 'l0')
-  assertAlmostEqual(test, graph.links[1].points[1].y, n2.y + 5, 1e-3, 'l1')
-  assertAlmostEqual(test, graph.links[2].points[1].y, n2.y + 3, 1e-3, 'l2')
+  assertAlmostEqual(test, graph.links[0].points[1].y, n2.y0 + 1, 1e-3, 'l0')
+  assertAlmostEqual(test, graph.links[1].points[1].y, n2.y0 + 5, 1e-3, 'l1')
+  assertAlmostEqual(test, graph.links[2].points[1].y, n2.y0 + 3, 1e-3, 'l2')
 
   // Node 2 should have subdivisions positioned
   test.deepEqual(n2.subdivisions, [
@@ -37,9 +37,9 @@ tape('sankey() aligns subdivisions', test => {
   graph.nodes[2].subdivisions = [{id: 'b'}, {id: 'a'}]
   layout(graph)
 
-  assertAlmostEqual(test, graph.links[0].points[1].y, n2.y + 3, 1e-3, 'l0 again')
-  assertAlmostEqual(test, graph.links[1].points[1].y, n2.y + 1, 1e-3, 'l1 again')
-  assertAlmostEqual(test, graph.links[2].points[1].y, n2.y + 5, 1e-3, 'l2 again')
+  assertAlmostEqual(test, graph.links[0].points[1].y, n2.y0 + 3, 1e-3, 'l0 again')
+  assertAlmostEqual(test, graph.links[1].points[1].y, n2.y0 + 1, 1e-3, 'l1 again')
+  assertAlmostEqual(test, graph.links[2].points[1].y, n2.y0 + 5, 1e-3, 'l2 again')
   test.deepEqual(n2.subdivisions, [
     { id: 'b', y: 0, dy: 2, incoming: [graph.links[1]], outgoing: [] },
     { id: 'a', y: 2, dy: 4, incoming: [graph.links[0], graph.links[2]], outgoing: [] }
