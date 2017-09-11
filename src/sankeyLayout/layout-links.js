@@ -4,6 +4,7 @@
  * @module link-positioning
  */
 
+import { map } from 'd3-collection'
 import { findFirst, sweepCurvatureInwards } from './utils'
 
 /*
@@ -18,31 +19,34 @@ export default function layoutLinks (G) {
 
   setEdgeEndpoints(G)
   setEdgeCurvatures(G)
+
   return G
 }
 
 function setEdgeEndpoints (G) {
   G.nodes().forEach(u => {
     const node = G.node(u)
-    let sy = 0
-    let ty = 0
+    node.subdivisions.forEach(sub => {
+      let sy = node.y + sub.y
+      let ty = node.y + sub.y
 
-    node.outgoing.forEach(e => {
-      const link = G.edge(e)
-      link.x0 = node.x
-      link.y0 = node.y + sy + link.dy / 2
-      link.d0 = node.backwards ? 'l' : 'r'
-      link.dy = link.dy
-      sy += link.dy
-    })
+      sub.outgoing.forEach(e => {
+        const link = G.edge(e)
+        link.x0 = node.x
+        link.y0 = sy + link.dy / 2
+        link.d0 = node.backwards ? 'l' : 'r'
+        link.dy = link.dy
+        sy += link.dy
+      })
 
-    node.incoming.forEach(e => {
-      const link = G.edge(e)
-      link.x1 = node.x
-      link.y1 = node.y + ty + link.dy / 2
-      link.d1 = node.backwards ? 'l' : 'r'
-      link.dy = link.dy
-      ty += link.dy
+      sub.incoming.forEach(e => {
+        const link = G.edge(e)
+        link.x1 = node.x
+        link.y1 = ty + link.dy / 2
+        link.d1 = node.backwards ? 'l' : 'r'
+        link.dy = link.dy
+        ty += link.dy
+      })
     })
   })
 }
@@ -52,9 +56,13 @@ function setEdgeCurvatures (G) {
     const node = G.node(u)
     // node.outgoing.sort((a, b) => a.y0 - b.y0)
     // node.incoming.sort((a, b) => a.y1 - b.y1)
-    setEdgeEndCurvatures(G, node.outgoing, 'r0')
-    setEdgeEndCurvatures(G, node.incoming, 'r1')
+    setEdgeEndCurvatures(G, flatten(node.subdivisions, d => d.outgoing), 'r0')
+    setEdgeEndCurvatures(G, flatten(node.subdivisions, d => d.incoming), 'r1')
   })
+}
+
+function flatten (x, f) {
+  return x.reduce(function (a, b) { return a.concat(f(b)) }, [])
 }
 
 function maximumRadiusOfCurvature (link) {

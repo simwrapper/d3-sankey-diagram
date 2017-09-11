@@ -1,6 +1,6 @@
 /** @module edge-ordering */
 
-import { set } from 'd3-collection'
+import { set, map } from 'd3-collection'
 import linkDirection from './link-direction'
 
 /**
@@ -13,29 +13,58 @@ export default function orderEdges (G, opts) {
 /**
  * Order the edges at the given node.
  */
-function orderEdgesOne (G, v, {alignLinkTypes = false} = {}) {
+function orderEdgesOne (G, v, {alignLinkTypes = false, firstRun = false} = {}) {
   const node = G.node(v)
-  node.incoming = G.inEdges(v)
-  node.outgoing = G.outEdges(v)
 
-  if (alignLinkTypes) {
-    const mo = linkTypeOrder(node)
-    node.incoming.sort(compareDirectionGroupingTypes(G, mo, false))
-    node.outgoing.sort(compareDirectionGroupingTypes(G, mo, true))
-  } else {
-    node.incoming.sort(compareDirection(G, false))
-    node.outgoing.sort(compareDirection(G, true))
-  }
+  // node.incoming = G.inEdges(v)
+  // node.outgoing = G.outEdges(v)
+
+  // if (firstRun) {
+  //   // set edge endpoints to centre of nodes
+  //   // XXX would be better to calculate subdivisions up front
+  //   setEdgeEndpoints(G, node)
+  // }
+
+  node.subdivisions.forEach(sub => {
+    sub.incoming.sort(compareDirection(G, node, false))
+    sub.outgoing.sort(compareDirection(G, node, true))
+  })
+  // if (alignLinkTypes) {
+  //   const mo = linkTypeOrder(node)
+  //   node.incoming.sort(compareDirectionGroupingTypes(G, mo, false))
+  //   node.outgoing.sort(compareDirectionGroupingTypes(G, mo, true))
+  // } else {
+  //   node.incoming.sort(compareDirection(G, node, false))
+  //   node.outgoing.sort(compareDirection(G, node, true))
+  // }
 }
 
-function compareDirection (G, head = true) {
+// function getSub (G, e, head) {
+//   const edge = G.edge(e)
+//   return head ? edge.sourceSub : edge.targetSub
+// }
+
+function compareDirection (G, node, head = true) {
+  // const subOrder = (node.data && node.data.subdivisions || []).map(function (d) {
+  //   return d.id
+  // })
+
   return function (a, b) {
+    // // Sort first on subdivision, if set
+    // // XXX copy sub to graph, don't use .data
+    // var sa = getSub(G, a, head)
+    // var sb = getSub(G, b, head)
+    // if (sa !== sb) {
+    //   // TODO looking index in node.subdivisions
+    //   return subOrder.indexOf(sa) - subOrder.indexOf(sb)
+    // }
+
     var da = linkDirection(G, a, head)
     var db = linkDirection(G, b, head)
     var c = head ? 1 : -1
 
     // links between same node, sort on type
-    if (a.v === b.v && a.w === b.w) {
+    if (a.v === b.v && a.w === b.w && Math.abs(da - db) < 1e-3) {
       if (typeof a.name === 'number' && typeof b.name === 'number') {
         return a.name - b.name
       } else if (typeof a.name === 'string' && typeof b.name === 'string') {

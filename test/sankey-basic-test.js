@@ -23,10 +23,24 @@ tape('sankey(graph) builds the graph structure', test => {
     ]
   })
 
-  test.deepEqual(graph.nodes[0].incoming, [])
-  test.deepEqual(graph.nodes[0].outgoing, [graph.links[0]])
-  test.deepEqual(graph.nodes[1].incoming, [graph.links[0]])
-  test.deepEqual(graph.nodes[1].outgoing, [])
+  test.deepEqual(graph.nodes[0].subdivisions, [{
+    id: null,
+    y: 0,
+    dy: 0,
+    incoming: [],
+    outgoing: [graph.links[0]]
+  }])
+  test.deepEqual(graph.nodes[1].subdivisions, [{
+    id: null,
+    y: 0,
+    dy: 0,
+    incoming: [graph.links[0]],
+    outgoing: []
+  }])
+  // test.deepEqual(graph.nodes[0].incoming, [])
+  // test.deepEqual(graph.nodes[0].outgoing, [graph.links[0]])
+  // test.deepEqual(graph.nodes[1].incoming, [graph.links[0]])
+  // test.deepEqual(graph.nodes[1].outgoing, [])
   test.equal(graph.links[0].source, graph.nodes[0])
   test.equal(graph.links[0].target, graph.nodes[1])
   test.end()
@@ -139,6 +153,30 @@ tape('sankey(graph) throws an error if multiple nodes have the same id', test =>
   }, /\bduplicate\b/)
   test.end()
 })
+
+// tape('sankey(graph) works with multiple links between same nodes', test => {
+//   var s = sankey()
+//   var graph = s({
+//     nodes: [
+//       {id: 'a'},
+//       {id: 'b'}
+//     ],
+//     links: [
+//       {source: 'a', target: 'b', type: 'c'},
+//       {source: 'a', target: 'b', type: 'c'}
+//     ]
+//   })
+
+//   test.deepEqual(graph.nodes[0].incoming, [])
+//   test.deepEqual(graph.nodes[0].outgoing, [graph.links[0], graph.links[1]])
+//   test.deepEqual(graph.nodes[1].incoming, [graph.links[0], graph.links[1]])
+//   test.deepEqual(graph.nodes[1].outgoing, [])
+//   test.equal(graph.links[0].source, graph.nodes[0])
+//   test.equal(graph.links[0].target, graph.nodes[1])
+//   test.equal(graph.links[1].source, graph.nodes[0])
+//   test.equal(graph.links[1].target, graph.nodes[1])
+//   test.end()
+// })
 
 // tape('sankey(graph) adds a new node if source or target id does not exist', test => {
 //   var s = sankey()

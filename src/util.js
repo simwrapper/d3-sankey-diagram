@@ -10,13 +10,16 @@ export function buildGraph (graph, nodeId, nodeBackwards, sourceId, targetId, li
       index: i,
       backwards: nodeBackwards(node, i),
       x: node.x,
-      y: node.y
+      y: node.y,
+      subdivisions: node.subdivisions || []
     })
   })
 
   graph.links.forEach(function (link, i) {
     var label = {
       data: link,
+      sourceSub: link.sourceSub || null,
+      targetSub: link.targetSub || null,
       index: i,
       points: [],
       value: linkValue(link, i)

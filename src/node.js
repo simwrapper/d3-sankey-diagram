@@ -112,21 +112,22 @@ function titlePosition (d) {
     titleAbove = true
   } else {
     titleAbove = false
-    if (d.outgoing.length === 1 && d.incoming.length > 1) {
-      right = false
-    } else if (d.incoming.length === 1 && d.outgoing.length > 1) {
-      right = true
-    }
+    // XXX disabled when added subdivisions -- put back?
+    // if (d.outgoing.length === 1 && d.incoming.length > 1) {
+    //   right = false
+    // } else if (d.incoming.length === 1 && d.outgoing.length > 1) {
+    //   right = true
+    // }
   }
 
-  // Stick labels outside at edges
-  if (d.incoming.length === 0) {
-    right = true
-    titleAbove = false
-  } else if (d.outgoing.length === 0) {
-    right = false
-    titleAbove = false
-  }
+  // Stick labels outside at edges XXX
+  // if (d.incoming.length === 0) {
+  //   right = true
+  //   titleAbove = false
+  // } else if (d.outgoing.length === 0) {
+  //   right = false
+  //   titleAbove = false
+  // }
 
   return {titleAbove, right}
 }

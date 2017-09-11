@@ -8,6 +8,7 @@ import { addDummyNodes, removeDummyNodes } from './sortNodes/dummy-nodes.js'
 import nestGraph from './sankeyLayout/nest-graph.js'
 import positionHorizontally from './sankeyLayout/horizontal.js'
 import positionVertically from './sankeyLayout/verticalJustified.js'
+import prepareSubdivisions from './sankeyLayout/prepare-subdivisions.js'
 import orderLinks from './sankeyLayout/link-ordering.js'
 import layoutLinks from './sankeyLayout/layout-links.js'
 import { buildGraph } from './util.js'
@@ -100,8 +101,11 @@ export default function sankeyLayout () {
     })
 
     // // sort & position links
-    orderLinks(G, { alignLinkTypes: alignLinkTypes })
+    prepareSubdivisions(G)
+    orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: true })
     layoutLinks(G)
+    // orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: false })
+    // layoutLinks(G)
 
     removeDummyNodes(G)
     addLinkEndpoints(G)
@@ -118,8 +122,11 @@ export default function sankeyLayout () {
     maybeScaleToFit(G, nested)
     setWidths(G, scale)
 
-    orderLinks(G, { alignLinkTypes: alignLinkTypes })
+    prepareSubdivisions(G)
+    orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: true })
     layoutLinks(G)
+    // orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: false })
+    // layoutLinks(G)
 
     // removeDummyNodes(G)
     addLinkEndpoints(G)
@@ -312,8 +319,11 @@ function addLinkEndpoints (G) {
 function copyResultsToGraph (G, graph) {
   G.nodes().forEach(u => {
     const node = G.node(u)
-    node.data.incoming = []
-    node.data.outgoing = []
+    node.data.subdivisions = node.subdivisions
+    node.data.subdivisions.forEach(sub => {
+      sub.incoming = []
+      sub.outgoing = []
+    })
     node.data.x = node.x
     node.data.y = node.y
     node.data.dy = node.dy
@@ -327,8 +337,9 @@ function copyResultsToGraph (G, graph) {
     const edge = G.edge(e)
     edge.data.source = G.node(e.v).data
     edge.data.target = G.node(e.w).data
-    edge.data.source.outgoing.push(edge.data)
-    edge.data.target.incoming.push(edge.data)
+    // console.log(edge)
+    if (edge.sourceSub) edge.sourceSub.outgoing.push(edge.data)
+    if (edge.targetSub) edge.targetSub.incoming.push(edge.data)
     // edge.data.value = edge.value
     edge.data.dy = edge.dy
     edge.data.points = edge.points || []

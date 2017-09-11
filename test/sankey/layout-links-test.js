@@ -1,10 +1,13 @@
 import layoutLinks from '../../src/sankeyLayout/layout-links.js'
+import prepareSubdivisions from '../../src/sankeyLayout/prepare-subdivisions.js'
 import tape from 'tape'
 import { Graph } from 'graphlib'
 import { assertAlmostEqual, assertNotAlmostEqual } from '../assert-almost-equal'
 
 tape('linkLayout: link attributes', test => {
-  const graph = layoutLinks(example2to1(0))
+  const graph = example2to1(0)
+  prepareSubdivisions(graph)
+  layoutLinks(graph)
 
   // ids
   // test.deepEqual(graph.edges.map(e => id), ['0-2-m1', '1-2-m2'], 'id')
@@ -31,7 +34,10 @@ tape('linkLayout: link attributes', test => {
 })
 
 tape('linkLayout: loose edges', test => {
-  const graph = layoutLinks(example2to1(0))
+  const graph = example2to1(0)
+  prepareSubdivisions(graph)
+  layoutLinks(graph)
+
   test.deepEqual(graph.edges(), [
     {v: '0', w: '2', name: 'm1'},
     {v: '1', w: '2', name: 'm2'}
@@ -49,7 +55,10 @@ tape('linkLayout: loose edges', test => {
 tape('linkLayout: tight curvature', test => {
   // setting f= 0.3 moves up the lower link to constrain the curvature at node
   // 2.
-  const graph = layoutLinks(example2to1(0.3))
+  const graph = example2to1(0.3)
+  prepareSubdivisions(graph)
+  layoutLinks(graph)
+
   test.deepEqual(graph.edges(), [
     {v: '0', w: '2', name: 'm1'},
     {v: '1', w: '2', name: 'm2'}
@@ -74,7 +83,10 @@ tape('linkLayout: tight curvature', test => {
 tape('linkLayout: maximum curvature limit', test => {
   // setting f=1 moves up the lower link so far the curvature hits the limit
   // 2.
-  const graph = layoutLinks(example2to1(1.0))
+  const graph = example2to1(1)
+  prepareSubdivisions(graph)
+  layoutLinks(graph)
+
   test.deepEqual(graph.edges(), [
     {v: '0', w: '2', name: 'm1'},
     {v: '1', w: '2', name: 'm2'}
@@ -104,14 +116,17 @@ function example2to1 (f) {
   // f == 1 means 1-2 is tight below 0-2
 
   const graph = new Graph({ directed: true, multigraph: true })
-  graph.setNode('0', {dy: 1, x: 0, y: 0, incoming: [], outgoing: [{v: '0', w: '2', name: 'm1'}]})
-  graph.setNode('1', {dy: 1, x: 0, y: 1 + (1 - f) * 2, incoming: [], outgoing: [{v: '1', w: '2', name: 'm2'}]})
+  graph.setNode('0', {dy: 1, x: 0, y: 0, subdivisions: [{incoming: [], outgoing: [{v: '0', w: '2', name: 'm1'}]}]})
+  graph.setNode('1', {dy: 1, x: 0, y: 1 + (1 - f) * 2, subdivisions: [{incoming: [], outgoing: [{v: '1', w: '2', name: 'm2'}]}]})
   graph.setNode('2', {
     dy: 2,
     x: 2,
     y: 2,
-    incoming: [{v: '0', w: '2', name: 'm1'}, {v: '1', w: '2', name: 'm2'}],
-    outgoing: []})
+    subdivisions: [{
+      incoming: [{v: '0', w: '2', name: 'm1'}, {v: '1', w: '2', name: 'm2'}],
+      outgoing: []
+    }]
+  })
   graph.setEdge('0', '2', {dy: 1}, 'm1')
   graph.setEdge('1', '2', {dy: 1}, 'm2')
   return graph
