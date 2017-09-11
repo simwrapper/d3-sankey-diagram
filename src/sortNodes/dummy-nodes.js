@@ -54,7 +54,7 @@ export function removeDummyNodes (G) {
       dummyEdges = G.outEdges(v).map(e => G.edge(e))
       dummyEdges.forEach((dummyEdge, i) => {
         dummyEdge.origLabel.points.push({
-          x: dummyEdge.x0,
+          x: (node.x0 + node.x1) / 2,
           y: dummyEdge.y0,
           ro: dummyEdge.r0,
           ri: r1s[i]  // from last edge

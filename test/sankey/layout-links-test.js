@@ -19,8 +19,8 @@ tape('linkLayout: link attributes', test => {
   const edges = graph.edges().map(e => graph.edge(e))
 
   // x coordinates
-  test.deepEqual(edges.map(e => e.x0), [0, 0], 'x0')
-  test.deepEqual(edges.map(e => e.x1), [2, 2], 'x1')
+  test.deepEqual(edges.map(e => e.x0), [1, 1], 'x0')
+  test.deepEqual(edges.map(e => e.x1), [3, 3], 'x1')
 
   // y coordinates
   test.deepEqual(edges.map(e => e.y0), [0.5, 3.5], 'y0')
@@ -116,11 +116,12 @@ function example2to1 (f) {
   // f == 1 means 1-2 is tight below 0-2
 
   const graph = new Graph({ directed: true, multigraph: true })
-  graph.setNode('0', {dy: 1, x: 0, y: 0, subdivisions: [{incoming: [], outgoing: [{v: '0', w: '2', name: 'm1'}]}]})
-  graph.setNode('1', {dy: 1, x: 0, y: 1 + (1 - f) * 2, subdivisions: [{incoming: [], outgoing: [{v: '1', w: '2', name: 'm2'}]}]})
+  graph.setNode('0', {dy: 1, x0: 0, x1: 1, y: 0, subdivisions: [{incoming: [], outgoing: [{v: '0', w: '2', name: 'm1'}]}]})
+  graph.setNode('1', {dy: 1, x0: 0, x1: 1, y: 1 + (1 - f) * 2, subdivisions: [{incoming: [], outgoing: [{v: '1', w: '2', name: 'm2'}]}]})
   graph.setNode('2', {
     dy: 2,
-    x: 2,
+    x0: 3,
+    x1: 4,
     y: 2,
     subdivisions: [{
       incoming: [{v: '0', w: '2', name: 'm1'}, {v: '1', w: '2', name: 'm2'}],

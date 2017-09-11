@@ -124,9 +124,9 @@ function exampleTypes (types) {
   //  1 --|2
   //
   const graph = new Graph({ directed: true, multigraph: true })
-  graph.setNode('0', {x: 0, y: 0})
-  graph.setNode('1', {x: 0, y: 3})
-  graph.setNode('2', {x: 1, y: 0})
+  graph.setNode('0', {x0: 0, x1: 1, y: 0})
+  graph.setNode('1', {x0: 0, x1: 1, y: 3})
+  graph.setNode('2', {x0: 2, x1: 3, y: 0})
   types.forEach(m => {
     graph.setEdge('0', '2', {dy: 1}, m)
     graph.setEdge('1', '2', {dy: 1}, m)

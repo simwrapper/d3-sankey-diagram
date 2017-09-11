@@ -59,6 +59,9 @@ export default function sankeyLayout () {
   var x1 = 1
   var y1 = 1
 
+  // node width
+  var dx = 1
+
   var scale = null
   var linkValue = function (e) { return e.value }
   var whitespace = 0.5
@@ -91,12 +94,13 @@ export default function sankeyLayout () {
 
     // position nodes
     verticalLayout(nested, y1 - y0, whitespace)
-    positionHorizontally(G, x1 - x0)
+    positionHorizontally(G, x1 - x0, dx)
 
     // adjust origin
     G.nodes().forEach(u => {
       const node = G.node(u)
-      node.x += x0
+      node.x0 += x0
+      node.x1 += x0
       node.y += y0
     })
 
@@ -206,6 +210,12 @@ export default function sankeyLayout () {
   sankey.rankSets = function (x) {
     if (!arguments.length) return rankSets
     rankSets = x
+    return sankey
+  }
+
+  sankey.nodeWidth = function (x) {
+    if (!arguments.length) return dx
+    dx = x
     return sankey
   }
 
@@ -324,9 +334,11 @@ function copyResultsToGraph (G, graph) {
       sub.incoming = []
       sub.outgoing = []
     })
-    node.data.x = node.x
-    node.data.y = node.y
     node.data.dy = node.dy
+    node.data.x0 = node.x0
+    node.data.x1 = node.x1
+    node.data.y0 = node.y
+    node.data.y1 = node.y + node.dy
     node.data.rank = node.rank
     node.data.band = node.band
     node.data.depth = node.depth

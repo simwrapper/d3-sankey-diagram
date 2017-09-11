@@ -32,7 +32,7 @@ function setEdgeEndpoints (G) {
 
       sub.outgoing.forEach(e => {
         const link = G.edge(e)
-        link.x0 = node.x
+        link.x0 = node.x1
         link.y0 = sy + link.dy / 2
         link.d0 = node.backwards ? 'l' : 'r'
         link.dy = link.dy
@@ -41,7 +41,7 @@ function setEdgeEndpoints (G) {
 
       sub.incoming.forEach(e => {
         const link = G.edge(e)
-        link.x1 = node.x
+        link.x1 = node.x0
         link.y1 = ty + link.dy / 2
         link.d1 = node.backwards ? 'l' : 'r'
         link.dy = link.dy

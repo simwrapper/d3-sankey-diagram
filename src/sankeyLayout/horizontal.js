@@ -9,7 +9,7 @@ import { max } from 'd3-array'
 //   return dx
 // }
 
-export default function positionHorizontally (G, width) {
+export default function positionHorizontally (G, width, nodeWidth) {
   // const minWidths = new Array(maxRank).fill(0)
   // G.edges().forEach(e => {
   //   const r0 = G.node(e.v).rank || 0
@@ -37,9 +37,11 @@ export default function positionHorizontally (G, width) {
   // }
 
   const maxRank = max(G.nodes(), u => G.node(u).rank || 0) || 0
-  const dx = width / maxRank
+  const dx = (width - nodeWidth) / maxRank
 
   G.nodes().forEach(u => {
-    G.node(u).x = dx * (G.node(u).rank || 0)
+    const node = G.node(u)
+    node.x0 = dx * (node.rank || 0)
+    node.x1 = node.x0 + nodeWidth
   })
 }
