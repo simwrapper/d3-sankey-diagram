@@ -8,8 +8,8 @@ export default function buildSubdivisions (G) {
     if (!node.subdivisions) node.subdivisions = []
 
     let defaultSub = null
-    if (node.subdivisions.filter(d => d.id === null).length === 0) {
-      defaultSub = {id: null}
+    if (node.subdivisions.filter(d => d.id === '').length === 0) {
+      defaultSub = {id: ''}
       node.subdivisions.push(defaultSub)
     }
 
@@ -22,14 +22,14 @@ export default function buildSubdivisions (G) {
     G.inEdges(u).forEach(e => {
       const edge = G.edge(e)
       let s = edge.targetSub
-      if (!subs.has(s)) s = null
+      if (!subs.has(s)) s = ''
       subs.get(s).incoming.push(e)
       edge.targetSub = subs.get(s)
     })
     G.outEdges(u).forEach(e => {
       const edge = G.edge(e)
       let s = edge.sourceSub
-      if (!subs.has(s)) s = null
+      if (!subs.has(s)) s = ''
       subs.get(s).outgoing.push(e)
       // console.log(edge, s, subs.get(s))
       edge.sourceSub = subs.get(s)

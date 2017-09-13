@@ -24,14 +24,14 @@ tape('sankey(graph) builds the graph structure', test => {
   })
 
   test.deepEqual(graph.nodes[0].subdivisions, [{
-    id: null,
+    id: '',
     y: 0,
     dy: 0,
     incoming: [],
     outgoing: [graph.links[0]]
   }])
   test.deepEqual(graph.nodes[1].subdivisions, [{
-    id: null,
+    id: '',
     y: 0,
     dy: 0,
     incoming: [graph.links[0]],
