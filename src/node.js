@@ -58,19 +58,22 @@ export default function () {
     // Update
     context
       .attr('transform', nodeTransform)
-      .style('display', function (d) {
-        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
-      })
 
     line
       .attr('y1', function (d) { return nodeLayout.get(this).titleAbove ? -5 : 0 })
       .attr('y2', function (d) { return nodeLayout.get(this).dy })
+      .style('display', function (d) {
+        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
+      })
 
     clickTarget
       .attr('height', function (d) { return nodeLayout.get(this).dy + 5 })
 
     text
       .attr('transform', textTransform)
+      .style('display', function (d) {
+        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
+      })
 
     function textTransform (d) {
       const layout = nodeLayout.get(this)
