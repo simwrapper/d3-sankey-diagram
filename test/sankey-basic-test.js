@@ -13,13 +13,14 @@ tape('sankey() has the expected defaults', test => {
 
 tape('sankey(graph) builds the graph structure', test => {
   var s = sankey()
+  var l
   var graph = s({
     nodes: [
       {id: 'a'},
       {id: 'b'}
     ],
     links: [
-      {source: 'a', target: 'b', type: 'c'}
+      (l = {source: 'a', target: 'b', type: 'c'})
     ]
   })
 
@@ -37,12 +38,40 @@ tape('sankey(graph) builds the graph structure', test => {
     incoming: [graph.links[0]],
     outgoing: []
   }])
-  // test.deepEqual(graph.nodes[0].incoming, [])
-  // test.deepEqual(graph.nodes[0].outgoing, [graph.links[0]])
-  // test.deepEqual(graph.nodes[1].incoming, [graph.links[0]])
-  // test.deepEqual(graph.nodes[1].outgoing, [])
   test.equal(graph.links[0].source, graph.nodes[0])
   test.equal(graph.links[0].target, graph.nodes[1])
+
+  // original objects modified?
+  test.equal(l.source, 'a')
+  test.end()
+})
+
+tape('sankey(graph) can be called again', test => {
+  var input1 = {
+    nodes: [
+      {id: 'a'},
+      {id: 'b'}
+    ],
+    links: [
+      {source: 'a', target: 'b', type: 'c', value: 1}
+    ]
+  }
+
+  var input2 = {
+    nodes: [
+      {id: 'a'},
+      {id: 'b'}
+    ],
+    links: [
+      {source: 'a', target: 'b', type: 'c', value: 1}
+    ]
+  }
+
+  var graph1 = sankey()(input1)
+  var graph2 = sankey()(input2)
+  graph2 = sankey()(input2)
+
+  test.deepEqual(graph1.links, graph2.links)
   test.end()
 })
 

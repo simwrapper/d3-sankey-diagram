@@ -50,8 +50,9 @@ export default function sankeyLayout () {
   var targetId = defaultTargetId
   var linkType = defaultLinkType
   var ordering = null
-  var rankSets = [] // XXX setter/getter
+  var rankSets = []
   var maxIterations = 25 // XXX setter/getter
+  var nodePosition = null
 
   // extent
   var x0 = 0
@@ -74,35 +75,49 @@ export default function sankeyLayout () {
 
     setNodeValues(G, linkValue)
 
-    if (ordering !== null) {
-      applyOrdering(G, ordering)
+    if (nodePosition) {
+      // hard-coded node positions
+
+      G.nodes().forEach(u => {
+        const node = G.node(u)
+        const pos = nodePosition(node.data)
+        node.x0 = pos[0]
+        node.x1 = pos[0] + dx
+        node.y = pos[1]
+      })
     } else {
-      assignRanks(G, rankSets)
-      sortNodes(G, maxIterations)
+      // calculate node positions
+
+      if (ordering !== null) {
+        applyOrdering(G, ordering)
+      } else {
+        assignRanks(G, rankSets)
+        sortNodes(G, maxIterations)
+      }
+
+      addDummyNodes(G)
+      setNodeValues(G, linkValue)
+      if (ordering === null) {
+        // XXX sort nodes?
+        sortNodes(G, maxIterations)
+      }
+
+      const nested = nestGraph(G.nodes().map(u => G.node(u)))
+      maybeScaleToFit(G, nested)
+      setWidths(G, scale)
+
+      // position nodes
+      verticalLayout(nested, y1 - y0, whitespace)
+      positionHorizontally(G, x1 - x0, dx)
+
+      // adjust origin
+      G.nodes().forEach(u => {
+        const node = G.node(u)
+        node.x0 += x0
+        node.x1 += x0
+        node.y += y0
+      })
     }
-
-    addDummyNodes(G)
-    setNodeValues(G, linkValue)
-    if (ordering === null) {
-      // XXX sort nodes?
-      sortNodes(G, maxIterations)
-    }
-
-    const nested = nestGraph(G.nodes().map(u => G.node(u)))
-    maybeScaleToFit(G, nested)
-    setWidths(G, scale)
-
-    // position nodes
-    verticalLayout(nested, y1 - y0, whitespace)
-    positionHorizontally(G, x1 - x0, dx)
-
-    // adjust origin
-    G.nodes().forEach(u => {
-      const node = G.node(u)
-      node.x0 += x0
-      node.x1 += x0
-      node.y += y0
-    })
 
     // // sort & position links
     prepareSubdivisions(G)
@@ -148,6 +163,22 @@ export default function sankeyLayout () {
   //   layoutLinks(graph)
   //   return graph
   // }
+
+  sankey.nodes = function (x) {
+    if (arguments.length) {
+      nodes = required(x)
+      return sankey
+    }
+    return nodes
+  }
+
+  sankey.links = function (x) {
+    if (arguments.length) {
+      links = required(x)
+      return sankey
+    }
+    return links
+  }
 
   sankey.nodeId = function (x) {
     if (arguments.length) {
@@ -216,6 +247,12 @@ export default function sankeyLayout () {
   sankey.nodeWidth = function (x) {
     if (!arguments.length) return dx
     dx = x
+    return sankey
+  }
+
+  sankey.nodePosition = function (x) {
+    if (!arguments.length) return nodePosition
+    nodePosition = x
     return sankey
   }
 
