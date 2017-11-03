@@ -11,11 +11,22 @@ import {format} from 'd3-format'
 import {interpolate} from 'd3-interpolate'
 import {map} from 'd3-collection'
 
+export function linkTitleGenerator (nodeTitle, typeTitle, fmt) {
+  return function (d) {
+    const parts = []
+    const sourceTitle = nodeTitle(d.source)
+    const targetTitle = nodeTitle(d.target)
+    const matTitle = typeTitle(d)
+
+    parts.push(`${sourceTitle} → ${targetTitle}`)
+    if (matTitle) parts.push(matTitle)
+    parts.push(fmt(d.value))
+    return parts.join('\n')
+  }
+}
+
 export default function sankeyDiagram () {
   let margin = {top: 0, right: 0, bottom: 0, left: 0}
-
-  let linkColor = d => null
-  let linkTypeTitle = d => d.type
 
   let selectedNode = null
   let selectedEdge = null
@@ -25,6 +36,9 @@ export default function sankeyDiagram () {
   const fmt = format('.3s')
   const node = sankeyNode()
   const link = sankeyLink()
+
+  let linkColor = d => null
+  let linkTitle = linkTitleGenerator(node.nodeTitle(), d => d.type, fmt)
 
   const listeners = dispatch('selectNode', 'selectGroup', 'selectLink')
 
@@ -244,18 +258,6 @@ export default function sankeyDiagram () {
     return a.dy - b.dy
   }
 
-  function linkTitle (d) {
-    const parts = []
-    const sourceTitle = node.nodeTitle()(d.source)
-    const targetTitle = node.nodeTitle()(d.target)
-    const matTitle = linkTypeTitle(d)
-
-    parts.push(`${sourceTitle} → ${targetTitle}`)
-    if (matTitle) parts.push(matTitle)
-    parts.push(fmt(d.value))
-    return parts.join('\n')
-  }
-
   function selectLink (d) {
     event.stopPropagation()
     var el = select(this).node()
@@ -295,13 +297,14 @@ export default function sankeyDiagram () {
   exports.nodeTitle = function (_x) {
     if (!arguments.length) return node.nodeTitle()
     node.nodeTitle(_x)
+    linkTitle = linkTitleGenerator(_x, d => d.type, fmt)
     return this
   }
 
   // Link styles and titles
-  exports.linkTypeTitle = function (_x) {
-    if (!arguments.length) return linkTypeTitle
-    linkTypeTitle = _x
+  exports.linkTitle = function (_x) {
+    if (!arguments.length) return linkTitle
+    linkTitle = _x
     return this
   }
 

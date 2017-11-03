@@ -5,4 +5,4 @@ export {default as sankeyPositionRelaxation} from './src/sankeyLayout/verticalRe
 export {default as sankeyLink} from './src/linkPath.js'
 export {default as sankeyNode} from './src/node.js'
 
-export {default as sankeyDiagram} from './src/diagram.js'
+export {default as sankeyDiagram, linkTitleGenerator as sankeyLinkTitle} from './src/diagram.js'
