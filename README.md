@@ -10,6 +10,8 @@
 
 See the **[demo](https://ricklupton.github.io/d3-sankey-diagram)** for examples of these.
 
+d3-sankey-diagram versions v0.5 and up are based on d3 v4.
+
 ## Installation
 
 Install using npm if you are using browserify or the like:
@@ -25,17 +27,21 @@ Or download the [standalone bundle](https://github.com/ricklupton/d3-sankey-diag
 ## Usage
 
 ```js
-var diagram = sankeyDiagram()
-  .width(1000)
-  .height(600)
-  .margins({ left: 100, right: 160, top: 10, bottom: 10 })
-  .nodeTitle(function(d) { return d.data.title !== undefined ? d.data.title : d.id; })
-  .linkTypeTitle(function(d) { return d.data.title; })
-  .linkColor(function(d) { return d.data.color; });
+var layout = d3.sankey()
+               .extent([[100, 10], [840, 580]]);
+
+var linkTitle = d3.sankeyLinkTitle(function(d) { return d.title; },
+                                   function(d) { return d.title; },
+                                   d3.format('.3s'));
+
+var diagram = d3.sankeyDiagram()
+                .linkTitle(linkTitle)
+                .linkColor(function(d) { return d.color; });
 
 d3.json('uk_energy.json', function(energy) {
+  layout.ordering(energy.order);
   d3.select('#sankey')
-      .datum(energy)
+      .datum(layout(energy))
       .call(diagram);
 });
 ```
@@ -45,11 +51,7 @@ Try more [live examples](https://ricklupton.github.io/d3-sankey-diagram).
 If you use the Jupyter notebook, try
 [ipysankeywidget](https://github.com/ricklupton/ipysankeywidget).
 
-`d3-sankey-diagram` works both in node (using jsdom) and in the browser. To use
-jsdom, transitions must be disabled using
-```js
-diagram.duration(null);
-```
+`d3-sankey-diagram` works both in node (using jsdom) and in the browser.
 
 ## Documentation
 
