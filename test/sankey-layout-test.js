@@ -77,16 +77,9 @@ tape('sankey() sets node positions using nodePosition()', test => {
   sankey().scale(0.2).nodePosition(d => [parseFloat(d.id), parseFloat(d.id)])(graph)
 
   test.deepEqual(nodeAttr(graph, d => d.y1 - d.y0), [1, 1, 1, 1, 4], 'node heights')
-  assertAlmostEqual(test, nodeAttr(graph, d => d.y0), [
-    0.8,
-    0.8 + 1 + 0.8,
-    0.8 + 1 + 0.8 + 1 + 0.8,
-    0.8 + 1 + 0.8 + 1 + 0.8 + 1 + 0.8,
-    2  // centred
-  ], 1e-6, 'node y')
-
-  assertAlmostEqual(test, nodeAttr(graph, d => d.x0), [0, 0, 0, 0, 2], 'node x')
-  assertAlmostEqual(test, nodeAttr(graph, d => d.x1), [1, 1, 1, 1, 3], 'node x')
+  assertAlmostEqual(test, nodeAttr(graph, d => d.y0), [0, 1, 2, 3, 4], 1e-6, 'node y')
+  assertAlmostEqual(test, nodeAttr(graph, d => d.x0), [0, 1, 2, 3, 4], 1e-6, 'node x0')
+  assertAlmostEqual(test, nodeAttr(graph, d => d.x1), [1, 2, 3, 4, 5], 1e-6, 'node x1')
   test.end()
 })
 

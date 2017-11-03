@@ -34,7 +34,8 @@ function normaliseEdge (G, e) {
 }
 
 export function removeDummyNodes (G) {
-  G.graph().dummyChains.forEach(v => {
+  const chains = G.graph().dummyChains || []
+  chains.forEach(v => {
     let node = G.node(v)
     let dummyEdges = G.inEdges(v).map(e => G.edge(e))
 

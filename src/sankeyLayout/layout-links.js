@@ -4,44 +4,36 @@
  * @module link-positioning
  */
 
-import { map } from 'd3-collection'
 import { findFirst, sweepCurvatureInwards } from './utils'
 
 /*
  * Requires incoming and outgoing attributes on nodes
  */
 export default function layoutLinks (G) {
-  // G.edges().forEach(e => {
-  //   // link.id = `${link.source.id}-${link.target.id}-${link.type}`
-  //   // link.segments = new Array(1 + (link.dummyNodes || []).length)
-  //   // for (let i = 0; i < link.segments.length; ++i) link.segments[i] = {}
-  // })
-
   setEdgeEndpoints(G)
   setEdgeCurvatures(G)
-
   return G
 }
 
 function setEdgeEndpoints (G) {
   G.nodes().forEach(u => {
     const node = G.node(u)
-    node.subdivisions.forEach(sub => {
-      let sy = node.y + sub.y
-      let ty = node.y + sub.y
+    node.ports.forEach(port => {
+      let sy = node.y + port.y
+      let ty = node.y + port.y
 
-      sub.outgoing.forEach(e => {
+      port.outgoing.forEach(e => {
         const link = G.edge(e)
-        link.x0 = node.x1
+        // link.x0 = node.x1
         link.y0 = sy + link.dy / 2
         link.d0 = node.backwards ? 'l' : 'r'
         link.dy = link.dy
         sy += link.dy
       })
 
-      sub.incoming.forEach(e => {
+      port.incoming.forEach(e => {
         const link = G.edge(e)
-        link.x1 = node.x0
+        // link.x1 = node.x0
         link.y1 = ty + link.dy / 2
         link.d1 = node.backwards ? 'l' : 'r'
         link.dy = link.dy
@@ -54,15 +46,11 @@ function setEdgeEndpoints (G) {
 function setEdgeCurvatures (G) {
   G.nodes().forEach(u => {
     const node = G.node(u)
-    // node.outgoing.sort((a, b) => a.y0 - b.y0)
-    // node.incoming.sort((a, b) => a.y1 - b.y1)
-    setEdgeEndCurvatures(G, flatten(node.subdivisions, d => d.outgoing), 'r0')
-    setEdgeEndCurvatures(G, flatten(node.subdivisions, d => d.incoming), 'r1')
+    node.ports.forEach(port => {
+      setEdgeEndCurvatures(G, port.outgoing, 'r0')
+      setEdgeEndCurvatures(G, port.incoming, 'r1')
+    })
   })
-}
-
-function flatten (x, f) {
-  return x.reduce(function (a, b) { return a.concat(f(b)) }, [])
 }
 
 function maximumRadiusOfCurvature (link) {

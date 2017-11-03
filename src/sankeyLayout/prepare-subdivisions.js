@@ -1,95 +1,56 @@
 import { map } from 'd3-collection'
 import { sum } from 'd3-array'
 
-export default function buildSubdivisions (G) {
+export default function prepareNodePorts (G, sortPorts) {
   G.nodes().forEach(u => {
     const node = G.node(u)
-
-    if (!node.subdivisions) node.subdivisions = []
-
-    let defaultSub = null
-    if (node.subdivisions.filter(d => d.id === '').length === 0) {
-      defaultSub = {id: ''}
-      node.subdivisions.push(defaultSub)
+    const ports = map()
+    function getOrSet (id, side) {
+      if (ports.has(id)) return ports.get(id)
+      const port = { id: id, node: node.data, side: side, incoming: [], outgoing: [] }
+      ports.set(id, port)
+      return port
     }
 
-    node.subdivisions.forEach(sub => {
-      sub.incoming = []
-      sub.outgoing = []
-    })
-
-    const subs = map(node.subdivisions, d => d.id)
     G.inEdges(u).forEach(e => {
       const edge = G.edge(e)
-      let s = edge.targetSub
-      if (!subs.has(s)) s = ''
-      subs.get(s).incoming.push(e)
-      edge.targetSub = subs.get(s)
+      const port = getOrSet(edge.targetPortId || 'in', node.direction !== 'l' ? 'west' : 'east')
+      port.incoming.push(e)
+      edge.targetPort = port
     })
     G.outEdges(u).forEach(e => {
       const edge = G.edge(e)
-      let s = edge.sourceSub
-      if (!subs.has(s)) s = ''
-      subs.get(s).outgoing.push(e)
-      // console.log(edge, s, subs.get(s))
-      edge.sourceSub = subs.get(s)
+      const port = getOrSet(edge.sourcePortId || 'out', node.direction !== 'l' ? 'east' : 'west')
+      port.outgoing.push(e)
+      edge.sourcePort = port
     })
 
-    if (defaultSub && defaultSub.incoming.length + defaultSub.outgoing.length === 0) {
-      node.subdivisions.pop()
-    }
+    node.ports = ports.values()
+    node.ports.sort(sortPorts)
 
-    // Set coords
-    let y = 0
-    node.subdivisions.forEach(sub => {
-      sub.y = y
-      sub.dy = Math.max(sum(sub.incoming, e => G.edge(e).dy),
-                        sum(sub.outgoing, e => G.edge(e).dy))
+    // Set positions of ports, roughly -- so the other endpoints of links are
+    // known approximately when being sorted.
+    let y = {west: 0, east: 0}
+    let i = {west: 0, east: 0}
+    node.ports.forEach(port => {
+      port.y = y[port.side]
+      port.index = i[port.side]
+      port.dy = Math.max(sum(port.incoming, e => G.edge(e).dy),
+                         sum(port.outgoing, e => G.edge(e).dy))
+      const x = (port.side === 'west' ? node.x0 : node.x1)
 
-      sub.outgoing.forEach(e => {
+      port.outgoing.forEach(e => {
         const link = G.edge(e)
-        link.x0 = node.x1
-        link.y0 = node.y + sub.y + link.dy / 2
+        link.x0 = x
+        link.y0 = node.y + port.y + link.dy / 2
       })
-      sub.incoming.forEach(e => {
+      port.incoming.forEach(e => {
         const link = G.edge(e)
-        link.x1 = node.x0
-        link.y1 = node.y + sub.y + link.dy / 2
+        link.x1 = x
+        link.y1 = node.y + port.y + link.dy / 2
       })
-      y += sub.dy
+      y[port.side] += port.dy
+      i[port.side] += 1
     })
   })
 }
-//   if (!node.data || !node.data.subdivisions) return
-//   // XXX right place for this?
-//   const subs = map(node.data.subdivisions, function (d) { return d.id })
-
-//   node.outgoing.forEach(eachLink(true))
-//   node.incoming.forEach(eachLink(false))
-
-//   function eachLink (head) {
-//     const attr = head ? 'y0' : 'y1'
-//     return function (e) {
-//       const link = G.edge(e)
-//       const sl = getSub(link, head)
-//       if (subs.has(sl)) {
-//         updateSub(subs.get(sl), link, attr)
-//       }
-//     }
-//   }
-
-//   function updateSub (sub, link, attr) {
-//     sub.y0 = minDefault(sub.y0, link[attr] - link.dy / 2 - node.y)
-//     sub.y1 = maxDefault(sub.y1, link[attr] + link.dy / 2 - node.y)
-//     return sub
-//   }
-
-//   function minDefault (x, y) {
-//     return (x === undefined ? y : Math.min(y, x))
-//   }
-
-//   function maxDefault (x, y) {
-//     return (x === undefined ? y : Math.max(y, x))
-//   }
-// }
-

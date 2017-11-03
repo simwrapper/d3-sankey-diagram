@@ -8,7 +8,7 @@ import { addDummyNodes, removeDummyNodes } from './sortNodes/dummy-nodes.js'
 import nestGraph from './sankeyLayout/nest-graph.js'
 import positionHorizontally from './sankeyLayout/horizontal.js'
 import positionVertically from './sankeyLayout/verticalJustified.js'
-import prepareSubdivisions from './sankeyLayout/prepare-subdivisions.js'
+import prepareNodePorts from './sankeyLayout/prepare-subdivisions.js'
 import orderLinks from './sankeyLayout/link-ordering.js'
 import layoutLinks from './sankeyLayout/layout-links.js'
 import { buildGraph } from './util.js'
@@ -30,16 +30,31 @@ function defaultNodeBackwards (d) {
 }
 
 function defaultSourceId (d) {
-  return typeof d.source === 'object' ? d.source.id : d.source
+  // return typeof d.source === 'object' ? d.source.id : d.source
+  return {
+    id: typeof d.source === 'object' ? d.source.id : d.source,
+    port: typeof d.sourcePort === 'object' ? d.sourcePort.id : d.sourcePort
+  }
 }
 
 function defaultTargetId (d) {
-  return typeof d.target === 'object' ? d.target.id : d.target
+  // return typeof d.target === 'object' ? d.target.id : d.target
+  return {
+    id: typeof d.target === 'object' ? d.target.id : d.target,
+    port: typeof d.targetPort === 'object' ? d.targetPort.id : d.targetPort
+  }
 }
 
 function defaultLinkType (d) {
   return d.type
 }
+
+function defaultSortPorts (a, b) {
+  // XXX weighted sum
+  return a.id.localeCompare(b.id)
+}
+
+// function defaultNodeSubdivisions
 
 export default function sankeyLayout () {
   var nodes = defaultNodes
@@ -53,6 +68,7 @@ export default function sankeyLayout () {
   var rankSets = []
   var maxIterations = 25 // XXX setter/getter
   var nodePosition = null
+  var sortPorts = defaultSortPorts
 
   // extent
   var x0 = 0
@@ -85,6 +101,7 @@ export default function sankeyLayout () {
         node.x1 = pos[0] + dx
         node.y = pos[1]
       })
+      setWidths(G, scale)
     } else {
       // calculate node positions
 
@@ -119,12 +136,10 @@ export default function sankeyLayout () {
       })
     }
 
-    // // sort & position links
-    prepareSubdivisions(G)
-    orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: true })
+    // sort & position links
+    prepareNodePorts(G, sortPorts)
+    orderLinks(G, { alignLinkTypes: alignLinkTypes })
     layoutLinks(G)
-    // orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: false })
-    // layoutLinks(G)
 
     removeDummyNodes(G)
     addLinkEndpoints(G)
@@ -141,11 +156,9 @@ export default function sankeyLayout () {
     maybeScaleToFit(G, nested)
     setWidths(G, scale)
 
-    prepareSubdivisions(G)
+    prepareNodePorts(G, sortPorts)
     orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: true })
     layoutLinks(G)
-    // orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: false })
-    // layoutLinks(G)
 
     // removeDummyNodes(G)
     addLinkEndpoints(G)
@@ -218,6 +231,14 @@ export default function sankeyLayout () {
       return sankey
     }
     return linkType
+  }
+
+  sankey.sortPorts = function (x) {
+    if (arguments.length) {
+      sortPorts = required(x)
+      return sankey
+    }
+    return sortPorts
   }
 
   // sankey.scaleToFit = function (graph) {
@@ -366,11 +387,16 @@ function addLinkEndpoints (G) {
 function copyResultsToGraph (G, graph) {
   G.nodes().forEach(u => {
     const node = G.node(u)
-    node.data.subdivisions = node.subdivisions
-    node.data.subdivisions.forEach(sub => {
-      sub.incoming = []
-      sub.outgoing = []
+
+    // Build lists of edge data objects
+    node.data.incoming = []
+    node.data.outgoing = []
+    node.data.ports = node.ports
+    node.data.ports.forEach(port => {
+      port.incoming = []
+      port.outgoing = []
     })
+
     node.data.dy = node.dy
     node.data.x0 = node.x0
     node.data.x1 = node.x1
@@ -386,9 +412,13 @@ function copyResultsToGraph (G, graph) {
     const edge = G.edge(e)
     edge.data.source = G.node(e.v).data
     edge.data.target = G.node(e.w).data
+    edge.data.sourcePort = edge.sourcePort
+    edge.data.targetPort = edge.targetPort
     // console.log(edge)
-    if (edge.sourceSub) edge.sourceSub.outgoing.push(edge.data)
-    if (edge.targetSub) edge.targetSub.incoming.push(edge.data)
+    edge.data.source.outgoing.push(edge.data)
+    edge.data.target.incoming.push(edge.data)
+    if (edge.data.sourcePort) edge.data.sourcePort.outgoing.push(edge.data)
+    if (edge.data.targetPort) edge.data.targetPort.incoming.push(edge.data)
     // edge.data.value = edge.value
     edge.data.dy = edge.dy
     edge.data.points = edge.points || []
