@@ -45,6 +45,7 @@ export function removeDummyNodes (G) {
       dummyEdge.origLabel.x0 = dummyEdge.x0
       dummyEdge.origLabel.y0 = dummyEdge.y0
       dummyEdge.origLabel.r0 = dummyEdge.r0
+      dummyEdge.origLabel.d0 = dummyEdge.d0
       G.setEdge(dummyEdge.origEdge, dummyEdge.origLabel)
     })
     let r1s = dummyEdges.map(dummyEdge => dummyEdge.r1)
@@ -57,6 +58,7 @@ export function removeDummyNodes (G) {
         dummyEdge.origLabel.points.push({
           x: (node.x0 + node.x1) / 2,
           y: dummyEdge.y0,
+          d: dummyEdge.d0,
           ro: dummyEdge.r0,
           ri: r1s[i]  // from last edge
         })
@@ -74,6 +76,7 @@ export function removeDummyNodes (G) {
       dummyEdge.origLabel.x1 = dummyEdge.x1
       dummyEdge.origLabel.y1 = dummyEdge.y1
       dummyEdge.origLabel.r1 = dummyEdge.r1
+      dummyEdge.origLabel.d1 = dummyEdge.d1
     })
   })
 }

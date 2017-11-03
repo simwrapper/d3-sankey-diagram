@@ -379,8 +379,8 @@ function required (f) {
 function addLinkEndpoints (G) {
   G.edges().forEach(e => {
     const edge = G.edge(e)
-    edge.points.unshift({x: edge.x0, y: edge.y0, ro: edge.r0})
-    edge.points.push({x: edge.x1, y: edge.y1, ri: edge.r1})
+    edge.points.unshift({x: edge.x0, y: edge.y0, ro: edge.r0, d: edge.d0})
+    edge.points.push({x: edge.x1, y: edge.y1, ri: edge.r1, d: edge.d1})
   })
 }
 

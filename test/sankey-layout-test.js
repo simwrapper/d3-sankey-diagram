@@ -107,6 +107,23 @@ tape('sankey() sets link.dy and link.points', test => {
   test.end()
 })
 
+tape('sankey() sets link directions', test => {
+  const graph = {
+    nodes: [
+      {id: 'a'},
+      {id: 'b', direction: 'l'}
+    ],
+    links: [
+      {source: 'a', target: 'b', value: 1}
+    ]
+  }
+  sankey().ordering([['a', 'b']]).size([10, 12])(graph)
+
+  test.equal(graph.links[0].points[0].d, 'r', 'out direction')
+  test.equal(graph.links[0].points[1].d, 'l', 'in direction')
+  test.end()
+})
+
 tape('sankey() sets link.points on long links', test => {
   // 0 1 2 3 4 5 6 7 8 9
   //  a --- b --- c --- d
@@ -130,14 +147,14 @@ tape('sankey() sets link.points on long links', test => {
 
   test.deepEqual(graph.links.map(l => l.dy), [ 3, 3, 3, 3 ])
   test.deepEqual(graph.links[0].points, [
-    { x: 1, y: 7.5, ro: 1.5 },
-    { x: 3, y: 9.3, ri: 1.5 }
+    { x: 1, y: 7.5, ro: 1.5, d: 'r' },
+    { x: 3, y: 9.3, ri: 1.5, d: 'r' }
   ])
   test.deepEqual(graph.links[3].points, [
-    { x: 1, y: 4.5, ro: 1.5 },
-    { x: 3.5, y: 2.7, ri: 1.5, ro: Infinity },
-    { x: 6.5, y: 2.7, ri: Infinity, ro: 1.5 },
-    { x: 9, y: 4.5, ri: 1.5 }
+    { x: 1, y: 4.5, ro: 1.5, d: 'r' },
+    { x: 3.5, y: 2.7, ri: 1.5, ro: Infinity, d: 'r' },
+    { x: 6.5, y: 2.7, ri: Infinity, ro: 1.5, d: 'r' },
+    { x: 9, y: 4.5, ri: 1.5, d: 'r' }
   ])
   test.end()
 })
