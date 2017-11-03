@@ -229,7 +229,6 @@ function exampleLinkTypes2 () {
       { source: 'x', target: 'c', value: 3.0, type: 'x' },
       { source: 'y', target: 'c', value: 1.0, type: 'y' },
       { source: 'y', target: 'c', value: 1.2, type: 'z' }
-    ],
-    alignLinkTypes: true
+    ]
   }
 }

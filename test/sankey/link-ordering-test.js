@@ -77,10 +77,6 @@ tape('orderLinks() sorts links with string types', test => {
   orderLinks(graph)
   test.deepEqual(incoming(graph.node('2')), ['0/m1', '0/m2', '1/m1', '1/m2'], 'types not aligned')
 
-  // prepareNodePorts(graph)
-  // orderLinks(graph, { alignLinkTypes: true })
-  // test.deepEqual(incoming(graph.node('2')), ['0/m1', '1/m1', '0/m2', '1/m2'], 'types aligned')
-
   test.end()
 })
 
@@ -94,10 +90,6 @@ tape('orderLinks() sorts links with numeric types', test => {
   prepareNodePorts(graph)
   orderLinks(graph)
   test.deepEqual(incoming(graph.node('2')), ['0/7', '0/8', '1/7', '1/8'], 'types not aligned')
-
-  // prepareNodePorts(graph)
-  // orderLinks(graph, { alignLinkTypes: true })
-  // test.deepEqual(incoming(graph.node('2')), ['0/7', '1/7', '0/8', '1/8'], 'types aligned')
 
   test.end()
 })

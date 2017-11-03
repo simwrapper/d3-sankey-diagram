@@ -15,22 +15,10 @@ export default function orderEdges (G, opts) {
  */
 function orderEdgesOne (G, v) {
   const node = G.node(v)
-
-  // node.incoming = G.inEdges(v)
-  // node.outgoing = G.outEdges(v)
-
   node.ports.forEach(port => {
     port.incoming.sort(compareDirection(G, node, false))
     port.outgoing.sort(compareDirection(G, node, true))
   })
-  // if (alignLinkTypes) {
-  //   const mo = linkTypeOrder(node)
-  //   node.incoming.sort(compareDirectionGroupingTypes(G, mo, false))
-  //   node.outgoing.sort(compareDirectionGroupingTypes(G, mo, true))
-  // } else {
-  //   node.incoming.sort(compareDirection(G, node, false))
-  //   node.outgoing.sort(compareDirection(G, node, true))
-  // }
 }
 
 /**

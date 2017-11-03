@@ -83,7 +83,6 @@ export default function sankeyLayout () {
   var linkValue = function (e) { return e.value }
   var whitespace = 0.5
   var verticalLayout = positionVertically()
-  var alignLinkTypes = false
 
   function sankey () {
     var graph = {nodes: nodes.apply(null, arguments), links: links.apply(null, arguments)}
@@ -138,7 +137,7 @@ export default function sankeyLayout () {
 
     // sort & position links
     prepareNodePorts(G, sortPorts)
-    orderLinks(G, { alignLinkTypes: alignLinkTypes })
+    orderLinks(G)
     layoutLinks(G)
 
     removeDummyNodes(G)
@@ -157,7 +156,7 @@ export default function sankeyLayout () {
     setWidths(G, scale)
 
     prepareNodePorts(G, sortPorts)
-    orderLinks(G, { alignLinkTypes: alignLinkTypes, firstRun: true })
+    orderLinks(G)
     layoutLinks(G)
 
     // removeDummyNodes(G)
@@ -315,12 +314,6 @@ export default function sankeyLayout () {
   sankey.verticalLayout = function (x) {
     if (!arguments.length) return verticalLayout
     verticalLayout = required(x)
-    return sankey
-  }
-
-  sankey.alignLinkTypes = function (x) {
-    if (!arguments.length) return alignLinkTypes
-    alignLinkTypes = !!x
     return sankey
   }
 
