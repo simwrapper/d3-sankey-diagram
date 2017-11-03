@@ -12,7 +12,7 @@ import {interpolate} from 'd3-interpolate'
 import {map} from 'd3-collection'
 
 export default function sankeyDiagram () {
-  let margin = {top: 100, right: 100, bottom: 100, left: 100}
+  let margin = {top: 0, right: 0, bottom: 0, left: 0}
 
   // let width = 500
   // let height = 500
