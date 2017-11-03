@@ -1,6 +1,16 @@
-import d3 from 'd3';
+import { interpolate } from 'd3-interpolate'
+
+// function defaultSegments (d) {
+//   return d.segments
+// }
+
+function defaultMinWidth (d) {
+  return (d.dy === 0) ? 0 : 2
+}
 
 export default function sankeyLink() {
+  // var segments = defaultSegments
+  var minWidth = defaultMinWidth
 
   function radiusBounds(d) {
     var Dx = d.x1 - d.x0,
@@ -11,8 +21,27 @@ export default function sankeyLink() {
   }
 
   function link(d) {
+    var path = ''
+    var seg
+    for (var i = 0; i < d.points.length - 1; ++i) {
+      seg = {
+        x0: d.points[i].x,
+        y0: d.points[i].y,
+        x1: d.points[i + 1].x,
+        y1: d.points[i + 1].y,
+        r0: d.points[i].ro,
+        r1: d.points[i + 1].ri,
+        d0: d.points[i].d,
+        d1: d.points[i + 1].d,
+        dy: d.dy
+      }
+      path += segmentPath(seg)
+    }
+    return path
+  }
+
+  function segmentPath (d) {
     var dir = (d.d0 || 'r') + (d.d1 || 'r');
-    //console.log(dir, d);
     if (d.source && d.source === d.target) {
       return selfLink(d);
     }
@@ -30,7 +59,7 @@ export default function sankeyLink() {
     }
 
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -54,7 +83,7 @@ export default function sankeyLink() {
           dcy = (y1 - y0) - f * (r0 + r1),
           D = Math.sqrt(dcx*dcx + dcy*dcy);
 
-    const phi = -f * Math.acos((r0 + r1) / D),
+    const phi = -f * Math.acos(Math.min(1, (r0 + r1) / D)),
           psi = Math.atan2(dcy, dcx);
 
     let theta = Math.PI/2 + f * (psi + phi);
@@ -76,11 +105,6 @@ export default function sankeyLink() {
       hc = h;
     }
 
-    // if (d.source.id === 'ImprovedGrass' &&
-    //     d.target.id === 'Domestic bioenergy') {
-    //   console.log('link', r, d.r, d.Rmax);
-    // }
-
     function arc(dir, r) {
       var f = ( dir * (y1-y0) > 0) ? 1 : 0,
           rr = (fx * dir * (y1-y0) > 0) ? (r + h) : (r - h);
@@ -90,7 +114,9 @@ export default function sankeyLink() {
     }
 
     var path;
-    if (fx * (x2 - x3) < 0 || Math.abs(y1 - y0) > 4*h) {
+    // if (fx * (x2 - x3) < 0 || Math.abs(y1 - y0) > 4*h) {
+    // XXX this causes juddering during transitions
+    if (true) {
       path =  ("M"     + [x0,    y0-h ] + " " +
                arc(+1, r0) + [x2+hs, y2-hc] + " " +
               "L"     + [x3+hs, y3-hc] + " " +
@@ -120,7 +146,7 @@ export default function sankeyLink() {
   }
 
   function selfLink(d) {
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         r = h*1.5,
         theta = 2 * Math.PI,
         x0 = d.x0,
@@ -141,7 +167,7 @@ export default function sankeyLink() {
 
   function fbLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -182,7 +208,7 @@ export default function sankeyLink() {
 
   function fdLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -213,7 +239,7 @@ export default function sankeyLink() {
 
   function dfLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -244,7 +270,7 @@ export default function sankeyLink() {
 
   function bfLink(d) {
     // Minimum thickness 2px
-    var h = (d.dy === 0) ? 0 : Math.max(1, d.dy / 2),
+    var h = Math.max(minWidth(d), d.dy) / 2,
         x0 = d.x0,
         x1 = d.x1,
         y0 = d.y0,
@@ -283,5 +309,18 @@ export default function sankeyLink() {
             "Z");
   }
 
+  link.minWidth = function (x) {
+    if (arguments.length) {
+      minWidth = required(x)
+      return link
+    }
+    return minWidth
+  }
+
   return link;
+}
+
+function required (f) {
+  if (typeof f !== 'function') throw new Error()
+  return f
 }

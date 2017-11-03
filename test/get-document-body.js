@@ -1,8 +1,9 @@
-module.exports = function() {
+module.exports = function () {
   if (process.browser) {
-    return document.querySelector('body');
+    return document.querySelector('body')
   } else {
-    const jsdom = require("jsdom");
-    return jsdom.jsdom().querySelector('body');
+    const {JSDOM} = require('jsdom')
+    const {document} = (new JSDOM()).window
+    return document.querySelector('body')
   }
-};
+}

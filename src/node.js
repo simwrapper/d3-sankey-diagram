@@ -1,279 +1,148 @@
-import d3 from 'd3';
+import { select, local } from 'd3-selection'
 
+export default function () {
+  let nodeTitle = (d) => d.title !== undefined ? d.title : d.id
+  let nodeVisible = (d) => !!nodeTitle(d)
 
-export default function() {
-  let nodeTitle = (d) => d.id,
-      nodeVisible = (d) => nodeTitle(d) ? true : false;
+  function sankeyNode (context) {
+    const selection = context.selection ? context.selection() : context
 
-  function sankeyNode(context) {
-    context.each(function(d) {
-      // transition is either the selection or the transition
-      const g = d3.select(this),
-            transition = d3.transition(g);
-
-      const title = g.selectAll('title').data([0]),
-            text = g.selectAll('text').data([0]),
-            line = g.selectAll('line').data([0]),
-            clickTarget = g.selectAll('rect').data([0]);
-
-      // Enter
-      title.enter().append('title');
-      text.enter().append('text');
-      line.enter().append('line');
-      clickTarget.enter().append('rect')
+    if (selection.select('text').empty()) {
+      selection.append('title')
+      selection.append('text')
+        .attr('dy', '.35em')
+      selection.append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+      selection.append('rect')
         .attr('x', -5)
         .attr('y', -5)
+        .attr('width', 10)
         .style('fill', 'none')
         .style('visibility', 'hidden')
-        .style('pointer-events', 'all');
+        .style('pointer-events', 'all')
 
-      // Update
-      transition
+      selection
         .attr('transform', nodeTransform)
-        .style('display', function(d) {
-          if (d.dy === 0 || d.dummy || !nodeVisible(d)) {
-            return 'none';
-          } else return 'inline';
-        });
+    }
 
-      let {titleAbove, right} = titlePosition(d),
-          dy = (d.dy === 0) ? 0 : Math.max(1, d.dy);
+    let title = selection.select('title')
+    let text = selection.select('text')
+    let line = selection.select('line')
+    let clickTarget = selection.select('rect')
 
-      let x, y;
+    // Local var for title position of each node
+    const nodeLayout = local()
+    selection.each(function (d) {
+      const layoutData = titlePosition(d)
+      layoutData.dy = (d.y0 === d.y1) ? 0 : Math.max(1, d.y1 - d.y0)
+      nodeLayout.set(this, layoutData)
+    })
 
-      // if (getNodeOffstage(d)) {
-      //   // horizontal line
-      //   transition.select('line')
-      //     .attr('x1', 0)
-      //     .attr('x2', 0)  // don't show
-      //     .attr('y1', 0)
-      //     .attr('y2', 0);
+    // Update un-transitioned
+    title
+      .text(nodeTitle)
 
-      //   transition.select('rect')
-      //     .attr('height', 10)
-      //     .attr('width', dy);
+    text
+      .attr('text-anchor', function (d) { return nodeLayout.get(this).right ? 'end' : 'start' })
+      .text(nodeTitle)
+      .each(wrap, 100)
 
-      //   if (dy < 80) {
-      //     transition.select('text')
-      //       .attr('transform',
-      //             'translate(' + (dy/2) + ',' +
-      //             (d.incoming.length ? 5 : -5) + ') ' +
-      //             'rotate(' + (d.incoming.length ? 90 : -90) + ')')
-      //       .attr('text-anchor', 'start')
-      //       .attr('dy', '.35em');
-      //   } else {
-      //     transition.select('text')
-      //       .attr('transform', 'translate(0,10)')
-      //       .attr('text-anchor', 'start')
-      //       .attr('dy', '.35em');
-      //   }
-      // } else {
+    // Are we in a transition?
+    if (context !== selection) {
+      text = text.transition(context)
+      line = line.transition(context)
+      clickTarget = clickTarget.transition(context)
+    }
 
-      // vertical line
-      transition.select('line')
-        .attr('x1', 0)
-        .attr('x2', 0)
-        .attr('y1', titleAbove ? -5 : 0)
-        .attr('y2', dy);
+    // Update
+    context
+      .attr('transform', nodeTransform)
 
-      transition.select('rect')
-        .attr('width', 10)
-        .attr('height', dy + 5);
+    line
+      .attr('y1', function (d) { return nodeLayout.get(this).titleAbove ? -5 : 0 })
+      .attr('y2', function (d) { return nodeLayout.get(this).dy })
+      .style('display', function (d) {
+        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
+      })
 
-      y = titleAbove ? -10 : d.dy / 2;
-      x = (right ? 1 : -1) * (titleAbove ? 4 : -4);
-      transition.select('text')
-        .attr('transform', 'translate(' + x + ',' + y + ')')
-        .attr('text-anchor', right ? 'end' : 'start')
-        .attr('dy', '.35em');
+    clickTarget
+      .attr('height', function (d) { return nodeLayout.get(this).dy + 5 })
 
-      // }
+    text
+      .attr('transform', textTransform)
+      .style('display', function (d) {
+        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
+      })
 
-      let t, tOpacity;
-      if (false) {  // }showIds) {
-        t = d => nodeTitle(d) || d.id;
-        tOpacity = d => nodeTitle(d) ? null : 0.1;
-      } else {
-        // don't cann nodeTitle on dummy nodes
-        t = d.data ? nodeTitle : (d => '');
-        tOpacity = 1;
-      }
-
-      g.select('title')
-        .text(t);
-
-      g.select('text')
-        .text(t)
-        .style('opacity', tOpacity)
-        .call(wrap, 100);
-    });
+    function textTransform (d) {
+      const layout = nodeLayout.get(this)
+      const y = layout.titleAbove ? -10 : (d.y1 - d.y0) / 2
+      const x = (layout.right ? 1 : -1) * (layout.titleAbove ? 4 : -4)
+      return 'translate(' + x + ',' + y + ')'
+    }
   }
 
-  sankeyNode.nodeVisible = function(x) {
-    if (!arguments.length) return nodeVisible;
-    nodeVisible = d3.functor(x);
-    return sankeyNode;
-  };
+  sankeyNode.nodeVisible = function (x) {
+    if (arguments.length) {
+      nodeVisible = required(x)
+      return sankeyNode
+    }
+    return nodeVisible
+  }
 
-  sankeyNode.nodeTitle = function(x) {
-    if (!arguments.length) return nodeTitle;
-    nodeTitle = d3.functor(x);
-    return sankeyNode;
-  };
+  sankeyNode.nodeTitle = function (x) {
+    if (arguments.length) {
+      nodeTitle = required(x)
+      return sankeyNode
+    }
+    return nodeTitle
+  }
 
-  return sankeyNode;
+  return sankeyNode
 }
 
-
-function positionTitle(nodeSelection) {
-  nodeSelection.each(function(d) {
-    var node = d3.select(this),
-        transition = d3.transition(node),
-        titleAbove = false,
-        right = false,
-        dy = (d.dy === 0) ? 0 : Math.max(1, d.dy);
-
-    // If thin, and there's enough space, put above
-    if (d.spaceAbove > 20 && d.style !== 'type') {
-      titleAbove = true;
-    } else {
-      titleAbove = false;
-      if (d.outgoing.length == 1 && d.incoming.length > 1) {
-        right = false;
-      } else if (d.incoming.length == 1 && d.outgoing.length > 1) {
-        right = true;
-      }
-    }
-
-    // Stick labels outside at edges
-    if (d.incoming.length === 0) {
-      right = true;
-      titleAbove = false;
-    } else if (d.outgoing.length === 0) {
-      right = false;
-      titleAbove = false;
-    }
-
-    var x, y;
-
-    if (false) {  // XXX }getNodeOffstage(d)) {
-      // horizontal line
-      transition.select('line')
-        .attr('x1', 0)
-        .attr('x2', 0)  // don't show
-        .attr('y1', 0)
-        .attr('y2', 0);
-
-      transition.select('rect')
-        .attr('height', 10)
-        .attr('width', dy);
-
-      if (dy < 80) {
-        transition.select('text')
-          .attr('transform',
-                'translate(' + (dy/2) + ',' +
-                (d.incoming.length ? 5 : -5) + ') ' +
-                'rotate(' + (d.incoming.length ? 90 : -90) + ')')
-          .attr('text-anchor', 'start')
-          .attr('dy', '.35em');
-      } else {
-        transition.select('text')
-          .attr('transform', 'translate(0,10)')
-          .attr('text-anchor', 'start')
-          .attr('dy', '.35em');
-      }
-    } else {
-      // vertical line
-      transition.select('line')
-        .attr('x1', 0)
-        .attr('x2', 0)
-        .attr('y1', titleAbove ? -5 : 0)
-        .attr('y2', dy);
-
-      transition.select('rect')
-        .attr('width', 10)
-        .attr('height', dy + 5);
-
-      y = titleAbove ? -10 : d.dy / 2;
-      x = (right ? 1 : -1) * (titleAbove ? 4 : -4);
-      transition.select('text')
-        .attr('transform', 'translate(' + x + ',' + y + ')')
-        .attr('text-anchor', right ? 'end' : 'start')
-        .attr('dy', '.35em');
-    }
-
-    let metaTitle = pprop('nodeMetadata', 'title'),
-        nodeTitle,
-        titleOpacity;
-
-    if (showIds) {
-      nodeTitle = d => metaTitle(d) || d.id;
-      titleOpacity = d => metaTitle(d) ? null : 0.1;
-    } else {
-      nodeTitle = metaTitle;
-      titleOpacity = 1;
-    }
-
-    node.select('title')
-      .text(nodeTitle);
-
-    node.select('text')
-      .text(nodeTitle)
-      .style('opacity', titleOpacity)
-      .call(wrap, 100);
-  });
-
-
-
-  return node;
+function nodeTransform (d) {
+  return 'translate(' + d.x0 + ',' + d.y0 + ')'
 }
 
-function nodeTransform(d) {
-  return 'translate(' + d.x + ',' + d.y + ')';
-}
-
-
-function titlePosition(d) {
-  let titleAbove = false,
-      right = false;
+function titlePosition (d) {
+  let titleAbove = false
+  let right = false
 
   // If thin, and there's enough space, put above
   if (d.spaceAbove > 20 && d.style !== 'type') {
-    titleAbove = true;
+    titleAbove = true
   } else {
-    titleAbove = false;
-    if (d.outgoing.length == 1 && d.incoming.length > 1) {
-      right = false;
-    } else if (d.incoming.length == 1 && d.outgoing.length > 1) {
-      right = true;
-    }
+    titleAbove = false
   }
 
-  // Stick labels outside at edges
   if (d.incoming.length === 0) {
-    right = true;
-    titleAbove = false;
+    right = true
+    titleAbove = false
   } else if (d.outgoing.length === 0) {
-    right = false;
-    titleAbove = false;
+    right = false
+    titleAbove = false
   }
 
-  return {titleAbove, right};
+  return {titleAbove, right}
 }
 
+function wrap (d, width) {
+  var text = select(this)
+  var lines = text.text().split(/\n/)
+  var lineHeight = 1.1 // ems
+  if (lines.length === 1) return
+  text.text(null)
+  lines.forEach(function (line, i) {
+    text.append('tspan')
+      .attr('x', 0)
+      .attr('dy', (i === 0 ? 0.7 - lines.length / 2 : 1) * lineHeight + 'em')
+      .text(line)
+  })
+}
 
-function wrap(text, width) {
-  text.each(function() {
-    var text = d3.select(this),
-        lines = text.text().split(/\n/),
-        lineHeight = 1.1; // ems
-    if (lines.length === 1) { return; }
-    text.text(null);
-    lines.forEach(function(line, i) {
-      text.append("tspan")
-        .attr("x", 0)
-        .attr("dy", (i === 0 ? -lines.length/2 : 1) * lineHeight + 'em')
-        .text(line);
-    });
-  });
+function required (f) {
+  if (typeof f !== 'function') throw new Error()
+  return f
 }
