@@ -18,16 +18,18 @@ test('groups: draws box around nodes', t => {
     links: [
       {source: 'a1', target: 'b', value: 1},
       {source: 'a2', target: 'b', value: 1}
-    ],
-    groups: [
-      {title: 'Group', nodes: ['a1', 'a2']},
-      {title: 'B', nodes: ['b']}
     ]
   }
+
+  const groups = [
+    {title: 'Group', nodes: ['a1', 'a2']},
+    {title: 'B', nodes: ['b']}
+  ]
+
   sankey().size([600, 300])(graph)
 
   // diagram
-  const diagram = sankeyDiagram();
+  const diagram = sankeyDiagram().groups(groups)
   const el = render(graph, diagram);
 
   t.equal(el.selectAll('.node').size(), 3,

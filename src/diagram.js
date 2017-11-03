@@ -25,6 +25,8 @@ export default function sankeyDiagram () {
   let selectedNode = null
   let selectedEdge = null
 
+  let groups = []
+
   const fmt = format('.3s')
 
   const node = sankeyNode()
@@ -73,12 +75,12 @@ export default function sankeyDiagram () {
 
       // Groups of nodes
       const nodeMap = map(G.nodes, n => n.id)
-      const groups = (G.groups || []).map(g => positionGroup(nodeMap, g));
+      const groupsPositioned = (groups || []).map(g => positionGroup(nodeMap, g));
 
       // Render
       updateNodes(sankey, context, G.nodes)
       updateLinks(sankey, context, G.links)
-      updateGroups(svg, groups);
+      updateGroups(svg, groupsPositioned);
       // updateSlices(svg, layout.slices(nodes));
 
       // Events
@@ -214,9 +216,9 @@ export default function sankeyDiagram () {
   //   slice.exit().remove();
   // }
 
-  function updateGroups(svg, groups) {
+  function updateGroups (svg, groups) {
     let group = svg.select('.groups').selectAll('.group')
-      .data(groups);
+      .data(groups)
 
     const enter = group.enter().append('g')
             .attr('class', 'group')
@@ -334,6 +336,12 @@ export default function sankeyDiagram () {
       bottom: _x.bottom === undefined ? margin.bottom : _x.bottom,
       right: _x.right === undefined ? margin.right : _x.right
     }
+    return this
+  }
+
+  exports.groups = function (_x) {
+    if (!arguments.length) return groups
+    groups = _x
     return this
   }
 
