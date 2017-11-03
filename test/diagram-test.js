@@ -51,7 +51,6 @@ test('diagram: types', t => {
 
   const color = scaleOrdinal(schemeCategory10)
   const diagram = sankeyDiagram()
-        .link(sel => sel.style('fill', d => color(d.data.type)))
 
   const el = render(graph, diagram)
 
@@ -69,8 +68,7 @@ test('diagram: types 2', t => {
   sankey()(example)
 
   const color = scaleOrdinal(schemeCategory10)
-  const diagram = sankeyDiagram()
-        .link(sel => sel.style('fill', d => color(d.data.type)))
+  const diagram = sankeyDiagram();
 
   const el = render(example, diagram)
 
