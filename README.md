@@ -30,12 +30,7 @@ Or download the [standalone bundle](https://github.com/ricklupton/d3-sankey-diag
 var layout = d3.sankey()
                .extent([[100, 10], [840, 580]]);
 
-var linkTitle = d3.sankeyLinkTitle(function(d) { return d.title; },
-                                   function(d) { return d.title; },
-                                   d3.format('.3s'));
-
 var diagram = d3.sankeyDiagram()
-                .linkTitle(linkTitle)
                 .linkColor(function(d) { return d.color; });
 
 d3.json('uk_energy.json', function(energy) {
