@@ -97,10 +97,14 @@ export default function sankeyDiagram () {
         .selectAll('.node')
         .data(nodes, d => d.id)
 
+    // EXIT
+    nodeSel.exit().remove()
+
     nodeSel = nodeSel.merge(
       nodeSel.enter()
         .append('g')
         .attr('class', 'node')
+        .call(node)
         .on('click', selectNode))
 
     if (context instanceof transition) {
@@ -120,8 +124,6 @@ export default function sankeyDiagram () {
     // getTransition(nodeSel)
     //   .call(node)
     //   .call(nodeCustom);
-
-    nodeSel.exit().remove()
   }
 
   function updateLinks (sankey, context, edges) {
@@ -129,6 +131,10 @@ export default function sankeyDiagram () {
         .select('.links')
         .selectAll('.link')
         .data(edges, d => d.source.id + '-' + d.target.id + '-' + d.type)
+
+    // EXIT
+
+    linkSel.exit().remove()
 
     // ENTER
 
@@ -181,8 +187,6 @@ export default function sankeyDiagram () {
 
     linkSel.classed('selected', (d) => d.id === selectedEdge)
     linkSel.sort(linkOrder)
-
-    linkSel.exit().remove()
   }
 
   // function updateSlices(svg, slices) {
