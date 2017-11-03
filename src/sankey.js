@@ -392,6 +392,6 @@ function copyResultsToGraph (G, graph) {
     // edge.data.value = edge.value
     edge.data.dy = edge.dy
     edge.data.points = edge.points || []
-    edge.data.id = `${e.v}-${e.w}-${e.name}`
+    // edge.data.id = `${e.v}-${e.w}-${e.name}`
   })
 }

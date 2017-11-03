@@ -126,7 +126,7 @@ export default function sankeyDiagram () {
     var linkSel = sankey
         .select('.links')
         .selectAll('.link')
-        .data(edges, d => d.id)
+        .data(edges, d => d.source.id + '-' + d.target.id + '-' + d.type)
 
     // ENTER
 
