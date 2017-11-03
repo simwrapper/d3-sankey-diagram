@@ -1,6 +1,6 @@
 {
   "name": "d3-sankey-diagram",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Sankey diagram d3 plugin",
   "author": "Rick Lupton",
   "keywords": [

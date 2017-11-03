@@ -10,7 +10,7 @@
 
 See the **[demo](https://ricklupton.github.io/d3-sankey-diagram)** for examples of these.
 
-d3-sankey-diagram versions v0.5 and up are based on d3 v4.
+d3-sankey-diagram versions v0.6 and up are based on d3 v4.
 
 ## Installation
 
