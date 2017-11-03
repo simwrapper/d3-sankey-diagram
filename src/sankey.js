@@ -406,6 +406,8 @@ function copyResultsToGraph (G, graph) {
     node.data.band = node.band
     node.data.depth = node.depth
     node.data.value = node.value
+    node.data.spaceAbove = node.spaceAbove
+    node.data.spaceBelow = node.spaceBelow
   })
 
   G.edges().forEach(e => {
