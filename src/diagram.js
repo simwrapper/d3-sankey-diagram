@@ -215,7 +215,7 @@ export default function sankeyDiagram () {
     group = group.merge(enter)
 
     group
-      .style('display', d => d.title && d.nodes.length > 1 ? 'inline' : 'none')
+      .style('display', d => d.title ? 'inline' : 'none')
       .attr('transform', d => `translate(${d.rect.left},${d.rect.top})`)
       .select('rect')
       .attr('x', -10)
