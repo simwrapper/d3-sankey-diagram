@@ -301,6 +301,12 @@ export default function sankeyDiagram () {
     return this
   }
 
+  exports.nodeValue = function (_x) {
+    if (!arguments.length) return node.nodeValue()
+    node.nodeValue(_x)
+    return this
+  }
+
   // Link styles and titles
   exports.linkTitle = function (_x) {
     if (!arguments.length) return linkTitle

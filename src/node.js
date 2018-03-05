@@ -2,6 +2,7 @@ import { select, local } from 'd3-selection'
 
 export default function () {
   let nodeTitle = (d) => d.title !== undefined ? d.title : d.id
+  let nodeValue = (d) => d.value
   let nodeVisible = (d) => !!nodeTitle(d)
 
   function sankeyNode (context) {
@@ -9,12 +10,20 @@ export default function () {
 
     if (selection.select('text').empty()) {
       selection.append('title')
-      selection.append('text')
-        .attr('dy', '.35em')
       selection.append('line')
         .attr('x1', 0)
         .attr('x2', 0)
       selection.append('rect')
+        .attr('class', 'node-body')
+      selection.append('text')
+        .attr('class', 'node-value')
+        .attr('dy', '.35em')
+        .attr('text-anchor', 'middle')
+      selection.append('text')
+        .attr('class', 'node-title')
+        .attr('dy', '.35em')
+      selection.append('rect')
+        .attr('class', 'node-click-target')
         .attr('x', -5)
         .attr('y', -5)
         .attr('width', 10)
@@ -27,9 +36,11 @@ export default function () {
     }
 
     let title = selection.select('title')
-    let text = selection.select('text')
+    let value = selection.select('.node-value')
+    let text = selection.select('.node-title')
     let line = selection.select('line')
-    let clickTarget = selection.select('rect')
+    let body = selection.select('.node-body')
+    let clickTarget = selection.select('.node-click-target')
 
     // Local var for title position of each node
     const nodeLayout = local()
@@ -43,6 +54,10 @@ export default function () {
     title
       .text(nodeTitle)
 
+    value
+      .text(nodeValue)
+      .style('display', function (d) { return (d.x1 - d.x0) > 2 ? 'inline' : 'none' })
+
     text
       .attr('text-anchor', function (d) { return nodeLayout.get(this).right ? 'end' : 'start' })
       .text(nodeTitle)
@@ -52,6 +67,7 @@ export default function () {
     if (context !== selection) {
       text = text.transition(context)
       line = line.transition(context)
+      body = body.transition(context)
       clickTarget = clickTarget.transition(context)
     }
 
@@ -69,16 +85,34 @@ export default function () {
     clickTarget
       .attr('height', function (d) { return nodeLayout.get(this).dy + 5 })
 
+    body
+      .attr('width', function (d) { return d.x1 - d.x0 })
+      .attr('height', function (d) { return nodeLayout.get(this).dy })
+
     text
       .attr('transform', textTransform)
       .style('display', function (d) {
         return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
       })
 
+    value
+      .style('font-size', function (d) { return Math.min(d.x1 - d.x0 - 4, d.y1 - d.y0 - 4) + 'px' })
+      .attr('transform', function (d) {
+        const dx = d.x1 - d.x0
+        const dy = d.y1 - d.y0
+        const theta = dx > dy ? 0 : -90
+        return 'translate(' + (dx / 2) + ',' + (dy / 2) + ') rotate(' + theta + ')'
+      })
+
     function textTransform (d) {
       const layout = nodeLayout.get(this)
       const y = layout.titleAbove ? -10 : (d.y1 - d.y0) / 2
-      const x = (layout.right ? 1 : -1) * (layout.titleAbove ? 4 : -4)
+      let x
+      if (layout.titleAbove) {
+        x = (layout.right ? 4 : -4)
+      } else {
+        x = (layout.right ? -4 : d.x1 - d.x0 + 4)
+      }
       return 'translate(' + x + ',' + y + ')'
     }
   }
@@ -97,6 +131,14 @@ export default function () {
       return sankeyNode
     }
     return nodeTitle
+  }
+
+  sankeyNode.nodeValue = function (x) {
+    if (arguments.length) {
+      nodeValue = required(x)
+      return sankeyNode
+    }
+    return nodeValue
   }
 
   return sankeyNode
