@@ -48,6 +48,12 @@ If you use the Jupyter notebook, try
 
 `d3-sankey-diagram` works both in node (using jsdom) and in the browser.
 
+## Contributing 🎁
+
+Thanks for your interest in contributing! To get started see [CONTRIBUTING.md](CONTRIBUTING.md) and our [code of
+conduct](CODE_OF_CONDUCT.md). We have a [Roadmap](https://github.com/ricklupton/d3-sankey-diagram/projects/1) showing what we
+are working on, and you can browse the list of [good first issues](https://github.com/ricklupton/d3-sankey-diagram/labels/good%20first%20bug) for ideas.
+
 ## Documentation
 d3-sankey-diagram is a JavaScript library for creating [Sankey diagrams](https://en.wikipedia.org/wiki/Sankey_diagram) using [d3](https://d3js.org/). See the [live examples](https://ricklupton.github.io/d3-sankey-diagram) to get an idea of what it does.
 
@@ -380,7 +386,3 @@ npm test
 ## Licence
 
 MIT licence.
-
-## Contributions
-
-Contributions are welcome. Open an issue or a pull request!
