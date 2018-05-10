@@ -116,29 +116,17 @@ export default function sankeyLink() {
     var path;
     // if (fx * (x2 - x3) < 0 || Math.abs(y1 - y0) > 4*h) {
     // XXX this causes juddering during transitions
-    if (true) {
-      path =  ("M"     + [x0,    y0-h ] + " " +
-               arc(+1, r0) + [x2+hs, y2-hc] + " " +
-              "L"     + [x3+hs, y3-hc] + " " +
-               arc(-1, r1) + [x1,    y1-h ] + " " +
-              "L"     + [x1,    y1+h ] + " " +
-               arc(+1, r1) + [x3-hs, y3+hc] + " " +
-              "L"     + [x2-hs, y2+hc] + " " +
-               arc(-1, r0) + [x0,    y0+h ] + " " +
-              "Z");
-    } else {
-      // keep same number of points
-      theta = Math.abs(theta);
-      path = ("M"     + [x0,    y0-h ] + " " +
-              arc(+1, r0) + [x1,    y1-h ] + " " +
-              "L"     + [x1,    y1-h ] + " " +
+
+    path =  ("M"     + [x0,    y0-h ] + " " +
+              arc(+1, r0) + [x2+hs, y2-hc] + " " +
+            "L"     + [x3+hs, y3-hc] + " " +
               arc(-1, r1) + [x1,    y1-h ] + " " +
-              "L"     + [x1,    y1+h ] + " " +
-              arc(+1, r1) + [x0,    y0+h ] + " " +
-              "L"     + [x0,    y0+h ] + " " +
+            "L"     + [x1,    y1+h ] + " " +
+              arc(+1, r1) + [x3-hs, y3+hc] + " " +
+            "L"     + [x2-hs, y2+hc] + " " +
               arc(-1, r0) + [x0,    y0+h ] + " " +
-              "Z");
-    }
+            "Z");
+    
     if (/NaN/.test(path)) {
       console.error('path NaN', d, path);
     }
