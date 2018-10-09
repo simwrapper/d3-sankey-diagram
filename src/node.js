@@ -2,7 +2,7 @@ import { select, local } from 'd3-selection'
 
 export default function () {
   let nodeTitle = (d) => d.title !== undefined ? d.title : d.id
-  let nodeValue = (d) => d.value
+  let nodeValue = (d) => null
   let nodeVisible = (d) => !!nodeTitle(d)
 
   function sankeyNode (context) {

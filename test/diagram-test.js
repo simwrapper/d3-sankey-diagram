@@ -81,11 +81,32 @@ test('diagram: types 2', t => {
   t.end()
 })
 
-test('diagram: node labels (narrow nodes)', t => {
+test('diagram: node value labels are not shown by default', t => {
   const example = exampleLinkTypes()
   sankey()(example)
 
   const diagram = sankeyDiagram()
+  const el = render(example, diagram)
+
+  const labels = el.selectAll('.node').select('.node-title').nodes()
+        .map(node => node.textContent)
+
+  t.deepEqual(labels, ['a', 'b', 'c', 'd'], 'right labels')
+
+  const values = el.selectAll('.node').select('.node-value').nodes()
+        .map(node => node.textContent)
+
+  t.deepEqual(values, ['', '', '', ''], 'right value labels')
+
+  t.end()
+})
+
+
+test('diagram: node labels (narrow nodes)', t => {
+  const example = exampleLinkTypes()
+  sankey()(example)
+
+  const diagram = sankeyDiagram().nodeValue(d => d.value)
   const el = render(example, diagram)
 
   const labels = el.selectAll('.node').select('.node-title').nodes()
@@ -108,7 +129,7 @@ test('diagram: node labels (wide nodes)', t => {
   const example = exampleLinkTypes()
   sankey().nodeWidth(30)(example)
 
-  const diagram = sankeyDiagram()
+  const diagram = sankeyDiagram().nodeValue(d => d.value)
   const el = render(example, diagram)
 
   const labels = el.selectAll('.node').select('.node-title').nodes()
