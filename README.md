@@ -386,3 +386,15 @@ npm test
 ## Licence
 
 MIT licence.
+
+## Changelog
+
+### Unreleased
+
+- Improved node value labels: with wide nodes, the labels are shown within the
+  nodes. Otherwise they are shown after the node titles in parentheses. **[See
+  example](https://bl.ocks.org/ricklupton/8a9a9501883a5645202cb439def65d31)**.
+
+### v0.7.0
+
+- Add option to show node values, customizable with `diagram.nodeValue`. 

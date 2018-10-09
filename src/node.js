@@ -35,86 +35,88 @@ export default function () {
         .attr('transform', nodeTransform)
     }
 
-    let title = selection.select('title')
-    let value = selection.select('.node-value')
-    let text = selection.select('.node-title')
-    let line = selection.select('line')
-    let body = selection.select('.node-body')
-    let clickTarget = selection.select('.node-click-target')
-
-    // Local var for title position of each node
-    const nodeLayout = local()
     selection.each(function (d) {
+      let title = select(this).select('title')
+      let value = select(this).select('.node-value')
+      let text = select(this).select('.node-title')
+      let line = select(this).select('line')
+      let body = select(this).select('.node-body')
+      let clickTarget = select(this).select('.node-click-target')
+
+      // Local var for title position of each node
       const layoutData = titlePosition(d)
       layoutData.dy = (d.y0 === d.y1) ? 0 : Math.max(1, d.y1 - d.y0)
-      nodeLayout.set(this, layoutData)
-    })
 
-    // Update un-transitioned
-    title
-      .text(nodeTitle)
+      const separateValue = (d.x1 - d.x0) > 2
+      const titleText = nodeTitle(d) + ((!separateValue && nodeValue(d))
+                                        ? ' (' + nodeValue(d) + ')' : '')
 
-    value
-      .text(nodeValue)
-      .style('display', function (d) { return (d.x1 - d.x0) > 2 ? 'inline' : 'none' })
+      // Update un-transitioned
+      title
+        .text(titleText)
 
-    text
-      .attr('text-anchor', function (d) { return nodeLayout.get(this).right ? 'end' : 'start' })
-      .text(nodeTitle)
-      .each(wrap, 100)
+      value
+        .text(nodeValue)
+        .style('display', separateValue ? 'inline' : 'none')
 
-    // Are we in a transition?
-    if (context !== selection) {
-      text = text.transition(context)
-      line = line.transition(context)
-      body = body.transition(context)
-      clickTarget = clickTarget.transition(context)
-    }
+      text
+        .attr('text-anchor', layoutData.right ? 'end' : 'start')
+        .text(titleText)
+        .each(wrap, 100)
 
-    // Update
-    context
-      .attr('transform', nodeTransform)
-
-    line
-      .attr('y1', function (d) { return nodeLayout.get(this).titleAbove ? -5 : 0 })
-      .attr('y2', function (d) { return nodeLayout.get(this).dy })
-      .style('display', function (d) {
-        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
-      })
-
-    clickTarget
-      .attr('height', function (d) { return nodeLayout.get(this).dy + 5 })
-
-    body
-      .attr('width', function (d) { return d.x1 - d.x0 })
-      .attr('height', function (d) { return nodeLayout.get(this).dy })
-
-    text
-      .attr('transform', textTransform)
-      .style('display', function (d) {
-        return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
-      })
-
-    value
-      .style('font-size', function (d) { return Math.min(d.x1 - d.x0 - 4, d.y1 - d.y0 - 4) + 'px' })
-      .attr('transform', function (d) {
-        const dx = d.x1 - d.x0
-        const dy = d.y1 - d.y0
-        const theta = dx > dy ? 0 : -90
-        return 'translate(' + (dx / 2) + ',' + (dy / 2) + ') rotate(' + theta + ')'
-      })
-
-    function textTransform (d) {
-      const layout = nodeLayout.get(this)
-      const y = layout.titleAbove ? -10 : (d.y1 - d.y0) / 2
-      let x
-      if (layout.titleAbove) {
-        x = (layout.right ? 4 : -4)
-      } else {
-        x = (layout.right ? -4 : d.x1 - d.x0 + 4)
+      // Are we in a transition?
+      if (context !== selection) {
+        text = text.transition(context)
+        line = line.transition(context)
+        body = body.transition(context)
+        clickTarget = clickTarget.transition(context)
       }
-      return 'translate(' + x + ',' + y + ')'
-    }
+
+      // Update
+      context
+        .attr('transform', nodeTransform)
+
+      line
+        .attr('y1', function (d) { return layoutData.titleAbove ? -5 : 0 })
+        .attr('y2', function (d) { return layoutData.dy })
+        .style('display', function (d) {
+          return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
+        })
+
+      clickTarget
+        .attr('height', function (d) { return layoutData.dy + 5 })
+
+      body
+        .attr('width', function (d) { return d.x1 - d.x0 })
+        .attr('height', function (d) { return layoutData.dy })
+
+      text
+        .attr('transform', textTransform)
+        .style('display', function (d) {
+          return (d.y0 === d.y1 || !nodeVisible(d)) ? 'none' : 'inline'
+        })
+
+      value
+        .style('font-size', function (d) { return Math.min(d.x1 - d.x0 - 4, d.y1 - d.y0 - 4) + 'px' })
+        .attr('transform', function (d) {
+          const dx = d.x1 - d.x0
+          const dy = d.y1 - d.y0
+          const theta = dx > dy ? 0 : -90
+          return 'translate(' + (dx / 2) + ',' + (dy / 2) + ') rotate(' + theta + ')'
+        })
+
+      function textTransform (d) {
+        const layout = layoutData
+        const y = layout.titleAbove ? -10 : (d.y1 - d.y0) / 2
+        let x
+        if (layout.titleAbove) {
+          x = (layout.right ? 4 : -4)
+        } else {
+          x = (layout.right ? -4 : d.x1 - d.x0 + 4)
+        }
+        return 'translate(' + x + ',' + y + ')'
+      }
+    })
   }
 
   sankeyNode.nodeVisible = function (x) {

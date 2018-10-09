@@ -81,6 +81,48 @@ test('diagram: types 2', t => {
   t.end()
 })
 
+test('diagram: node labels (narrow nodes)', t => {
+  const example = exampleLinkTypes()
+  sankey()(example)
+
+  const diagram = sankeyDiagram()
+  const el = render(example, diagram)
+
+  const labels = el.selectAll('.node').select('.node-title').nodes()
+        .map(node => node.textContent)
+
+  t.deepEqual(labels, ['a (4)', 'b (4)', 'c (3)', 'd (1)'], 'right labels')
+
+  const values = el.selectAll('.node').select('.node-value').nodes()
+        .map(node => node.textContent)
+
+  t.deepEqual(values, ['4', '4', '3', '1'], 'right value labels')
+
+  t.end()
+})
+
+
+test('diagram: node labels (wide nodes)', t => {
+  // when nodes are wide, the labels are shown separately
+
+  const example = exampleLinkTypes()
+  sankey().nodeWidth(30)(example)
+
+  const diagram = sankeyDiagram()
+  const el = render(example, diagram)
+
+  const labels = el.selectAll('.node').select('.node-title').nodes()
+        .map(node => node.textContent)
+
+  t.deepEqual(labels, ['a', 'b', 'c', 'd'], 'right labels')
+
+  const values = el.selectAll('.node').select('.node-value').nodes()
+        .map(node => node.textContent)
+
+  t.deepEqual(values, ['4', '4', '3', '1'], 'right value labels')
+
+  t.end()
+})
 // test('diagram: link attributes', t => {
 //   const links = [
 //     {source: 'a', target: 'b', value: 2, type: 'x',
