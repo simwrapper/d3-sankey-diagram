@@ -9,4 +9,8 @@ Run the tests using `npm test`.
 
 # Releasing a new version
 
-Bump the version with `npm version`
+Check the tests run!
+
+Bump the version with `npm version {major | minor | patch}` as appropriate.
+
+Publish the new version to npm with `npm publish`.

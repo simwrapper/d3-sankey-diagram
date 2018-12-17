@@ -1,4 +1,4 @@
-import { select, local } from 'd3-selection'
+import { select } from 'd3-selection'
 
 export default function () {
   let nodeTitle = (d) => d.title !== undefined ? d.title : d.id
