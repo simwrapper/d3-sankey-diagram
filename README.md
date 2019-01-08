@@ -303,7 +303,21 @@ function nodeTitle(d) {
 }
 ```
 
-<a name="linkTitle" href="#linkTitle">#</a> diagram.<b>linkTitle</b>([<i>linkTitle</i>])
+<a name="nodeValue" href="#nodeValue">#</a> diagram.<b>nodeValue</b>([<i>nodeValue</i>])
+
+If called with an argument, set the node value getter to the specified function,
+otherwise return the current function, which defaults to:
+```js
+function nodeValue(d) {
+  return null;
+}
+```
+
+The node value is shown with an SVG text element within the node body, only when
+the `nodeWidth` is greater than zero.
+
+<a name="linkTitle" href="#linkTitle">#</a>
+diagram.<b>linkTitle</b>([<i>linkTitle</i>])
 
 If called with an argument, set the link title to the specified function,
 otherwise return the current function, which defaults to:
@@ -404,10 +418,30 @@ MIT licence.
 
 ### Unreleased
 
+- Fix packaging to avoid overwriting the d3 global object in UMD module!
+- Add a basic link label feature to show the values of links with SVG text
+  elements. See [`diagram.linkLabel`](#linkLabel). (#2)
+
+### v0.7.2
+
+- Update packaging to produce different module builds:
+    - `d3-sankey-diagram.esm.js`: An ES module
+    - `d3-sankey-diagram.cjs.js`: A CommonJS module for use with NodeJS
+    - `d3-sankey-diagram.umd.js`: A UMD module for use in `<script>` tags
+    - `d3-sankey-diagram.min.js`: A minified version of the UMD module
+
+### v0.7.1
+
+- Unused code tidied up (thanks svwielga4)
 - Improved node value labels: with wide nodes, the labels are shown within the
-  nodes. Otherwise they are shown after the node titles in parentheses. **[See
+  nodes. Otherwise they are now shown after the node titles in parentheses.
+  **[See
   example](https://bl.ocks.org/ricklupton/8a9a9501883a5645202cb439def65d31)**.
+- By default, node values are not shown by default (the default in v0.7.0 was to
+  show them). Use [`diagram.nodeValue`](#nodeValue) to set the format to show
+  them.
 
 ### v0.7.0
 
-- Add option to show node values, customizable with `diagram.nodeValue`. 
+- Add option to show node values, customizable with
+  [`diagram.nodeValue`](#nodeValue).
