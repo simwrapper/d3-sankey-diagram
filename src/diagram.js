@@ -39,6 +39,7 @@ export default function sankeyDiagram () {
 
   let linkColor = d => null
   let linkTitle = linkTitleGenerator(node.nodeTitle(), d => d.type, fmt)
+  let linkLabel = defaultLinkLabel
 
   const listeners = dispatch('selectNode', 'selectGroup', 'selectLink')
 
@@ -137,12 +138,24 @@ export default function sankeyDiagram () {
 
     linkEnter.append('title')
 
+    linkEnter.append('text')
+      .attr('class', 'label')
+      .attr('dy', '0.35em')
+      .attr('x', d => d.points[0].x + 4)
+      .attr('y', d => d.points[0].y)
+
     // UPDATE
 
     linkSel = linkSel.merge(linkEnter)
+
+    // Non-transition updates
+    linkSel.classed('selected', (d) => d.id === selectedEdge)
+    linkSel.sort(linkOrder)
+
+    // Transition updates, if available
     if (context instanceof transition) {
+      linkSel = linkSel.transition(context)
       linkSel
-        .transition(context)
         .select('path')
         .style('fill', linkColor)
         .each(function (d) {
@@ -160,8 +173,10 @@ export default function sankeyDiagram () {
     linkSel.select('title')
       .text(linkTitle)
 
-    linkSel.classed('selected', (d) => d.id === selectedEdge)
-    linkSel.sort(linkOrder)
+    linkSel.select('.label')
+      .text(linkLabel)
+      .attr('x', d => d.points[0].x + 4)
+      .attr('y', d => d.points[0].y)
   }
 
   // function updateSlices(svg, slices) {
@@ -314,6 +329,12 @@ export default function sankeyDiagram () {
     return this
   }
 
+  exports.linkLabel = function (_x) {
+    if (!arguments.length) return linkLabel
+    linkLabel = _x
+    return this
+  }
+
   exports.linkColor = function (_x) {
     if (!arguments.length) return linkColor
     linkColor = _x
@@ -342,4 +363,8 @@ export default function sankeyDiagram () {
   }
 
   return exports
+}
+
+function defaultLinkLabel (d) {
+  return null
 }

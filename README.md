@@ -332,6 +332,19 @@ To make it easier to customise this function to your data, you can use
 Generates a function similar to the one above, with custom accessors for the
 node title `nodeTitle`, link-type title `typeTitle` and number format `fmt`.
 
+<a name="linkLabel" href="#linkLabel">#</a> diagram.<b>linkLabel</b>([<i>linkLabel</i>])
+
+If called with an argument, set the link label to the specified function,
+otherwise return the current function, which defaults to:
+```js
+function linkLabel(d) {
+  return null
+}
+```
+
+The link label is displayed in an SVG `text` element, so unlike the /title/, it
+is visible all the time.
+
 #### Link appearance
 
 <a name="linkColor" href="#linkColor">#</a> diagram.<b>linkColor</b>([<i>linkColor</i>])
