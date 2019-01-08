@@ -418,6 +418,8 @@ MIT licence.
 
 ### Unreleased
 
+### v0.7.3
+
 - Fix packaging to avoid overwriting the d3 global object in UMD module!
 - Add a basic link label feature to show the values of links with SVG text
   elements. See [`diagram.linkLabel`](#linkLabel). (#2)

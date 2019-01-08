@@ -13,4 +13,7 @@ Check the tests run!
 
 Bump the version with `npm version {major | minor | patch}` as appropriate.
 
+Edit the changelog in the README.md to move the "unpublished" items into a new
+section, and amend the version commit.
+
 Publish the new version to npm with `npm publish`.
