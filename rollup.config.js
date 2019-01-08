@@ -25,6 +25,7 @@ export default [
     dest: pkg.browser,
     format: 'umd',
     moduleName: 'd3',
+    extend: true,
     globals: globals,
     external: d3External,
     plugins: [
