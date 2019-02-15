@@ -25,7 +25,8 @@ export function buildGraph (graph, nodeId, nodeBackwards, sourceId, targetId, li
       targetPortId: w.port,
       index: i,
       points: [],
-      value: linkValue(link, i)
+      value: linkValue(link, i),
+      type: linkType(link, i)
     }
     if (!G.hasNode(v.id)) throw new Error('missing: ' + v.id)
     if (!G.hasNode(w.id)) throw new Error('missing: ' + w.id)
