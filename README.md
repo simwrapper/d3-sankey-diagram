@@ -418,6 +418,10 @@ MIT licence.
 
 ### Unreleased
 
+### v0.7.4
+
+- Modified code to assign `link` and `value` attributes to `link` objects
+
 ### v0.7.3
 
 - Fix packaging to avoid overwriting the d3 global object in UMD module!

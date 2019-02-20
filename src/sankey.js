@@ -414,7 +414,8 @@ function copyResultsToGraph (G, graph) {
     edge.data.target.incoming.push(edge.data)
     if (edge.data.sourcePort) edge.data.sourcePort.outgoing.push(edge.data)
     if (edge.data.targetPort) edge.data.targetPort.incoming.push(edge.data)
-    // edge.data.value = edge.value
+    edge.data.value = edge.value
+    edge.data.type = edge.type
     edge.data.dy = edge.dy
     edge.data.points = edge.points || []
     // edge.data.id = `${e.v}-${e.w}-${e.name}`
