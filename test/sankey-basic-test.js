@@ -102,8 +102,12 @@ tape('sankey(graph) builds the graph structure', test => {
 //   test.end()
 // })
 
-tape('sankey(graph) sets node and link values', test => {
-  var s = sankey().linkValue(function (d) { return d.val })
+tape('sankey(graph) sets node and link values and link type', test => {
+  // Custom accessors so we can check .value and .type are really being set
+  var s = sankey()
+      .linkValue(function (d) { return d.val })
+      .linkType(function (d) { return d.typ })
+
   var graph = s({
     nodes: [
       {id: 'a'},
@@ -111,15 +115,18 @@ tape('sankey(graph) sets node and link values', test => {
       {id: 'c'}
     ],
     links: [
-      {source: 'a', target: 'b', type: 'x', val: 7},
-      {source: 'a', target: 'b', type: 'y', val: 2},
-      {source: 'b', target: 'c', type: 'x', val: 3}
+      {source: 'a', target: 'b', typ: 'x', val: 7},
+      {source: 'a', target: 'b', typ: 'y', val: 2},
+      {source: 'b', target: 'c', typ: 'x', val: 3}
     ]
   })
 
-  // test.equal(graph.links[0].value, 7)
-  // test.equal(graph.links[1].value, 2)
-  // test.equal(graph.links[2].value, 3)
+  test.equal(graph.links[0].type, 'x')
+  test.equal(graph.links[1].type, 'y')
+  test.equal(graph.links[2].type, 'x')
+  test.equal(graph.links[0].value, 7)
+  test.equal(graph.links[1].value, 2)
+  test.equal(graph.links[2].value, 3)
   test.equal(graph.nodes[0].value, 9)
   test.equal(graph.nodes[1].value, 9)
   test.equal(graph.nodes[2].value, 3)
