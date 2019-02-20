@@ -414,13 +414,18 @@ npm test
 
 MIT licence.
 
+## Contributors
+
+- Rick Lupton
+- @harisbal
+- @svwielga4
+
 ## Changelog
 
 ### Unreleased
 
-### v0.7.4
-
-- Modified code to assign `link` and `value` attributes to `link` objects
+- Modified code to assign `type` and `value` attributes to `link` objects
+  (thanks @harisbal)
 
 ### v0.7.3
 
