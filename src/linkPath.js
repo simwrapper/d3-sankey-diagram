@@ -21,6 +21,10 @@ export default function sankeyLink() {
   }
 
   function link(d) {
+    if (d.points.length === 1) {
+      return toOrFromElsewherePath(d)
+    }
+
     var path = ''
     var seg
     for (var i = 0; i < d.points.length - 1; ++i) {
@@ -295,6 +299,28 @@ export default function sankeyLink() {
             "L"     + [x2+hs, y2-hc] + " " +
             arc(+1) + [x0,    y0+h ] + " " +
             "Z");
+  }
+
+  function toOrFromElsewherePath(d) {
+    const p = d.points[0]
+    const h = Math.max(minWidth(d), d.dy) / 2
+
+    // XXX draw these properly with curves and appropriate radii
+
+    if (p.style === "down-right") {
+      return ("M" + [p.x - 20, p.y-h] + " " +
+              "L" + [p.x, p.y-h] + " " +
+              "L" + [p.x, p.y+h] + " " +
+              "L" + [p.x - 20, p.y+h] + " " +
+              "Z")
+    }
+    if (p.style === "right-down") {
+      return ("M" + [p.x, p.y-h] + " " +
+              "L" + [p.x + 20, p.y-h] + " " +
+              "L" + [p.x + 20, p.y+h] + " " +
+              "L" + [p.x, p.y+h] + " " +
+              "Z")
+    }
   }
 
   link.minWidth = function (x) {

@@ -18,9 +18,20 @@ export default function layoutLinks (G) {
 function setEdgeEndpoints (G) {
   G.nodes().forEach(u => {
     const node = G.node(u)
+
+    let sy = node.y
+    let ty = node.y
+
+    node.fromElsewhere.forEach(link => {
+      link.y1 = ty + link.dy / 2
+      link.d1 = node.backwards ? 'l' : 'r'
+      link.dy = link.dy
+      ty += link.dy
+    })
+
     node.ports.forEach(port => {
-      let sy = node.y + port.y
-      let ty = node.y + port.y
+      sy = node.y + port.y
+      ty = node.y + port.y
 
       port.outgoing.forEach(e => {
         const link = G.edge(e)
@@ -40,15 +51,24 @@ function setEdgeEndpoints (G) {
         ty += link.dy
       })
     })
+
+    node.toElsewhere.forEach(link => {
+      link.y0 = sy + link.dy / 2
+      link.d0 = node.backwards ? 'l' : 'r'
+      link.dy = link.dy
+      sy += link.dy
+    })
   })
 }
 
 function setEdgeCurvatures (G) {
   G.nodes().forEach(u => {
     const node = G.node(u)
+    setEdgeEndCurvatures(node.toElsewhere, 'r0')
+    setEdgeEndCurvatures(node.fromElsewhere, 'r1')
     node.ports.forEach(port => {
-      setEdgeEndCurvatures(G, port.outgoing, 'r0')
-      setEdgeEndCurvatures(G, port.incoming, 'r1')
+      setEdgeEndCurvatures(port.outgoing.map(e => G.edge(e)), 'r0')
+      setEdgeEndCurvatures(port.incoming.map(e => G.edge(e)), 'r1')
     })
   })
 }
@@ -63,9 +83,7 @@ function maximumRadiusOfCurvature (link) {
   }
 }
 
-function setEdgeEndCurvatures (G, edges, rr) {
-  const links = edges.map(e => G.edge(e))
-
+function setEdgeEndCurvatures (links, rr) {
   // initialise segments, find reversal of curvature
   links.forEach(link => {
     // const link = (i < 0) ? link.segments[link.segments.length + i] : link.segments[i]

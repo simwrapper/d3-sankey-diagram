@@ -76,9 +76,17 @@ export default function sankeyDiagram () {
       const nodeMap = map(G.nodes, n => n.id)
       const groupsPositioned = (groups || []).map(g => positionGroup(nodeMap, g))
 
+
+      // All links -- including "from elsewhere" and "to elsewhere" ones
+      const links = Array.from(G.links)
+      G.nodes.forEach(node => {
+        Array.prototype.push.apply(links, node.fromElsewhere || [])
+        Array.prototype.push.apply(links, node.toElsewhere || [])
+      })
+
       // Render
       updateNodes(sankey, context, G.nodes)
-      updateLinks(sankey, context, G.links)
+      updateLinks(sankey, context, links)
       updateGroups(svg, groupsPositioned)
       // updateSlices(svg, layout.slices(nodes));
 

@@ -9,6 +9,8 @@ export function buildGraph (graph, nodeId, nodeBackwards, sourceId, targetId, li
       data: node,
       index: i,
       backwards: nodeBackwards(node, i),
+      fromElsewhere: node.fromElsewhere || [],
+      toElsewhere: node.toElsewhere || [],
       // XXX don't need these now have nodePositions?
       x0: node.x0,
       x1: node.x1,

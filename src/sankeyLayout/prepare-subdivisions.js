@@ -28,9 +28,19 @@ export default function prepareNodePorts (G, sortPorts) {
     node.ports = ports.values()
     node.ports.sort(sortPorts)
 
+    // Initialise from/to elsewhere lists
+    // XXX need to take more care with node directions
+    node.fromElsewhere = node.fromElsewhere || []
+    node.toElsewhere = node.toElsewhere || []
+    let fromElsewhereDy = 0
+    node.fromElsewhere.forEach(link => {
+      link.x1 = node.x0
+      fromElsewhereDy += link.dy
+    })
+
     // Set positions of ports, roughly -- so the other endpoints of links are
     // known approximately when being sorted.
-    let y = {west: 0, east: 0}
+    let y = {west: fromElsewhereDy, east: 0}
     let i = {west: 0, east: 0}
     node.ports.forEach(port => {
       port.y = y[port.side]
@@ -51,6 +61,10 @@ export default function prepareNodePorts (G, sortPorts) {
       })
       y[port.side] += port.dy
       i[port.side] += 1
+    })
+
+    node.toElsewhere.forEach(link => {
+      link.x0 = node.x1
     })
   })
 }

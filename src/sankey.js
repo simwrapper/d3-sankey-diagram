@@ -347,8 +347,10 @@ export default function sankeyLayout () {
 function setNodeValues (G, linkValue) {
   G.nodes().forEach(u => {
     const d = G.node(u)
-    const incoming = sum(G.inEdges(u), e => G.edge(e).value)
-    const outgoing = sum(G.outEdges(u), e => G.edge(e).value)
+    let incoming = sum(G.inEdges(u), e => G.edge(e).value)
+    let outgoing = sum(G.outEdges(u), e => G.edge(e).value)
+    incoming += sum(d.fromElsewhere || [], link => linkValue(link))
+    outgoing += sum(d.toElsewhere | [], link => linkValue(link))
     d.value = Math.max(incoming, outgoing)
   })
 }
@@ -361,6 +363,20 @@ function setWidths (G, scale) {
   G.nodes().forEach(u => {
     const node = G.node(u)
     node.dy = node.value * scale
+
+    // Initialise from/to elsewhere lists
+    node.fromElsewhere = (node.fromElsewhere || [])
+    node.toElsewhere = (node.toElsewhere || [])
+    node.fromElsewhere.forEach(link => {
+      link.dy = link.value * scale
+      link.source = { id: "__from_elsewhere_" + u }
+      link.target = node.data
+    })
+    node.toElsewhere.forEach(link => {
+      link.dy = link.value * scale
+      link.source = node.data
+      link.target = { id: "__to_elsewhere_" + u }
+    })
   })
 }
 
@@ -374,6 +390,16 @@ function addLinkEndpoints (G) {
     const edge = G.edge(e)
     edge.points.unshift({x: edge.x0, y: edge.y0, ro: edge.r0, d: edge.d0})
     edge.points.push({x: edge.x1, y: edge.y1, ri: edge.r1, d: edge.d1})
+  })
+
+  G.nodes().forEach(u => {
+    const node = G.node(u)
+    node.fromElsewhere.forEach(link => {
+      link.points = [{x: link.x1, y: link.y1, ri: link.r1, d: link.d1, style: "down-right"}]
+    })
+    node.toElsewhere.forEach(link => {
+      link.points = [{x: link.x0, y: link.y0, ri: link.r0, d: link.d0, style: "right-down"}]
+    })
   })
 }
 
