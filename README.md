@@ -424,8 +424,14 @@ MIT licence.
 
 ### Unreleased
 
+### v0.8.0
+
 - Modified code to assign `type` and `value` attributes to `link` objects
   (thanks @harisbal)
+- EXPERIMENTAL: allow short "stub" flows in or out of nodes using
+  `fromElsewhere` and `toElsewhere` attributes. These can be useful for
+  simplifying diagrams by avoiding uninteresting flows while still showing how
+  nodes balance.
 
 ### v0.7.3
 
