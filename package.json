@@ -1,6 +1,6 @@
 {
   "name": "@simwrapper/d3-sankey-diagram",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Sankey diagram d3 plugin. Forked to fix fsevents dependency",
   "author": "Rick Lupton",
   "keywords": [
